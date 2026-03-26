@@ -15,6 +15,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+    .AddUserSecrets<Program>(optional: true)
+    .AddEnvironmentVariables();
 
 app.UseHttpsRedirection();
 
