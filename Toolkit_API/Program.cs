@@ -1,7 +1,10 @@
 using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Application.Settings;
 using Toolkit_API.Infrastructure.Security.Jwt;
+using Toolkit_API.Middleware;
 
+
+// Time spent on the project : 2hrs
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -30,7 +33,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 
