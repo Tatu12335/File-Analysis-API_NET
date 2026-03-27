@@ -6,5 +6,6 @@ namespace Toolkit_API.Application.Interfaces
     {
         public Task <UserSession> CreateUser(string username,string email, string password);
         public Task<Users> GetUser(string username);
+        public Task<string> TestConnection();
     }
 }

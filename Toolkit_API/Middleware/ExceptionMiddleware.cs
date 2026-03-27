@@ -13,6 +13,7 @@ namespace Toolkit_API.Middleware
         }
         public async Task Invoke(HttpContext context)
         {
+            
             try
             {
                 await _requestDelegate(context);
@@ -21,6 +22,7 @@ namespace Toolkit_API.Middleware
             {
                 _logger.LogWarning(apex.Message);
                 context.Response.StatusCode = apex.StatusCode;
+                context.Response.ContentType = "application/json";
                 await context.Response.WriteAsJsonAsync(new
                 {
                     message = apex.Message
@@ -31,9 +33,10 @@ namespace Toolkit_API.Middleware
             {
                 _logger.LogWarning(ex.Message);
                 context.Response.StatusCode = 500;
+                context.Response.ContentType = "application/json";
                 await context.Response.WriteAsJsonAsync(new
                 {
-                    message = "Internal server error"
+                    message = "Internal server error "
                 });
                 
             }

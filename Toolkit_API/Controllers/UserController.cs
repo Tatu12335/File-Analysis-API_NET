@@ -18,7 +18,7 @@ namespace Toolkit_API.Controllers
 
 
         [HttpPost("Create_User")]
-        public async Task<IActionResult> CreateUser([FromHeader] CreateUserDTO userDTO)
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserDTO userDTO)
         {
             await _userRepo.CreateUser(userDTO.username,userDTO.email,userDTO.password);
             return Ok($"User : {userDTO.username}, created");
@@ -29,6 +29,12 @@ namespace Toolkit_API.Controllers
         {
             await _userRepo.GetUser(userDTO.username);
             return Ok($"{userDTO.username}");
+        }
+        [HttpGet]
+        public async Task <IActionResult> TestConnection()
+        {
+            await _userRepo.TestConnection();
+            return Ok("Connection successful");
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Logging.Abstractions;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Domain.Entities.Users;
@@ -38,7 +40,7 @@ namespace Toolkit_API.Infrastructure.Repositories
         public async Task <UserSession> CreateUser(string username,string email, string password)
         {
 
-            string sqlQuery = "Insert Into Users (username,passwordSalt,passwordHash,email) values (@Username,@PasswordSalt,@PasswordHash,@Email)";
+            string sqlQuery = "Insert Into Users (username,passwordHash,passwordSalt,email) values (@Username,@PasswordSalt,@PasswordHash,@Email)";
 
             byte[] passwordSalt;
 
@@ -52,10 +54,12 @@ namespace Toolkit_API.Infrastructure.Repositories
                 {
                     var response = await conn.ExecuteAsync(sqlQuery, new
                     {
+
+                        Id = 1,
                         Username = username,
-                        Email = email,
+                        PasswordHash = passwordHash,
                         PasswordSalt = passwordSalt,
-                        PasswordHash = passwordHash
+                        Email = email,
 
                     });
 
@@ -67,6 +71,7 @@ namespace Toolkit_API.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
+                Debug.WriteLine(ex.Message + ex.Source);
                 return null;
             }
             
@@ -74,5 +79,17 @@ namespace Toolkit_API.Infrastructure.Repositories
 
             return null;
         }
+        public async Task <string> TestConnection()
+        {
+            using(var conn = new SqlConnection(_connectionString))
+            {
+                var response = await conn.QueryAsync("Select * from Users");
+
+                if(response == null) return "";
+
+                return response.ToString();
+            }
+        }
+
     }
 }
