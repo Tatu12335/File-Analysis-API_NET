@@ -17,11 +17,10 @@ namespace Toolkit_API.Application.App_Services.User
         {
             byte[] saltBytes;
             var passwordHash = _passwordHasher.HashPassword(createUserDTO.password, out saltBytes);
-
-
+            
             var user = await _userRepo.CreateUser(createUserDTO.username, createUserDTO.email, passwordHash, saltBytes);
 
-            if (user == null)
+            if (user == null)              
                 throw new Exception();
             return user;
 
