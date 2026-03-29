@@ -2,6 +2,8 @@
 using System.Text;
 using Toolkit_API.Application.Interfaces;
 
+
+
 namespace Toolkit_API.Infrastructure.Security
 {
     public class PasswordHasher : IPasswordHasher
@@ -33,6 +35,7 @@ namespace Toolkit_API.Infrastructure.Security
                     hashAlgorithm,
                     saltSize
             );
+
             // Used fixed time comparison to prevent timing attacks
             return CryptographicOperations.FixedTimeEquals(hashToCompare, hash);
         }
