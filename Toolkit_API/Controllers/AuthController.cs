@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Toolkit_API.Application.App_Services.User;
 using Toolkit_API.DTOs.UserDTOs;
 
 namespace Toolkit_API.Controllers
 {
+    [EnableRateLimiting("Fixed")]
+    [ApiController]
     [Route("/Login")]
     public class AuthController : ControllerBase
     {
