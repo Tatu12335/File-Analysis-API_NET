@@ -8,7 +8,7 @@ using Toolkit_API.DTOs.UserDTOs;
 
 namespace Toolkit_API.Controllers
 {
-    [EnableRateLimiting("fixed")]
+    [EnableRateLimiting("Fixed")]
     [ApiController]
     [Route("/")]
     public class UserController : ControllerBase

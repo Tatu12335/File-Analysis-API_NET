@@ -87,9 +87,10 @@ builder.Services.AddTransient<IGenerateToken, TokenGenerator>(sp =>
 
 
 var app = builder.Build();
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseRateLimiter();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
