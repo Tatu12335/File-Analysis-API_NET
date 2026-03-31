@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using MahApps.Metro.Controls;
+using Microsoft.Win32;
 
 namespace AvToolKitWPF.Main
 {
@@ -27,6 +28,12 @@ namespace AvToolKitWPF.Main
             _token = token;
             
 
+        }
+
+        private void ButtonScan_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFileDialog();
+            dialog.ShowDialog();
         }
     }
 }
