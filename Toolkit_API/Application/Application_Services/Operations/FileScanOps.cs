@@ -1,5 +1,9 @@
 ﻿using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Infrastructure.Services;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using Toolkit_API.Domain.Entities.Users;
 
 namespace Toolkit_API.Application.Application_Services.Operations
 {
@@ -11,15 +15,16 @@ namespace Toolkit_API.Application.Application_Services.Operations
             _repository = repository;
         }
 
-        public async Task ScanFile(string filePath)
+        public async Task ScanFile(string filePath,int userId)
         {
             if (filePath == null)
                 throw new ArgumentNullException();
             if(!File.Exists(filePath))
                 throw new FileNotFoundException();
+            
 
-            await _repository.ScanFile(filePath);
-
+            await _repository.ScanFile(filePath,userId);
+            
 
         }
 

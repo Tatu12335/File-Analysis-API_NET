@@ -2,6 +2,6 @@
 {
     public interface IFileScanRepo
     {
-        public Task <Toolkit_API.Domain.Entities.Files.File> ScanFile(string filePath);
+        public Task  ScanFile(string filePath, int userId);
     }
 }
