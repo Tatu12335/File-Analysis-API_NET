@@ -16,7 +16,7 @@ namespace Toolkit_API.Infrastructure.Repositories
             _hasher = hasher;
             _connetionString = connetionString;
         }
-        public async Task ScanFile(string filePath, int userId)
+        public async Task <byte[]>ScanFile(string filePath, int userId)
         {
             
             var hash = await _hasher.HashFileAsync(filePath);
@@ -25,14 +25,14 @@ namespace Toolkit_API.Infrastructure.Repositories
             
             using (var conn = new SqlConnection(_connetionString))
             {
-                var file = await conn.ExecuteAsync("Insert Into ScanLog (FileName, FileHash, userId,detectionStatus) values (@FileName, @FileHash, @UserId)", new
+                var file = await conn.ExecuteAsync("Insert Into ScanLog (FileName, FileHash, userId) values (@FileName, @FileHash, @UserId)", new
                 {
                     FileName = fileInfo.Name,
                     FileHash = hash,
                     UserId = userId,
                 });
            
-
+                return hash;
             }
         }
     }
