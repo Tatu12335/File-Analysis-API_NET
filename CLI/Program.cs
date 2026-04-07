@@ -46,7 +46,7 @@ class Program
                 }
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Console.WriteLine("ERROR");
         }

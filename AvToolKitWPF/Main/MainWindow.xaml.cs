@@ -1,22 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using MahApps.Metro.Controls;
-using MaterialDesignThemes.Wpf;
-using Microsoft.IdentityModel.Tokens;
+﻿using MahApps.Metro.Controls;
 using Microsoft.Win32;
 using Newtonsoft.Json;
+using System.Net.Http;
+using System.Text;
+using System.Windows;
 
 namespace AvToolKitWPF.Main
 {
@@ -30,7 +17,7 @@ namespace AvToolKitWPF.Main
         {
             InitializeComponent();
             _token = token;
-            
+
 
         }
 
@@ -55,7 +42,7 @@ namespace AvToolKitWPF.Main
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
 
                     client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
-                    var response = await client.PostAsync("https://localhost:7023/FileOps/Scan",content);
+                    var response = await client.PostAsync("https://localhost:7023/FileOps/Scan", content);
                     var responseContent = await response.Content.ReadAsStringAsync();
                     if (response.IsSuccessStatusCode)
                         ListBoxResults.Items.Add($"Scan successful: {responseContent}");
@@ -65,7 +52,7 @@ namespace AvToolKitWPF.Main
             {
                 MessageBox.Show($"Error scanning file: {ioex.Message}", "Scan Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show($"Unexpected error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }

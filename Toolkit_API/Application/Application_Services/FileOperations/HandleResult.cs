@@ -6,7 +6,7 @@ namespace Toolkit_API.Application.Application_Services.Operations
     {
         public async Task<string> HandleAsync(Response response)
         {
-            if(response.QueryStatus == "ok" && response.Data != null && response.Data?.Count > 0)
+            if (response.QueryStatus == "ok" && response.Data != null && response.Data?.Count > 0)
             {
                 var malwareData = response.Data[0];
                 return $"The file is malicious. SIGNATURE : [{malwareData.Signature}]. FILE : [{malwareData.FileName}].";

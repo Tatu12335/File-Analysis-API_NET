@@ -1,7 +1,6 @@
-﻿using System;
+﻿using AvToolKitWPF.Login_Create;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
-using AvToolKitWPF.Login_Create;
 
 namespace AvToolKitWPF
 {
@@ -19,7 +18,7 @@ namespace AvToolKitWPF
         }
         private void ConfigureServices(IServiceCollection services)
         {
-  
+
 
             services.AddTransient<Login>();
         }

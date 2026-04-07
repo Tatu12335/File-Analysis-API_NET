@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using System.Security.Claims;
 using Toolkit_API.Application.Application_Services.Operations;
 using Toolkit_API.DTOs.UserDTOs;
-using System.Security.Claims;
 
 namespace Toolkit_API.Controllers.ScanControllers
 {
@@ -22,7 +22,7 @@ namespace Toolkit_API.Controllers.ScanControllers
         public async Task<IActionResult> ScanFile([FromBody] FileScanDTO scanDTO)
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            var result = await _fileScanOps.ScanFile(scanDTO.filePath,userId);
+            var result = await _fileScanOps.ScanFile(scanDTO.filePath, userId);
             return Ok(result);
 
         }

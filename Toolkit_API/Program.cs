@@ -1,17 +1,16 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
-using System.Linq.Expressions;
 using System.Text;
 using System.Threading.RateLimiting;
 using Toolkit_API.Application.App_Services.User;
 using Toolkit_API.Application.Application_Services.Operations;
 using Toolkit_API.Application.Interfaces;
+using Toolkit_API.Infrastructure;
 using Toolkit_API.Infrastructure.Repositories;
 using Toolkit_API.Infrastructure.Security;
 using Toolkit_API.Infrastructure.Security.Jwt;
-using Toolkit_API.Middleware;
 using Toolkit_API.Infrastructure.Services;
-using Toolkit_API.Infrastructure;
+using Toolkit_API.Middleware;
 
 
 // Time spent on the project : 11hrs
@@ -45,7 +44,7 @@ builder.Services.AddRateLimiter(options =>
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
-    { 
+    {
         options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
         {
             ValidateIssuer = false,
@@ -81,11 +80,11 @@ builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddTransient<Login>();
 builder.Services.AddTransient<CreateUser>();
 builder.Services.AddTransient<FileHasher>();
-builder.Services.AddTransient<IFileScanRepo,FileScanRepo>(sp =>
-    new FileScanRepo(sp.GetRequiredService<FileHasher>(),connetionString)
+builder.Services.AddTransient<IFileScanRepo, FileScanRepo>(sp =>
+    new FileScanRepo(sp.GetRequiredService<FileHasher>(), connetionString)
 );
 builder.Services.AddTransient<FileScanOps>(sp =>
-    new FileScanOps(sp.GetRequiredService<IFileScanRepo>(),sp.GetRequiredService<ICallExternalAPI>(), sp.GetRequiredService<HandleResult>())
+    new FileScanOps(sp.GetRequiredService<IFileScanRepo>(), sp.GetRequiredService<ICallExternalAPI>(), sp.GetRequiredService<HandleResult>())
 );
 var jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET");
 
@@ -95,6 +94,10 @@ builder.Services.AddTransient<IGenerateToken, TokenGenerator>(sp =>
 );
 builder.Services.AddHttpClient<ICallExternalAPI, ExternalCalls>();
 builder.Services.AddTransient<HandleResult>();
+
+builder.Services.AddTransient<IFileAnalysis,FileAnalysis>();
+builder.Services.AddTransient<StaticFileAnalysis>(sp => new StaticFileAnalysis(sp.GetRequiredService<IFileAnalysis>()));
+
 
 var app = builder.Build();
 app.UseRateLimiter();
