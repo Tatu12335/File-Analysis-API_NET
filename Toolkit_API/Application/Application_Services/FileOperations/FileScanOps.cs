@@ -7,11 +7,14 @@ namespace Toolkit_API.Application.Application_Services.Operations
         private readonly IFileScanRepo _repository;
         private readonly ICallExternalAPI _externalAPI;
         private readonly HandleResult _handleResult;
-        public FileScanOps(IFileScanRepo repository, ICallExternalAPI externalAPI, HandleResult handleResult)
+        private readonly StaticFileAnalysis _staticFileAnalysis;
+        public FileScanOps(IFileScanRepo repository, ICallExternalAPI externalAPI, HandleResult handleResult, StaticFileAnalysis staticFileAnalysis)
         {
             _repository = repository;
             _externalAPI = externalAPI;
             _handleResult = handleResult;
+            _staticFileAnalysis = staticFileAnalysis;
+            
         }
 
         public async Task<string> ScanFile(string filePath, int userId)
@@ -24,7 +27,8 @@ namespace Toolkit_API.Application.Application_Services.Operations
 
             var hash = await _repository.ScanFile(filePath, userId);
             var result = await _externalAPI.CallAPI(hash, Environment.GetEnvironmentVariable("Malware_Bazaar_key"));
-            var handled = await _handleResult.HandleAsync(result);
+            var analysisResult = await _staticFileAnalysis.AnalyzeFileExtension(filePath);
+            var handled = await _handleResult.HandleAsync(result,analysisResult);
             return handled;
 
         }

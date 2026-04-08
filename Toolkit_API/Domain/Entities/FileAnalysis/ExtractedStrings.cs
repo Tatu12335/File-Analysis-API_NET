@@ -2,5 +2,6 @@
 {
     public class ExtractedStrings
     {
+        public List<byte[]> Patterns { get; set; }
     }
 }

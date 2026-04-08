@@ -41,9 +41,19 @@ namespace AvToolKitWPF.Main
                     var json = JsonConvert.SerializeObject(new { filePath });
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
 
+
+
                     client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
                     var response = await client.PostAsync("https://localhost:7023/FileOps/Scan", content);
+                    var analyzeResponse = await client.PostAsync("https://localhost:7023/FileOps/Analysis/Analyze", content);
                     var responseContent = await response.Content.ReadAsStringAsync();
+                    
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        MessageBox.Show($"Scan failed: {responseContent}", "Scan Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
                     if (response.IsSuccessStatusCode)
                         ListBoxResults.Items.Add($"Scan successful: {responseContent}");
                 }
@@ -57,5 +67,7 @@ namespace AvToolKitWPF.Main
                 MessageBox.Show($"Unexpected error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+       
     }
 }

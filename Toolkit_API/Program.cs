@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Text;
 using System.Threading.RateLimiting;
+using Toolkit_API.Application.Analysis;
 using Toolkit_API.Application.App_Services.User;
 using Toolkit_API.Application.Application_Services.Operations;
 using Toolkit_API.Application.Interfaces;
@@ -84,7 +85,9 @@ builder.Services.AddTransient<IFileScanRepo, FileScanRepo>(sp =>
     new FileScanRepo(sp.GetRequiredService<FileHasher>(), connetionString)
 );
 builder.Services.AddTransient<FileScanOps>(sp =>
-    new FileScanOps(sp.GetRequiredService<IFileScanRepo>(), sp.GetRequiredService<ICallExternalAPI>(), sp.GetRequiredService<HandleResult>())
+    new FileScanOps(sp.GetRequiredService<IFileScanRepo>(), 
+    sp.GetRequiredService<ICallExternalAPI>(), 
+    sp.GetRequiredService<HandleResult>(),sp.GetRequiredService<StaticFileAnalysis>())
 );
 var jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET");
 
@@ -96,7 +99,8 @@ builder.Services.AddHttpClient<ICallExternalAPI, ExternalCalls>();
 builder.Services.AddTransient<HandleResult>();
 
 builder.Services.AddTransient<IFileAnalysis,FileAnalysis>();
-builder.Services.AddTransient<StaticFileAnalysis>(sp => new StaticFileAnalysis(sp.GetRequiredService<IFileAnalysis>()));
+builder.Services.AddTransient<ScoringAlg>(sp=> new ScoringAlg(sp.GetRequiredService<IFileAnalysis>(),0));
+builder.Services.AddTransient<StaticFileAnalysis>(sp => new StaticFileAnalysis(sp.GetRequiredService<IFileAnalysis>(),sp.GetRequiredService<ScoringAlg>()));
 
 
 var app = builder.Build();
