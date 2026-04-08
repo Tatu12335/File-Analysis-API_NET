@@ -1,14 +1,12 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System.Diagnostics.Contracts;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 
 namespace Toolkit_API.Infrastructure.Services
 {
     public class FileHasher
     {
-        public FileHasher() 
+        public FileHasher()
         {
-            
+
         }
         public async Task<FileStream> OpenFS(string filePath)
         {
@@ -22,7 +20,7 @@ namespace Toolkit_API.Infrastructure.Services
             {
                 var hashBytes = sha256.ComputeHash(stream);
                 return hashBytes;
-                
+
             }
         }
     }
