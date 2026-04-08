@@ -4,6 +4,6 @@ namespace Toolkit_API.Application.Interfaces
 {
     public interface ICallExternalAPI
     {
-        public Task<Response> CallAPI(byte[] hashvalue,string apiKEY);
+        public Task<Response> CallAPI(byte[] hashvalue, string apiKEY);
     }
 }

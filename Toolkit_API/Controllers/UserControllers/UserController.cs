@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using System.Threading.RateLimiting;
 using Toolkit_API.Application.App_Services.User;
 using Toolkit_API.Application.Interfaces;
 using Toolkit_API.DTOs.UserDTOs;
@@ -26,7 +25,7 @@ namespace Toolkit_API.Controllers.UserControllers
         [HttpPost("Create_User")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDTO userDTO)
         {
-            
+
             await _createUser.Create(userDTO);
             return Ok($"User : {userDTO.username}, created");
         }

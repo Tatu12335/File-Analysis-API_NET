@@ -11,9 +11,9 @@ namespace Toolkit_API.Infrastructure
         {
             _httpClient = httpClient;
         }
-        public async Task<Response> CallAPI(byte[] hashvalue,string apiKEY)
+        public async Task<Response> CallAPI(byte[] hashvalue, string apiKEY)
         {
-            
+
 
             _httpClient.DefaultRequestHeaders.Clear();
             _httpClient.DefaultRequestHeaders.Add("Auth-Key", apiKEY);
@@ -28,7 +28,7 @@ namespace Toolkit_API.Infrastructure
 
             var responseContent = await response.Content.ReadAsStringAsync();
 
-            var result =  JsonSerializer.Deserialize<Response>(responseContent);
+            var result = JsonSerializer.Deserialize<Response>(responseContent);
 
             return result;
         }

@@ -1,8 +1,6 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
-using System.Diagnostics;
 using Toolkit_API.Application.Interfaces;
-using Toolkit_API.Domain.Entities.Files;
 using Toolkit_API.Infrastructure.Services;
 
 namespace Toolkit_API.Infrastructure.Repositories
@@ -16,13 +14,13 @@ namespace Toolkit_API.Infrastructure.Repositories
             _hasher = hasher;
             _connetionString = connetionString;
         }
-        public async Task <byte[]>ScanFile(string filePath, int userId)
+        public async Task<byte[]> ScanFile(string filePath, int userId)
         {
-            
+
             var hash = await _hasher.HashFileAsync(filePath);
             var fileInfo = new FileInfo(filePath);
 
-            
+
             using (var conn = new SqlConnection(_connetionString))
             {
                 var file = await conn.ExecuteAsync("Insert Into ScanLog (FileName, FileHash, userId) values (@FileName, @FileHash, @UserId)", new
@@ -31,7 +29,7 @@ namespace Toolkit_API.Infrastructure.Repositories
                     FileHash = hash,
                     UserId = userId,
                 });
-           
+
                 return hash;
             }
         }
