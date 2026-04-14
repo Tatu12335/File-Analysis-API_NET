@@ -25,11 +25,11 @@ namespace Toolkit_API.Application.Application_Services.Operations
                 throw new FileNotFoundException();
 
 
-            var hash = await _repository.ScanFile(filePath, userId);
+            var hash = await _repository.HashFile(filePath, userId);
             var result = await _externalAPI.CallAPI(hash, Environment.GetEnvironmentVariable("Malware_Bazaar_key"));
-            var analysisResult = await _staticFileAnalysis.AnalyzeFileExtension(filePath);
-            var handled = await _handleResult.HandleAsync(result,analysisResult);
-            return handled;
+            //var analysisResult = await _staticFileAnalysis.AnalyzeFile(filePath);
+            //var handled = await _handleResult.HandleAsync(result,analysisResult);
+            return "Placeholder for file scan result";
 
         }
 
