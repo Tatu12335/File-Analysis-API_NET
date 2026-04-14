@@ -15,7 +15,7 @@ using Toolkit_API.Middleware;
 using Toolkit_API.Domain.Entities.FileAnalysis;
 
 
-// Time spent on the project : 11hrs
+// Time spent on the project : 13hrs
 var builder = WebApplication.CreateBuilder(args);
 var connetionString = Environment.GetEnvironmentVariable("DB_CONNECTION")
 ?? throw new InvalidOperationException("'DB_CONNECTION' not found");

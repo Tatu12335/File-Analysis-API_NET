@@ -2,6 +2,6 @@
 {
     public interface IFileScanRepo
     {
-        public Task<byte[]> ScanFile(string filePath, int userId);
+        public Task<byte[]> HashFile(string filePath, int userId);
     }
 }

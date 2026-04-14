@@ -15,7 +15,7 @@ namespace Toolkit_API.Application.Application_Services.Operations
             _fileAnalysis = fileAnalysis;
             _scoringAlg = scoringAlg;
         }
-        public async Task<FileAnalysisResult> AnalyzeFileExtension(string filePath)
+        public async Task<FileAnalysisResult> AnalyzeFile(string filePath)
         {
             if (filePath == null)
                 throw new ArgumentNullException();
@@ -33,6 +33,8 @@ namespace Toolkit_API.Application.Application_Services.Operations
                 AnalysisResult = analysisResult
             };
             
+
+
             var score = await _scoringAlg.CalculateScore(filePath, fileAnalysisResult);
 
             

@@ -14,7 +14,7 @@ namespace Toolkit_API.Infrastructure.Repositories
             _hasher = hasher;
             _connetionString = connetionString;
         }
-        public async Task<byte[]> ScanFile(string filePath, int userId)
+        public async Task<byte[]> HashFile(string filePath, int userId)
         {
 
             var hash = await _hasher.HashFileAsync(filePath);
@@ -28,6 +28,7 @@ namespace Toolkit_API.Infrastructure.Repositories
                     FileName = fileInfo.Name,
                     FileHash = hash,
                     UserId = userId,
+                    
                 });
 
                 return hash;

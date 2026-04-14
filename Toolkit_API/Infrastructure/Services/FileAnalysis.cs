@@ -21,11 +21,7 @@ namespace Toolkit_API.Infrastructure.Services
             [0x50, 0x4B, 0x03, 0x04, ..] => "ZIP Archive",
             _ => "Unknown File Type"
         };
-        public byte[] DetermineMagicBytes(byte[] bytes)
-        {
-            var magicBytes = bytes.Take(4).ToArray();
-            return magicBytes;
-        }
+        
         public async Task<string> AnalyzeFile(string filePath)
         {
             var bytes = await File.ReadAllBytesAsync(filePath);
@@ -40,6 +36,7 @@ namespace Toolkit_API.Infrastructure.Services
                 var extension = Path.GetExtension(filepath);
                 var bytes = await File.ReadAllBytesAsync(filepath);
                 var detectedType = await Detect(bytes);
+                
                 return detectedType.Contains(extension.TrimStart('.'), StringComparison.OrdinalIgnoreCase);
             }
             else
@@ -60,6 +57,7 @@ namespace Toolkit_API.Infrastructure.Services
                      
                     return true;
                 }
+                
             } return false;
         }
     }
