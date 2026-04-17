@@ -33,7 +33,16 @@ namespace Toolkit_API.Application.Application_Services.Operations
             var result = await _externalAPI.CallAPI(hash, Environment.GetEnvironmentVariable("Malware_Bazaar_key"));
             var handled = await _handleResult.HandleAsync(result);
             
+            var hashExists = await _repository.DoubleHash(hash);
+            
+            if (hashExists == null)
+            {
+                await _repository.GetFile(hash, userId);
+                return "File has already been scanned.";
+            }
+
             var staticAnalysisResult = await StaticScan(filePath, userId);
+
             await _repository.InsertAll(filePath, userId, staticAnalysisResult.Score);
             return $"Static Analysis Result: {staticAnalysisResult.AnalysisResult}, Score: {staticAnalysisResult.Score}";
 

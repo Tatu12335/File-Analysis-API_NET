@@ -36,6 +36,14 @@ namespace Toolkit_API.Infrastructure.Repositories
                 return fileId;
             }
         }
+        public async Task<FileScanLog> GetFile(byte[] hash, int userId)
+        {
+            using (var conn = new SqlConnection(_connetionString))
+            {
+                var file = await conn.QueryFirstOrDefaultAsync<FileScanLog>("Select * From ScanLog Where FileHash = @Hash And userId = @UserId", new { Hash = hash, UserId = userId });
+                return file;
+            }
+        }
         public async Task<byte[]> InsertAll(string filePath, int userId,double score)
         {
             var hash = await _hasher.HashFileAsync(filePath);
@@ -58,6 +66,14 @@ namespace Toolkit_API.Infrastructure.Repositories
                 
                 await conn.ExecuteAsync("Update ScanLog Set score = @Score Where id = @Id", new { Score = score, Id = logId });
                 
+            }
+        }
+        public async Task<byte[]> DoubleHash(byte[] hash)
+        {
+            using (var conn = new SqlConnection(_connetionString))
+            {
+                var existingHash = await conn.QueryFirstOrDefaultAsync<byte[]>("Select FileHash From ScanLog Where FileHash = @Hash", new { Hash = hash });
+                return existingHash;
             }
         }
     }
