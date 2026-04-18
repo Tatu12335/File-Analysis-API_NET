@@ -1,10 +1,8 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using Toolkit_API.Application.Interfaces;
-using Toolkit_API.Infrastructure.Services;
-using Toolkit_API.Domain.Entities.FileAnalysis;
 using Toolkit_API.Domain.Entities.Files;
-using System.Runtime.InteropServices;
+using Toolkit_API.Infrastructure.Services;
 
 namespace Toolkit_API.Infrastructure.Repositories
 {
@@ -20,7 +18,7 @@ namespace Toolkit_API.Infrastructure.Repositories
         public async Task<int> InsertHash(string filePath, int userId, byte[] hash)
         {
 
-            
+
             var fileInfo = new FileInfo(filePath);
 
 
@@ -44,10 +42,10 @@ namespace Toolkit_API.Infrastructure.Repositories
                 return file;
             }
         }
-        public async Task<byte[]> InsertAll(string filePath, int userId,double score)
+        public async Task<byte[]> InsertAll(string filePath, int userId, double score)
         {
             var hash = await _hasher.HashFileAsync(filePath);
-            var fileId = await InsertHash(filePath, userId, hash); 
+            var fileId = await InsertHash(filePath, userId, hash);
             await InsertScore(fileId, score);
             return hash;
         }
@@ -59,20 +57,20 @@ namespace Toolkit_API.Infrastructure.Repositories
                 return log;
             }
         }
-        public async Task InsertScore(int logId,double score)
+        public async Task InsertScore(int logId, double score)
         {
             using (var conn = new SqlConnection(_connetionString))
             {
-                
+
                 await conn.ExecuteAsync("Update ScanLog Set score = @Score Where id = @Id", new { Score = score, Id = logId });
-                
+
             }
         }
         public async Task<byte[]> DoubleHash(byte[] hash)
         {
             using (var conn = new SqlConnection(_connetionString))
             {
-                var existingHash = await conn.QueryFirstOrDefaultAsync<byte[]>("Select FileHash From ScanLog Where FileHash = @Hash", new { Hash = hash });
+                var existingHash = await conn.ExecuteScalarAsync<byte[]>("Select FileHash From ScanLog Where FileHash = @Hash", new { Hash = hash });
                 return existingHash;
             }
         }

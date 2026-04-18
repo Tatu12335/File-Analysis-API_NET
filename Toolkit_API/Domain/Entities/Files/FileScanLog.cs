@@ -2,9 +2,10 @@
 {
     public class FileScanLog
     {
-        public int fileId { get; set; }
+        public int id { get; set; }
         public string FileName { get; set; }
         public byte[] FileHash { get; set; }
         public int userId { get; set; } = 0;
+        public double Score { get; set; }
     }
 }

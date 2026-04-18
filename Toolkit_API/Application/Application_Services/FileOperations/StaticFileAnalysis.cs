@@ -22,14 +22,14 @@ namespace Toolkit_API.Application.Application_Services.Operations
             if (filePath == null)
                 throw new ArgumentNullException();
             if (!File.Exists(filePath))
-                throw new FileNotFoundException(); 
+                throw new FileNotFoundException();
 
             var analysisResult = await _fileAnalysis.AnalyzeFile(filePath);
             var extensionMatch = await _fileAnalysis.ExtensionMatches(filePath);
             var metadataBool = await _fileAnalysis.CheckForSuspiciousPatterns(filePath, _extractedStrings);
 
             var score = await _scoringAlg.CalculateScore(filePath, metadataBool, extensionMatch);
-            
+
 
             Debug.WriteLine($"File Analysis Result: {analysisResult}");
             Debug.WriteLine($"File Analysis Score: {(double)score}");
