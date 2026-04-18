@@ -45,7 +45,7 @@ namespace AvToolKitWPF.Main
 
                     client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
                     var response = await client.PostAsync("https://localhost:7023/FileOps/Scan", content);
-        
+
 
                     var responseContent = await response.Content.ReadAsStringAsync();
 

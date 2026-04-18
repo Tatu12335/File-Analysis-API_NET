@@ -30,16 +30,17 @@ namespace Toolkit_API.Application.Application_Services.Operations
 
 
             var hash = await _fileHasher.HashFileAsync(filePath);
+            var hashExists = await _repository.DoubleHash(hash);
+
+            if (hashExists != null)
+            {
+                var file = await _repository.GetFile(hash, userId);
+                return $"File has already been scanned. FileName: {file.FileName}, Score: {file.Score}";
+
+            }
+
             var result = await _externalAPI.CallAPI(hash, Environment.GetEnvironmentVariable("Malware_Bazaar_key"));
             var handled = await _handleResult.HandleAsync(result);
-            
-            var hashExists = await _repository.DoubleHash(hash);
-            
-            if (hashExists == null)
-            {
-                await _repository.GetFile(hash, userId);
-                return "File has already been scanned.";
-            }
 
             var staticAnalysisResult = await StaticScan(filePath, userId);
 
