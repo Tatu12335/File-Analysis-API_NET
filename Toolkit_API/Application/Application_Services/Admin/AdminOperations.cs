@@ -15,5 +15,9 @@ namespace Toolkit_API.Application.Application_Services.Admin
                 return "No users found.";
             return string.Join(Environment.NewLine, users);
         }
+        public async Task<bool> CheckAdminStatus(int userId)
+        {
+          return await _adminRepo.CheckAdminStatus(userId);
+        }
     }
 }
