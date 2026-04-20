@@ -107,6 +107,8 @@ builder.Services.AddTransient<ScoringAlg>(sp => new ScoringAlg(sp.GetRequiredSer
 builder.Services.AddTransient<StaticFileAnalysis>(sp => new StaticFileAnalysis(sp.GetRequiredService<IFileAnalysis>(), sp.GetRequiredService<ScoringAlg>(), sp.GetRequiredService<ExtractedStrings>()));
 builder.Services.AddTransient<IEmailServices,EmailServices>();
 builder.Services.AddTransient<NewLetter>(sp => new NewLetter(sp.GetRequiredService<IEmailServices>()));
+
+
 var app = builder.Build();
 app.UseRateLimiter();
 app.UseAuthentication();

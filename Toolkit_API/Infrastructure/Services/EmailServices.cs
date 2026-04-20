@@ -19,13 +19,25 @@ namespace Toolkit_API.Infrastructure.Services
             {
                 Text = body
             };
-
-            using(var client = new SmtpClient())
+            
+            var pS = Environment.GetEnvironmentVariable("NEWS_PS") ?? throw new InvalidOperationException("'NEWS_PS' not found");
+            
+            try
             {
-                await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-                await client.AuthenticateAsync("avtoolkitnews@gmail.com", Environment.GetEnvironmentVariable("NEWS_PS"));
-                await client.SendAsync(msg);
-                await client.DisconnectAsync(true);
+                using (var client = new SmtpClient())
+                {
+                    
+                    await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
+                    await client.AuthenticateAsync("avtoolkitnews@gmail.com", pS);
+                    await client.SendAsync(msg);
+                    await client.DisconnectAsync(true);
+                }
+            }
+            catch (Exception ex)
+            {
+                
+                return $"Failed to send email: {ex.Message}";
+            
             }
 
             return "Email sent successfully";
