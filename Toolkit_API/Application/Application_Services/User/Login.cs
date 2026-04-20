@@ -28,6 +28,10 @@ namespace Toolkit_API.Application.App_Services.User
 
             return _tokenGenerator.GenerateToken(user);
         }
-
+        public async Task<bool> CheckBanStatus(string username)
+        {
+            var isBanned = await _userRepo.GetBanStatus(username);
+            return isBanned;
+        }
     }
 }

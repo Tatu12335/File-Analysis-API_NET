@@ -2,5 +2,6 @@
 {
     public interface IAdminRepo
     {
+        public Task<IEnumerable<string>> GetAllUsers();
     }
 }
