@@ -15,7 +15,7 @@ using Toolkit_API.Infrastructure.Services;
 using Toolkit_API.Middleware;
 
 
-// Time spent on the project : 13hrs
+// Time spent on the project : 25hrs
 var builder = WebApplication.CreateBuilder(args);
 var connetionString = Environment.GetEnvironmentVariable("DB_CONNECTION")
 ?? throw new InvalidOperationException("'DB_CONNECTION' not found");
@@ -107,7 +107,9 @@ builder.Services.AddTransient<ScoringAlg>(sp => new ScoringAlg(sp.GetRequiredSer
 builder.Services.AddTransient<StaticFileAnalysis>(sp => new StaticFileAnalysis(sp.GetRequiredService<IFileAnalysis>(), sp.GetRequiredService<ScoringAlg>(), sp.GetRequiredService<ExtractedStrings>()));
 builder.Services.AddTransient<IEmailServices, EmailServices>();
 builder.Services.AddTransient<NewLetter>(sp => new NewLetter(sp.GetRequiredService<IEmailServices>()));
-
+builder.Services.AddTransient<IAdminRepo, AdminRepository>(sp =>
+    new AdminRepository(connetionString)
+);
 
 var app = builder.Build();
 app.UseRateLimiter();

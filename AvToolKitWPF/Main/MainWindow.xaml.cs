@@ -14,17 +14,21 @@ namespace AvToolKitWPF.Main
     public partial class MainWindow : MetroWindow
     {
         private readonly string _token;
+        private readonly string _role;
 
-        public MainWindow(string token)
+        public MainWindow(string token, string role)
         {
             InitializeComponent();
             _token = token;
+            _role = role;
 
-
+            if (string.Equals(_role, "Admin", StringComparison.OrdinalIgnoreCase))
+                AdminPanelButton.Visibility = Visibility.Visible;
         }
 
         private async void ButtonScan_Click(object sender, RoutedEventArgs e)
         {
+
             var dialog = new OpenFileDialog();
             var selected = dialog.ShowDialog().Value;
             if (!selected)
@@ -78,6 +82,10 @@ namespace AvToolKitWPF.Main
         {
 
         }
-
+        private void ButtonAdminPanel_Click(object sender, RoutedEventArgs e)
+        {
+            var admin = new AdminPanel.AdminPanel();
+            admin.Show();
+        }
     }
 }

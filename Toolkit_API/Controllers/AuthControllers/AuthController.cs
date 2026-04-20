@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using System.Security.Claims;
 using Toolkit_API.Application.App_Services.User;
 using Toolkit_API.DTOs.UserDTOs;
 
@@ -20,6 +21,8 @@ namespace Toolkit_API.Controllers.AuthControllers
         [HttpPost]
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
         {
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+
             var result = await _login.LoginMethod(loginDTO);
             return Ok(result);
         }

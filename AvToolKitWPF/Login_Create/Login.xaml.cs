@@ -1,11 +1,11 @@
 ﻿using AvToolKitWPF.Main;
 using MahApps.Metro.Controls;
 using Newtonsoft.Json;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-
 namespace AvToolKitWPF.Login_Create
 {
     /// <summary>
@@ -35,15 +35,20 @@ namespace AvToolKitWPF.Login_Create
                     var response = await conn.PostAsync("https://localhost:7023/Login", content);
                     if (response.IsSuccessStatusCode)
                     {
-                        var token = response.Content.ReadAsStringAsync();
+                        var handler = new JwtSecurityTokenHandler();
+                        var jwtToken = handler.ReadJwtToken(await response.Content.ReadAsStringAsync());
+
+                        var role = jwtToken.Claims.FirstOrDefault(c => c.Type == "role")?.Value;
+
+
                         MessageBox.Show($"Login Successful", "Login Successful", MessageBoxButton.OK, MessageBoxImage.Information);
-                        var mainWindow = new MainWindow(token.Result);
+                        var mainWindow = new MainWindow(jwtToken.RawData, role);
                         mainWindow.Show();
                         this.Close();
                     }
                     else
                     {
-                        MessageBox.Show($"Login failed: {response.StatusCode}", "Login Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show($"Login failed: Check your username and password", "Login Failed", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
             }
