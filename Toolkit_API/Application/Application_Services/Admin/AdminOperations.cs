@@ -17,8 +17,8 @@ namespace Toolkit_API.Application.Application_Services.Admin
                 throw new Exception("No users found.");
             foreach (var user in users)
             {
-                Debug.WriteLine($"ID: {user.id}, Username: {user.username}, Email: {user.email}, Roles: {user.roles}");
-                result.Add($"ID: {user.id}, Username: {user.username}, Email: {user.email}, Roles: {user.roles}");
+                Debug.WriteLine($"ID: {user.id}, Username: {user.username}, Email: {user.newemail}, Roles: {user.roles}");
+                result.Add($"ID: {user.id}, Username: {user.username}, Email: {user.newemail}, Roles: {user.roles}");
             }
             return result;
         }

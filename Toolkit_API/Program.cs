@@ -16,7 +16,7 @@ using Toolkit_API.Infrastructure.Services;
 using Toolkit_API.Middleware;
 
 
-// Time spent on the project : 25hrs
+// Time spent on the project : 30hrs 30min
 var builder = WebApplication.CreateBuilder(args);
 var connetionString = Environment.GetEnvironmentVariable("DB_CONNECTION")
 ?? throw new InvalidOperationException("'DB_CONNECTION' not found");
