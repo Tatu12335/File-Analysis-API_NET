@@ -12,8 +12,10 @@
         <StackPanel>
             <Image Source="C:\Users\tatus\Downloads\ascii-transparent2-text-art.png" Width="250" x:Name="ToolkitAPIImg"/>
             <Button Content="Scan file" Width="130" Margin="100,100,480,100" Click="ButtonScan_Click"/>
-            <ListBox x:Name="ListBoxResults" Margin="100,0,480,100"/>
             
+            <ListBox x:Name="ListBoxResults" Margin="100,0,480,100"/>
+            <Button Content="Scan Folder" Width="130" Margin="100,100,480,100" Click="ButtonScanFolder_Click"/>
+
         </StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,10">
             <Button Content="About" Width="80" Click="ButtonAbout_Click"/>
