@@ -4,8 +4,8 @@
     {
         public Task<IEnumerable<string>> GetAllUsers();
         public Task<bool> CheckAdminStatus(int userId);
-            public Task<bool> CheckUserExists(int userId);
-            public Task<string> GetUserEmail(int userId);
+        public Task<bool> CheckUserExists(int userId);
+        public Task<string> GetUserEmail(int userId);
         public Task<string> GetUsername(int userId);
         public Task<string> GetUserRole(int userId);
         public Task<int> DeleteUser(int userId);
