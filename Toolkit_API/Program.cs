@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.RateLimiting;
 using Toolkit_API.Application.Analysis;
 using Toolkit_API.Application.App_Services.User;
+using Toolkit_API.Application.Application_Services.Admin;
 using Toolkit_API.Application.Application_Services.EmailServices;
 using Toolkit_API.Application.Application_Services.Operations;
 using Toolkit_API.Application.Interfaces;
@@ -15,7 +16,7 @@ using Toolkit_API.Infrastructure.Services;
 using Toolkit_API.Middleware;
 
 
-// Time spent on the project : 25hrs
+// Time spent on the project : 30hrs 30min
 var builder = WebApplication.CreateBuilder(args);
 var connetionString = Environment.GetEnvironmentVariable("DB_CONNECTION")
 ?? throw new InvalidOperationException("'DB_CONNECTION' not found");
@@ -87,6 +88,10 @@ builder.Services.AddTransient<IFileScanRepo, FileScanRepo>(sp =>
 );
 builder.Services.AddTransient<IAdminRepo, AdminRepository>(sp =>
     new AdminRepository(connetionString)
+);
+
+builder.Services.AddTransient<AdminOperations>(sp =>
+    new AdminOperations(sp.GetRequiredService<IAdminRepo>())
 );
 
 builder.Services.AddTransient<FileScanOps>(sp =>

@@ -1,4 +1,5 @@
-﻿using Toolkit_API.Application.Interfaces;
+﻿using System.Diagnostics;
+using Toolkit_API.Application.Interfaces;
 namespace Toolkit_API.Application.Application_Services.Admin
 {
     public class AdminOperations
@@ -8,16 +9,44 @@ namespace Toolkit_API.Application.Application_Services.Admin
         {
             _adminRepo = adminRepo;
         }
-        public async Task<string> GetAllUsers()
+        public async Task<List<string>> GetAllUsers()
         {
             var users = await _adminRepo.GetAllUsers();
-            if (users == null || !users.Any())
-                return "No users found.";
-            return string.Join(Environment.NewLine, users);
+            List<string> result = new List<string>();
+            if (users == null || users.Count() == 0)
+                throw new Exception("No users found.");
+            foreach (var user in users)
+            {
+                Debug.WriteLine($"ID: {user.id}, Username: {user.username}, Email: {user.newemail}, Roles: {user.roles}");
+                result.Add($"ID: {user.id}, Username: {user.username}, Email: {user.newemail}, Roles: {user.roles}");
+            }
+            return result;
         }
         public async Task<bool> CheckAdminStatus(int userId)
         {
             return await _adminRepo.CheckAdminStatus(userId);
+        }
+        public async Task<string> SearchByUsername(string username)
+        {
+            var result = await _adminRepo.SearchUserByName(username);
+
+            if (string.IsNullOrEmpty(result))
+                throw new Exception("User not found.");
+
+            return result;
+        }
+        public async Task<string> DeleteUserByUsername(string username)
+        {
+            var result = await _adminRepo.DeleteUserByName(username);
+
+            if (result == 0)
+                throw new Exception("User not found or could not be deleted.");
+
+            return "User deleted successfully.";
+        }
+        public async Task<bool> SearchActiveUsers(string username)
+        {
+            return await _adminRepo.SearchActiveUsers(username);
         }
     }
 }
