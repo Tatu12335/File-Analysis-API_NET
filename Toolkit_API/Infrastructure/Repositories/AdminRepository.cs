@@ -13,7 +13,7 @@ namespace Toolkit_API.Infrastructure.Repositories
             _connectionString = connectionString;
         }
 
-        public async Task<IEnumerable<string>> GetAllUsers()    
+        public async Task<IEnumerable<string>> GetAllUsers()
         {
             var sqlQuery = "SELECT id,username,newemail FROM Users";
             using (var connection = new SqlConnection(Environment.GetEnvironmentVariable("DefaultConnection")))

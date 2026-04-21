@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Toolkit_API.Application.Application_Services;
 using Toolkit_API.Application.Application_Services.Admin;
 namespace Toolkit_API.Controllers.AdminControllers
 {
@@ -16,6 +15,6 @@ namespace Toolkit_API.Controllers.AdminControllers
             var result = await _adminOperations.GetAllUsers();
             return Ok(result);
         }
-        
+
     }
 }

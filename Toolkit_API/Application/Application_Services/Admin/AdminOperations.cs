@@ -17,7 +17,7 @@ namespace Toolkit_API.Application.Application_Services.Admin
         }
         public async Task<bool> CheckAdminStatus(int userId)
         {
-          return await _adminRepo.CheckAdminStatus(userId);
+            return await _adminRepo.CheckAdminStatus(userId);
         }
     }
 }

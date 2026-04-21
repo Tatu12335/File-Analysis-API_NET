@@ -13,7 +13,6 @@ using Toolkit_API.Infrastructure.Security;
 using Toolkit_API.Infrastructure.Security.Jwt;
 using Toolkit_API.Infrastructure.Services;
 using Toolkit_API.Middleware;
-using Toolkit_API.Application.App_Services;
 
 
 // Time spent on the project : 25hrs
@@ -89,15 +88,15 @@ builder.Services.AddTransient<IFileScanRepo, FileScanRepo>(sp =>
 builder.Services.AddTransient<IAdminRepo, AdminRepository>(sp =>
     new AdminRepository(connetionString)
 );
-builder.Services.AddTransient<IHandleDirectories, HandleDirecteries>();
+
 builder.Services.AddTransient<FileScanOps>(sp =>
     new FileScanOps(sp.GetRequiredService<IFileScanRepo>(),
     sp.GetRequiredService<ICallExternalAPI>(),
-    sp.GetRequiredService<HandleResult>(), 
+    sp.GetRequiredService<HandleResult>(),
     sp.GetRequiredService<StaticFileAnalysis>(),
-    sp.GetRequiredService<FileHasher>(),
-    sp.GetRequiredService<IHandleDirectories>()
+    sp.GetRequiredService<FileHasher>()
     
+
 
     )
 );
