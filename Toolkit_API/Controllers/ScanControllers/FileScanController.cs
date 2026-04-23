@@ -27,6 +27,11 @@ namespace Toolkit_API.Controllers.ScanControllers
             return Ok(result);
 
         }
+        [HttpPost]
+        public async Task<IActionResult> ScanFolder([FromBody] FileScanDTO)
+        {
+
+        }
 
     }
 }

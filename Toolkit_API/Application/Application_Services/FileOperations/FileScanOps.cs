@@ -1,5 +1,4 @@
-﻿using Toolkit_API.Application.Application_Services.FileOperations;
-using Toolkit_API.Application.Interfaces;
+﻿using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Domain.Entities.FileAnalysis;
 using Toolkit_API.Infrastructure.Services;
 namespace Toolkit_API.Application.Application_Services.Operations
@@ -37,6 +36,8 @@ namespace Toolkit_API.Application.Application_Services.Operations
 
             var fileInfo = new FileInfo(filePath);
 
+            if (string.Equals(fileInfo.Extension, ".zip", StringComparison.OrdinalIgnoreCase))
+                filePath = await _zipHandler.ProcessZip(filePath);
 
             var hash = await _fileHasher.HashFileAsync(filePath);
             var hashExists = await _repository.DoubleHash(hash);
@@ -50,8 +51,7 @@ namespace Toolkit_API.Application.Application_Services.Operations
 
             }
 
-            if (string.Equals(fileInfo.Extension, ".zip", StringComparison.OrdinalIgnoreCase))
-                await _zipHandler.ProcessZip(filePath);
+
 
             var result = await _externalAPI.CallAPI(hash, Environment.GetEnvironmentVariable("Malware_Bazaar_key"));
             var handled = await _handleResult.HandleAsync(result);
