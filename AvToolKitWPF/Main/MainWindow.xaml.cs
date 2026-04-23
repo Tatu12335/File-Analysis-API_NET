@@ -44,93 +44,75 @@ namespace AvToolKitWPF.Main
             var fileInfo = new FileInfo(filePath);
             MessageBox.Show($"File selected: {filePath}", "File Selected", MessageBoxButton.OK, MessageBoxImage.Information);
 
-            if (string.Equals(fileInfo.Extension, ".zip", comparisonType: StringComparison.OrdinalIgnoreCase))
 
 
-                try
+
+            try
+            {
+                using (var client = new HttpClient())
                 {
-                    using (var client = new HttpClient())
+                    var json = JsonConvert.SerializeObject(new { filePath });
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
+                    var response = await client.PostAsync("https://localhost:7023/FileOps/Scan", content);
+
+
+                    var responseContent = await response.Content.ReadAsStringAsync();
+
+                    if (!response.IsSuccessStatusCode)
                     {
-                        var json = JsonConvert.SerializeObject(new { filePath });
-                        var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
-                        var response = await client.PostAsync("https://localhost:7023/FileOps/Scan", content);
-
-
-                        var responseContent = await response.Content.ReadAsStringAsync();
-
-                        if (!response.IsSuccessStatusCode)
-                        {
-                            MessageBox.Show($"Scan failed: {responseContent}", "Scan Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                            return;
-                        }
-
-
-                        ListBoxResults.Items.Add($"Scan successful: {responseContent}");
+                        MessageBox.Show($"Scan failed: {responseContent}", "Scan Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
                     }
+
+
+                    ListBoxResults.Items.Add($"Scan successful: {responseContent}");
                 }
-                catch (HttpIOException ioex)
-                {
-                    MessageBox.Show($"Error scanning file: {ioex.Message}", "Scan Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Unexpected error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+            }
+            catch (HttpIOException ioex)
+            {
+                MessageBox.Show($"Error scanning file: {ioex.Message}", "Scan Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Unexpected error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
         public async Task<string> ScanFolder(string folder)
         {
-            Stack<string> directory = new Stack<string>();
-            directory.Push(folder);
 
-            while (directory.Count > 0)
+
+            try
             {
-                var path = directory.Pop();
-                try
+                using (var client = new HttpClient())
                 {
-                    foreach (var item in Directory.GetFiles(path))
+                    var json = JsonConvert.SerializeObject(new { filePath = folder });
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
+                    var response = await client.PostAsync("https://localhost:7023/FileOps/Scan", content);
+
+
+                    var responseContent = await response.Content.ReadAsStringAsync();
+
+                    if (!response.IsSuccessStatusCode)
                     {
-                        using (var client = new HttpClient())
-                        {
-                            var json = JsonConvert.SerializeObject(new { filePath = path });
-
-                            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
-
-                            var response = await client.PostAsync("https://localhost:7023/FileOps/Scan", content);
-
-                            var responseContent = response.Content.ReadAsStringAsync().Result;
-
-                            if (!response.IsSuccessStatusCode)
-                            {
-                                ListBoxResults.Items.Add($"Scan failed for {path}");
-                                return responseContent;
-                            }
-                            else
-                            {
-                                ListBoxResults.Items.Add($"Scan successful for {path}");
-                                return responseContent;
-                            }
-                           
-                        }
-                        
+                        MessageBox.Show($"Scan failed: {responseContent}", "Scan Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return null;
                     }
-                    var directories = Directory.GetDirectories(path);
-                    foreach (var dir in directories)
-                    {
-                        directory.Push(dir);
-                        return $"{folder}";
-                    }
+
+
+                    ListBoxResults.Items.Add($"Scan successful: {responseContent}");
                 }
-                catch (Exception ex)
-                {
-                    throw new Exception("An unexpected error occured");
-                }
-                return "";
             }
-            return "";
+            catch (Exception ex)
+            {
+                throw new Exception("An unexpected error occured");
+            }
+            return null;
+
+
         }
         // This Probably isn't the most efficient way to scan a folder, since it sends a separate request for each file,
         // but it works for demonstration purposes. In a real application,
@@ -151,7 +133,7 @@ namespace AvToolKitWPF.Main
                     return;
                 }
 
-               
+
                 await ScanFolder(folderPath);
 
 

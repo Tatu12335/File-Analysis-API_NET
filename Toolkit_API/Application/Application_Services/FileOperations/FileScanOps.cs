@@ -1,4 +1,5 @@
-﻿using Toolkit_API.Application.Interfaces;
+﻿using Toolkit_API.Application.Application_Services.FileOperations;
+using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Domain.Entities.FileAnalysis;
 using Toolkit_API.Infrastructure.Services;
 namespace Toolkit_API.Application.Application_Services.Operations
@@ -11,13 +12,13 @@ namespace Toolkit_API.Application.Application_Services.Operations
         private readonly StaticFileAnalysis _staticFileAnalysis;
         private readonly FileHasher _fileHasher;
         private readonly Toolkit_API.Application.Application_Services.FileOperations.HandleZip _zipHandler;
-
+        private readonly HandleFolder _handleFolder;
         public FileScanOps(IFileScanRepo repository,
             ICallExternalAPI externalAPI,
             HandleResult handleResult,
             StaticFileAnalysis staticFileAnalysis,
             FileHasher fileHasher,
-            Toolkit_API.Application.Application_Services.FileOperations.HandleZip zipHandler)
+            Toolkit_API.Application.Application_Services.FileOperations.HandleZip zipHandler, HandleFolder handleFolder)
         {
             _repository = repository;
             _externalAPI = externalAPI;
@@ -25,19 +26,23 @@ namespace Toolkit_API.Application.Application_Services.Operations
             _fileHasher = fileHasher;
             _staticFileAnalysis = staticFileAnalysis;
             _zipHandler = zipHandler;
+            _handleFolder = handleFolder;
         }
 
         public async Task<string> ScanFile(string filePath, int userId)
         {
+
             if (filePath == null)
                 throw new ArgumentNullException();
+
+            if (Directory.Exists(filePath))
+                filePath = await _handleFolder.Handler(filePath);
+
             if (!File.Exists(filePath))
                 throw new FileNotFoundException();
 
             var fileInfo = new FileInfo(filePath);
 
-            if (string.Equals(fileInfo.Extension, ".zip", StringComparison.OrdinalIgnoreCase))
-                filePath = await _zipHandler.ProcessZip(filePath);
 
             var hash = await _fileHasher.HashFileAsync(filePath);
             var hashExists = await _repository.DoubleHash(hash);
