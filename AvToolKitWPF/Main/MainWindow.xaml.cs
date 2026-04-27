@@ -92,6 +92,7 @@ namespace AvToolKitWPF.Main
                     var json = JsonConvert.SerializeObject(new { filePath = folder });
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
 
+                    client.Timeout = TimeSpan.FromMinutes(10);
                     client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
                     var response = await client.PostAsync("https://localhost:7023/api/FileScan/Scan/Folder", content);
 
@@ -160,6 +161,11 @@ namespace AvToolKitWPF.Main
         {
             var admin = new AdminPanel.AdminPanel(_token);
             admin.Show();
+        }
+
+        private void ListBoxResults_Scroll(object sender, System.Windows.Controls.Primitives.ScrollEventArgs e)
+        {
+
         }
     }
 }
