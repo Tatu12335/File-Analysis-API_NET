@@ -98,6 +98,7 @@ namespace AvToolKitWPF.Main
 
 
                     var responseContent = await response.Content.ReadAsStringAsync();
+                    // This does not feel right, because i should access my APIs entitys from the frontend but its ok for now ig.
                     var resultList = JsonConvert.DeserializeObject<FolderInfo>(responseContent);
                     foreach (var item in resultList.Files)
                     {
