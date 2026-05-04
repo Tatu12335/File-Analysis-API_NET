@@ -92,11 +92,13 @@ namespace AvToolKitWPF.Main
                     var json = JsonConvert.SerializeObject(new { filePath = folder });
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
 
+                    client.Timeout = TimeSpan.FromMinutes(10);
                     client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
                     var response = await client.PostAsync("https://localhost:7023/api/FileScan/Scan/Folder", content);
 
 
                     var responseContent = await response.Content.ReadAsStringAsync();
+                    // This does not feel right, because i should access my APIs entitys from the frontend but its ok for now ig.
                     var resultList = JsonConvert.DeserializeObject<FolderInfo>(responseContent);
                     foreach (var item in resultList.Files)
                     {
@@ -160,6 +162,11 @@ namespace AvToolKitWPF.Main
         {
             var admin = new AdminPanel.AdminPanel(_token);
             admin.Show();
+        }
+
+        private void ListBoxResults_Scroll(object sender, System.Windows.Controls.Primitives.ScrollEventArgs e)
+        {
+
         }
     }
 }
