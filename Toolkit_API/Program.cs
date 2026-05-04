@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using System.Text;
 using System.Threading.RateLimiting;
 using Toolkit_API.Application.Analysis;
@@ -156,6 +157,9 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.Configure<KestrelServerOptions>(options =>
+    options.Limits.KeepAliveTimeout = TimeSpan.FromMinutes(10)
+);
 
 var app = builder.Build();
 
