@@ -1,7 +1,6 @@
 ﻿using Toolkit_API.Application.Application_Services.FileOperations;
 using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Domain.Entities.FileAnalysis;
-using Toolkit_API.Domain.Entities.Files;
 using Toolkit_API.Infrastructure.Services;
 namespace Toolkit_API.Application.Application_Services.Operations
 {
@@ -38,8 +37,8 @@ namespace Toolkit_API.Application.Application_Services.Operations
 
             if (filePath == null)
                 throw new ArgumentNullException();
-          
-            
+
+            filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Uploads_API", filePath);
 
             var hash = await _fileHasher.HashFileAsync(filePath);
             var hashExists = await _repository.DoubleHash(hash);
