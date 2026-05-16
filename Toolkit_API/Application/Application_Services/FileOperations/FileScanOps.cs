@@ -38,7 +38,7 @@ namespace Toolkit_API.Application.Application_Services.Operations
             if (filePath == null)
                 throw new ArgumentNullException();
 
-
+            filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Uploads_API", filePath);
 
             var hash = await _fileHasher.HashFileAsync(filePath);
             var hashExists = await _repository.DoubleHash(hash);
