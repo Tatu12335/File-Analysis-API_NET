@@ -1,12 +1,12 @@
 ﻿using Toolkit_API.Application.Application_Services.Operations;
 using Toolkit_API.Domain.Entities.Files;
-
 namespace Toolkit_API.Application.Application_Services.FileOperations
 {
     public class HandleFolder
     {
         private readonly FileScanOps _ops;
         private readonly FolderInfo _files;
+ 
         public HandleFolder(FileScanOps ops, FolderInfo files)
         {
             _ops = ops;
