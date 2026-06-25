@@ -31,16 +31,17 @@ namespace Toolkit_API.Application.Application_Services.Operations
 
 
         }
-
+        
         public async Task<string> ScanFile(string filePath, int userId)
         {
 
             if (filePath == null)
                 throw new ArgumentNullException();
 
-            filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Uploads_API", filePath);
+            filePath = Path.Combine(Path.GetFullPath(filePath) + Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "Uploads_API");
 
             var hash = await _fileHasher.HashFileAsync(filePath);
+            // TODO : get the hashes from a cache maybe? And then see if the file is already scanned.
             var hashExists = await _repository.DoubleHash(hash);
 
             if (hashExists != null)
@@ -48,7 +49,7 @@ namespace Toolkit_API.Application.Application_Services.Operations
                 var existingFile = await _repository.GetFile(hash, userId);
 
                 if (existingFile != null)
-                    return $"File : {existingFile.FileName} already scanned. Score :{existingFile.Score}";
+                    return $"{existingFile.Score}";
 
             }
 
@@ -56,12 +57,14 @@ namespace Toolkit_API.Application.Application_Services.Operations
             var handled = await _handleResult.HandleAsync(result);
 
             var staticAnalysisResult = await StaticScan(filePath, userId);
-
+            
+            // As i've said before i need to rethink the scoring algorithmn but thats not for now.
             if (handled != null)
-                staticAnalysisResult.Score += 50.0;
+                staticAnalysisResult.Score += 30.0;
 
             await _repository.InsertAll(filePath, userId, staticAnalysisResult.Score);
-            return $"filepath : [{staticAnalysisResult.FilePath}], Verdict & Score : [{staticAnalysisResult.verdict}]";
+            
+            return $" { staticAnalysisResult.verdict } ";
 
 
         }

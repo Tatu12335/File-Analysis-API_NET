@@ -12,7 +12,7 @@ using Toolkit_API.Infrastructure.Repositories;
 using Toolkit_API.Infrastructure.Security;
 using Toolkit_API.Infrastructure.Security.Jwt;
 using Toolkit_API.Infrastructure.Services;
-
+using Toolkit_API.Middleware;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -129,7 +129,7 @@ builder.Services.Configure<KestrelServerOptions>(options =>
 );
 
 var app = builder.Build();
-
+app.UseMiddleware<ExceptionMiddleware>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

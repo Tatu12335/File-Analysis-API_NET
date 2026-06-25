@@ -1,6 +1,8 @@
 ﻿using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using TASK_API.Domain;
+using Toolkit_API.Application.Application_Services.FileOperations;
 using Toolkit_API.Application.Application_Services.Operations;
 using Toolkit_API.Application.Interfaces;
 
@@ -12,19 +14,37 @@ namespace TASK_API.Controllers
     public class TaskController : Controller
     {
         private readonly FileScanOps _scanService;
-        private readonly string _pendingJobsFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Uploads_API", "pending_jobs.txt");
+        
+        private readonly HandleFolder _handleFolder;
        
-
-        public TaskController(FileScanOps scanService)
+        // this whole controller is all over the fucking place :(
+        public TaskController(FileScanOps scanService, HandleFolder handleFolder)
         {
             _scanService = scanService;
+            _handleFolder = handleFolder;
         }
         [HttpPost("scan")]
-        public async Task<IActionResult> Scan(int userId, string filePath)
+        public async Task<IActionResult> Scan([FromBody]ScanDTO scan)
         {
+         
             try
             {
-                var result = await _scanService.ScanFile(filePath, userId);
+
+                var result = string.Empty;  
+                var jobs = await GetPendingJobs();
+
+
+
+               if (jobs != null)
+               {
+                    foreach(var job in jobs)
+                    {
+                        result = await _scanService.ScanFile(job.FilePath, scan.userId);
+                    }
+                    
+               }
+
+                result = await _scanService.ScanFile(scan.filepath,scan.userId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -33,28 +53,52 @@ namespace TASK_API.Controllers
 
             }
         }
+        [HttpPost("add-folder")]
+        public async Task<IActionResult> ScanFolder(int userId, string folderPath)
+        {
+            try
+            {
+                await GetPendingJobs();
+                var files = await _handleFolder.Handler(folderPath, userId);
+                
+                foreach (var file in files.Files)
+                {
+                    await AddJob(userId, file, 0);
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpGet("pending-jobs")]
-        public async Task<IActionResult> GetPendingJobs()
+        public async Task<IEnumerable<Job>> GetPendingJobs()
         {
             try
             {
                 var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION2");
                 using (var conn = new SqlConnection(connectionString))
                 {
-                    var query = "SELECT * FROM job WHERE Jobstatus = '0'";
-                    var result = await conn.QueryAsync(query);
-                    return Ok(result);
+                    var query = "SELECT Filepath FROM job WHERE Jobstatus = '0'";
+                    var result = await conn.QueryAsync<Job>(query);
+                    return result;
                 }
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return null;
 
             }
         }
         [HttpPost("add-job")]
         public async Task<IActionResult> AddJob(int userId, string filePath, double score)
         {
+            
+            
+
             try
             {
                 var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION2");
