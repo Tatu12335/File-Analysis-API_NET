@@ -28,7 +28,7 @@ namespace Toolkit_API.Application.Analysis
 
             if (!extensionMatches)
                 _score += 20.0; // Penalty for extension mismatch
-
+            // Im going to rethink this scoring alghorithmn, but this works for now
             switch (_score)
             {
                 case >= 80.0:
@@ -40,11 +40,11 @@ namespace Toolkit_API.Application.Analysis
                 case >= 20.0:
                     _score += 2.0; // Bonus for slightly suspicious files
                     break;
+                case < 0:
+                    _score += 1;
+                    break;
             }
-            if (_score > MaxScore)
-                _score = MaxScore;
-            if (_score < MinScore)
-                _score = MinScore;
+
 
 
             return _score;
