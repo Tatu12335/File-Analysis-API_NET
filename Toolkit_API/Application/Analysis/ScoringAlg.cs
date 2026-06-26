@@ -44,7 +44,7 @@ namespace Toolkit_API.Application.Analysis
                     _score += 1;
                     break;
             }
-            
+
 
 
             return _score;

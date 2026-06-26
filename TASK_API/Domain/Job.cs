@@ -4,6 +4,6 @@
     {
         public string FilePath { get; set; }
         public int JobStatus { get; set; }
-        
+
     }
 }

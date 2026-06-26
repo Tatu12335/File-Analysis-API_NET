@@ -2,7 +2,7 @@
 {
     public class ScanDTO
     {
-        public int userId { get; set; }
-        public string filepath { get; set; }
+        public int UserId { get; set; }
+        public string FilePath { get; set; }
     }
 }

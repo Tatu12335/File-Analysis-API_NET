@@ -46,6 +46,7 @@ builder.Services.AddTransient<HandleResult>();
 builder.Services.AddTransient<StaticFileAnalysis>();
 builder.Services.AddTransient<FileAnalysisResult>();
 builder.Services.AddTransient<FolderInfo>();
+builder.Services.AddTransient<IHandleUploadFolder, HandleUploadFolder>();
 
 builder.Services.AddTransient<ScoringAlg>(
     options => new ScoringAlg(options.GetRequiredService<IFileAnalysis>(),
@@ -101,7 +102,8 @@ builder.Services.AddTransient<FileScanOps>(options =>
     options.GetRequiredService<HandleResult>(),
     options.GetRequiredService<StaticFileAnalysis>(),
     options.GetRequiredService<FileHasher>(),
-    options.GetRequiredService<HandleZIP>()
+    options.GetRequiredService<HandleZIP>(),
+    options.GetRequiredService<IHandleUploadFolder>()
     )
 
 );

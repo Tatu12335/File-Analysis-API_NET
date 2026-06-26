@@ -4,53 +4,52 @@ using Microsoft.Data.SqlClient;
 using TASK_API.Domain;
 using Toolkit_API.Application.Application_Services.FileOperations;
 using Toolkit_API.Application.Application_Services.Operations;
-using Toolkit_API.Application.Interfaces;
+using Toolkit_API.Infrastructure.Services;
 
 namespace TASK_API.Controllers
 {
     // NOTE : I will not make professional architecture,
     // just because of the time constraint and the fact that this is a test task.
     // So I will just put everything in the controller and make it work
+    // IM probably gonna do 3 layer architecture in the future, because i think project this small doesn't need onion/clean architecture
     public class TaskController : Controller
     {
         private readonly FileScanOps _scanService;
-        
+
         private readonly HandleFolder _handleFolder;
-       
+        
+
         // this whole controller is all over the fucking place :(
         public TaskController(FileScanOps scanService, HandleFolder handleFolder)
         {
             _scanService = scanService;
             _handleFolder = handleFolder;
+       
         }
         [HttpPost("scan")]
-        public async Task<IActionResult> Scan([FromBody]ScanDTO scan)
+        public async Task<IActionResult> Scan([FromBody] ScanDTO scan)
         {
-         
             try
             {
-
-                var result = string.Empty;  
+                var result = string.Empty;
                 var jobs = await GetPendingJobs();
 
+                if (jobs == null || !jobs.Any())
+                {
+                    result = await _scanService.ScanFile(scan.FilePath, scan.UserId);
+                    return Ok(result);
+                }
 
-
-               if (jobs != null)
-               {
-                    foreach(var job in jobs)
-                    {
-                        result = await _scanService.ScanFile(job.FilePath, scan.userId);
-                    }
-                    
-               }
-
-                result = await _scanService.ScanFile(scan.filepath,scan.userId);
+                foreach (var job in jobs)
+                {
+                    result = await _scanService.ScanFile(job.FilePath, scan.UserId);
+                }
+                
                 return Ok(result);
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
-
             }
         }
         [HttpPost("add-folder")]
@@ -60,7 +59,7 @@ namespace TASK_API.Controllers
             {
                 await GetPendingJobs();
                 var files = await _handleFolder.Handler(folderPath, userId);
-                
+
                 foreach (var file in files.Files)
                 {
                     await AddJob(userId, file, 0);
@@ -96,9 +95,6 @@ namespace TASK_API.Controllers
         [HttpPost("add-job")]
         public async Task<IActionResult> AddJob(int userId, string filePath, double score)
         {
-            
-            
-
             try
             {
                 var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION2");

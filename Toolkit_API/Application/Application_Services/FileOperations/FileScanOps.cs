@@ -13,12 +13,14 @@ namespace Toolkit_API.Application.Application_Services.Operations
         private readonly FileHasher _fileHasher;
         private readonly Toolkit_API.Application.Application_Services.FileOperations.HandleZIP _zipHandler;
         private readonly HandleFolder _handleFolder;
+        private readonly IHandleUploadFolder _handleUploadFolder;
         public FileScanOps(IFileScanRepo repository,
             ICallExternalAPI externalAPI,
             HandleResult handleResult,
             StaticFileAnalysis staticFileAnalysis,
             FileHasher fileHasher,
-            HandleZIP zipHandler
+            HandleZIP zipHandler,
+            IHandleUploadFolder handleUploadFolder
 
             )
         {
@@ -28,17 +30,18 @@ namespace Toolkit_API.Application.Application_Services.Operations
             _fileHasher = fileHasher;
             _staticFileAnalysis = staticFileAnalysis;
             _zipHandler = zipHandler;
+            _handleUploadFolder = handleUploadFolder;
 
 
         }
-        
+
         public async Task<string> ScanFile(string filePath, int userId)
         {
 
             if (filePath == null)
                 throw new ArgumentNullException();
 
-            filePath = Path.Combine(Path.GetFullPath(filePath) + Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "Uploads_API");
+            filePath = await _handleUploadFolder.SaveFileToUploadFolder(filePath);
 
             var hash = await _fileHasher.HashFileAsync(filePath);
             // TODO : get the hashes from a cache maybe? And then see if the file is already scanned.
@@ -57,14 +60,14 @@ namespace Toolkit_API.Application.Application_Services.Operations
             var handled = await _handleResult.HandleAsync(result);
 
             var staticAnalysisResult = await StaticScan(filePath, userId);
-            
+
             // As i've said before i need to rethink the scoring algorithmn but thats not for now.
             if (handled != null)
                 staticAnalysisResult.Score += 30.0;
 
             await _repository.InsertAll(filePath, userId, staticAnalysisResult.Score);
-            
-            return $" { staticAnalysisResult.verdict } ";
+
+            return $" {staticAnalysisResult.verdict} ";
 
 
         }

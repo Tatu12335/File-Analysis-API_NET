@@ -3,7 +3,7 @@ namespace Toolkit_API.Infrastructure.Services
 {
     public class HandleUploadFolder : IHandleUploadFolder
     {
-        
+
         public async Task CreateUploadFolder()
         {
             var uploadFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Uploads_API");
@@ -12,24 +12,26 @@ namespace Toolkit_API.Infrastructure.Services
                 Directory.CreateDirectory(uploadFolderPath);
             }
         }
-        public async Task ReadFile(string filePath)
+        public async Task<FileStream> ReadFile(string filePath)
         {
             using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
-                
+                return stream;
             }
         }
-        public async Task<string> SaveFileToUploadFolder(IFormFile file)
+        public async Task<string> SaveFileToUploadFolder(string file)
         {
             await CreateUploadFolder();
             using (var stream = new FileStream(Path.Combine(Environment.GetFolderPath
                 (Environment.SpecialFolder.LocalApplicationData),
-                "Uploads_API", file.FileName),
+                "Uploads_API", Path.GetFileName(file)),
                 FileMode.Create, FileAccess.Write, FileShare.None))
             {
 
-                await file.CopyToAsync(stream);
+                var result = await ReadFile(file);
+                await result.CopyToAsync(stream);
                 return stream.Name;
+               
             }
         }
 

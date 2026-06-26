@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 using Toolkit_API.Application.Application_Services.FileOperations;
@@ -26,7 +25,7 @@ namespace Toolkit_API.Controllers.ScanControllers
         public async Task<IActionResult> ScanFile([FromBody] FileScanDTO scanDTO)
         {
 
-            //var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             var result = await _fileScanOps.ScanFile(scanDTO.filePath, 2025);
 
             return Ok(result);
@@ -35,7 +34,7 @@ namespace Toolkit_API.Controllers.ScanControllers
         [HttpPost("Scan/Folder")]
         public async Task<IActionResult> ScanFolder([FromBody] FolderScanDTO scanDTO)
         {
-            // The controller thinks the path's backslash is an escape char, so switch the '\' to '/' 
+            
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             var result = await _Handler.Handler(scanDTO.filepath, userId);
             return Ok(result);
