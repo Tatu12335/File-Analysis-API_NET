@@ -13,12 +13,14 @@ namespace Toolkit_API.Application.Application_Services.Operations
         private readonly FileHasher _fileHasher;
         private readonly Toolkit_API.Application.Application_Services.FileOperations.HandleZIP _zipHandler;
         private readonly HandleFolder _handleFolder;
+        private readonly IHandleUploadFolder _handleUploadFolder;
         public FileScanOps(IFileScanRepo repository,
             ICallExternalAPI externalAPI,
             HandleResult handleResult,
             StaticFileAnalysis staticFileAnalysis,
             FileHasher fileHasher,
-            HandleZIP zipHandler
+            HandleZIP zipHandler,
+            IHandleUploadFolder handleUploadFolder
 
             )
         {
@@ -28,6 +30,7 @@ namespace Toolkit_API.Application.Application_Services.Operations
             _fileHasher = fileHasher;
             _staticFileAnalysis = staticFileAnalysis;
             _zipHandler = zipHandler;
+            _handleUploadFolder = handleUploadFolder;
 
 
         }
@@ -38,9 +41,10 @@ namespace Toolkit_API.Application.Application_Services.Operations
             if (filePath == null)
                 throw new ArgumentNullException();
 
-            filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Uploads_API", filePath);
+            filePath = await _handleUploadFolder.SaveFileToUploadFolder(filePath);
 
             var hash = await _fileHasher.HashFileAsync(filePath);
+            // TODO : get the hashes from a cache maybe? And then see if the file is already scanned.
             var hashExists = await _repository.DoubleHash(hash);
 
             if (hashExists != null)
@@ -48,7 +52,7 @@ namespace Toolkit_API.Application.Application_Services.Operations
                 var existingFile = await _repository.GetFile(hash, userId);
 
                 if (existingFile != null)
-                    return $"File : {existingFile.FileName} already scanned. Score :{existingFile.Score}";
+                    return $"{existingFile.Score}";
 
             }
 
@@ -57,11 +61,13 @@ namespace Toolkit_API.Application.Application_Services.Operations
 
             var staticAnalysisResult = await StaticScan(filePath, userId);
 
+            // As i've said before i need to rethink the scoring algorithmn but thats not for now.
             if (handled != null)
-                staticAnalysisResult.Score += 50.0;
+                staticAnalysisResult.Score += 30.0;
 
             await _repository.InsertAll(filePath, userId, staticAnalysisResult.Score);
-            return $"filepath : [{staticAnalysisResult.FilePath}], Verdict & Score : [{staticAnalysisResult.verdict}]";
+
+            return $" {staticAnalysisResult.verdict} ";
 
 
         }
