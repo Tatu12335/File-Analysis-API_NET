@@ -8,3 +8,10 @@
 ```
 ## 
 Right now working on a job queue API, for this project. i decided to do that, because i came to the realization that filescanning might actually take a little while xd.
+
+
+## In the future ##
+```
+i will make the whole sqlfilerepo with the idea that the id is the real identifier for the files like it is in
+the job related tasks, not the filepath.
+NOT SURE that it will work but i kinda messed up the job database because of how i made the scan ops return statements. The returns are now somewhat fixed.
