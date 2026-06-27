@@ -35,7 +35,7 @@ namespace Toolkit_API.Application.Application_Services.FileOperations
                 var current = directories.Pop();
 
                 if (visited.Contains(current)) continue;
-                visited.Add(current);
+                    visited.Add(current);
 
                 if (File.Exists(current))
                 {

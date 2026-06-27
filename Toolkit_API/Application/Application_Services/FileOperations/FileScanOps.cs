@@ -34,17 +34,19 @@ namespace Toolkit_API.Application.Application_Services.Operations
 
 
         }
-
+        // I also need to rethink this whole block effiency alot '-'
         public async Task<string> ScanFile(string filePath, int userId)
         {
 
             if (filePath == null)
                 throw new ArgumentNullException();
 
+
+
             filePath = await _handleUploadFolder.SaveFileToUploadFolder(filePath);
 
             var hash = await _fileHasher.HashFileAsync(filePath);
-            // TODO : get the hashes from a cache maybe? And then see if the file is already scanned.
+            // TODO : get the hashes from a cache maybe? And then, see if the file is already scanned.
             var hashExists = await _repository.DoubleHash(hash);
 
             if (hashExists != null)
@@ -53,8 +55,8 @@ namespace Toolkit_API.Application.Application_Services.Operations
 
                 if (existingFile != null)
                     return $"{existingFile.Score}";
-
             }
+            
 
             var result = await _externalAPI.CallAPI(hash, Environment.GetEnvironmentVariable("Malware_Bazaar_key"));
             var handled = await _handleResult.HandleAsync(result);

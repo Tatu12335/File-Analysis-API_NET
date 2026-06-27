@@ -14,14 +14,14 @@ namespace Toolkit_API.Infrastructure.Services
         }
         public async Task<FileStream> ReadFile(string filePath)
         {
-            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            {
-                return stream;
-            }
+            var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            stream.Position = 0;
+            return stream;
         }
         public async Task<string> SaveFileToUploadFolder(string file)
         {
             await CreateUploadFolder();
+            
             using (var stream = new FileStream(Path.Combine(Environment.GetFolderPath
                 (Environment.SpecialFolder.LocalApplicationData),
                 "Uploads_API", Path.GetFileName(file)),
