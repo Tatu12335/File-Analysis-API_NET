@@ -9,5 +9,6 @@ namespace Toolkit_API.Application.Interfaces
         public Task<byte[]> InsertAll(string filePath, int userId, double score);
         public Task<IEnumerable<byte[]>> DoubleHash(byte[] hash);
         public Task<FileScanLog> GetFile(byte[] hash, int userId);
+        public Task<IEnumerable<int>> GetFileId(byte[] FileHash, int userId);
     }
 }

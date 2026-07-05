@@ -66,6 +66,14 @@ namespace Toolkit_API.Infrastructure.Repositories
 
             }
         }
+        public async Task<IEnumerable<int>> GetFileId(byte[] FileHash, int userId)
+        {
+            using(var conn = new SqlConnection(_connetionString))
+            {
+                var result = await conn.QueryAsync<int>("SELECT id FROM ScanLog where FileHash = @FileHash", new { Filehash = FileHash });
+                return result;
+            }
+        }
         public async Task<IEnumerable<byte[]>> DoubleHash(byte[] hash)
         {
             using (var conn = new SqlConnection(_connetionString))

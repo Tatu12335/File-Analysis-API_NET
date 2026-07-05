@@ -1,4 +1,5 @@
-﻿using Toolkit_API.Application.Application_Services.FileOperations;
+﻿using System.Diagnostics;
+using Toolkit_API.Application.Application_Services.FileOperations;
 using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Domain.Entities.FileAnalysis;
 using Toolkit_API.Infrastructure.Services;
@@ -34,17 +35,21 @@ namespace Toolkit_API.Application.Application_Services.Operations
 
 
         }
-
+        // I also need to rethink this whole blocks efficiency alot '-'
         public async Task<string> ScanFile(string filePath, int userId)
         {
 
             if (filePath == null)
                 throw new ArgumentNullException();
 
+            filePath = filePath.Trim('"');      
             filePath = await _handleUploadFolder.SaveFileToUploadFolder(filePath);
-
+            
+            Debug.WriteLine($"File saved to upload folder: {filePath}");
+            
+            
             var hash = await _fileHasher.HashFileAsync(filePath);
-            // TODO : get the hashes from a cache maybe? And then see if the file is already scanned.
+            // TODO : get the hashes from a cache maybe? And then, see if the file is already scanned.
             var hashExists = await _repository.DoubleHash(hash);
 
             if (hashExists != null)
@@ -52,9 +57,9 @@ namespace Toolkit_API.Application.Application_Services.Operations
                 var existingFile = await _repository.GetFile(hash, userId);
 
                 if (existingFile != null)
-                    return $"{existingFile.Score}";
-
+                    return filePath;
             }
+            
 
             var result = await _externalAPI.CallAPI(hash, Environment.GetEnvironmentVariable("Malware_Bazaar_key"));
             var handled = await _handleResult.HandleAsync(result);
