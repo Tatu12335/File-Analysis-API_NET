@@ -35,17 +35,19 @@ namespace Toolkit_API.Application.Application_Services.Operations
 
 
         }
-        // I also need to rethink this whole block effiency alot '-'
+        // I also need to rethink this whole blocks efficiency alot '-'
         public async Task<string> ScanFile(string filePath, int userId)
         {
 
             if (filePath == null)
                 throw new ArgumentNullException();
 
-
-
+            filePath = filePath.Trim('"');      
             filePath = await _handleUploadFolder.SaveFileToUploadFolder(filePath);
+            
             Debug.WriteLine($"File saved to upload folder: {filePath}");
+            
+            
             var hash = await _fileHasher.HashFileAsync(filePath);
             // TODO : get the hashes from a cache maybe? And then, see if the file is already scanned.
             var hashExists = await _repository.DoubleHash(hash);
@@ -55,7 +57,7 @@ namespace Toolkit_API.Application.Application_Services.Operations
                 var existingFile = await _repository.GetFile(hash, userId);
 
                 if (existingFile != null)
-                    return $"{existingFile.Score}";
+                    return filePath;
             }
             
 

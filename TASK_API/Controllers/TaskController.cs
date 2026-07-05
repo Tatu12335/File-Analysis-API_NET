@@ -44,7 +44,7 @@ namespace TASK_API.Controllers
 
                 foreach (var job in jobs)
                 {
-                    // result = await _scanService.ScanFile(, scan.UserId);
+                    
                     var jobId = await GetJobId(job.filePath);
 
                     if (jobId != null && jobId.Any())
@@ -120,8 +120,8 @@ namespace TASK_API.Controllers
                 var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION2");
                 using (var conn = new SqlConnection(connectionString))
                 {
-                    var query = "INSERT INTO job (Filepath, JobStatus, Score) VALUES ( @FilePath, '0', @Score)";
-                    await conn.ExecuteAsync(query, new { UserId = userId, FilePath = filePath, Score = score });
+                    var query = "INSERT INTO job (Filepath, JobStatus) VALUES ( @FilePath, '0', )";
+                    await conn.ExecuteAsync(query, new { FilePath = filePath, });
                 }
                 return Ok();
             }
