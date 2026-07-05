@@ -38,18 +38,19 @@ namespace TASK_API.Controllers
 
                 if (jobs == null || !jobs.Any())
                 {
-                    result = await _scanService.ScanFile(scan.FilePath, scan.UserId);
+                    result = await _scanService.ScanFile(scan.filePath, scan.userId);
                     return Ok(result);
                 }
 
                 foreach (var job in jobs)
                 {
                     // result = await _scanService.ScanFile(, scan.UserId);
-                    var jobId = await GetJobId(job.FilePath);
+                    var jobId = await GetJobId(job.filePath);
 
-                    
-
-                    
+                    if (jobId != null && jobId.Any())
+                    {
+                        result = await _scanService.ScanFile(job.filePath, scan.userId);
+                    }
                 }
                 
                 return Ok(result);
@@ -105,8 +106,8 @@ namespace TASK_API.Controllers
             var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION2");
             using (var conn = new SqlConnection(connectionString))
             {
-                var query = "SELECT id FROM job where Filepath";
-                var result = await conn.QueryAsync<int>(query, new { Filepath = filePath });
+                var query = "SELECT id FROM job where Filepath = @FilePath";
+                var result = await conn.QueryAsync<int>(query, new { FilePath = filePath });
                 return result;
             }
         }

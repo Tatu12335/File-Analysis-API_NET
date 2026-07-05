@@ -1,4 +1,5 @@
-﻿using Toolkit_API.Application.Interfaces;
+﻿using System.Diagnostics;
+using Toolkit_API.Application.Interfaces;
 namespace Toolkit_API.Infrastructure.Services
 {
     public class HandleUploadFolder : IHandleUploadFolder
@@ -27,7 +28,10 @@ namespace Toolkit_API.Infrastructure.Services
                 "Uploads_API", Path.GetFileName(file)),
                 FileMode.Create, FileAccess.Write, FileShare.None))
             {
-
+                file = Path.GetFullPath(file);
+                var charsToTrim = new char[] { '\"' };
+                file = file.Trim(charsToTrim);
+                Debug.WriteLine($"Saving file to upload folder: {stream.Name}");
                 var result = await ReadFile(file);
                 await result.CopyToAsync(stream);
                 return stream.Name;

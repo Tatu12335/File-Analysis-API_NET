@@ -1,4 +1,5 @@
-﻿using Toolkit_API.Application.Application_Services.FileOperations;
+﻿using System.Diagnostics;
+using Toolkit_API.Application.Application_Services.FileOperations;
 using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Domain.Entities.FileAnalysis;
 using Toolkit_API.Infrastructure.Services;
@@ -44,7 +45,7 @@ namespace Toolkit_API.Application.Application_Services.Operations
 
 
             filePath = await _handleUploadFolder.SaveFileToUploadFolder(filePath);
-
+            Debug.WriteLine($"File saved to upload folder: {filePath}");
             var hash = await _fileHasher.HashFileAsync(filePath);
             // TODO : get the hashes from a cache maybe? And then, see if the file is already scanned.
             var hashExists = await _repository.DoubleHash(hash);
