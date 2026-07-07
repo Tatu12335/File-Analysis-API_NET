@@ -5,7 +5,7 @@
         processing,
         completed,
         failed
-    }
+    };
     public class Job
     {
         public string filePath { get; set; }
