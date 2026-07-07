@@ -38,7 +38,9 @@ namespace TASK_API.Controllers
 
                 if (jobs == null || !jobs.Any())
                 {
+                    
                     result = await _scanService.ScanFile(scan.filePath, scan.userId);
+
                     return Ok(result);
                 }
 
@@ -49,10 +51,14 @@ namespace TASK_API.Controllers
 
                     if (jobId != null && jobId.Any())
                     {
+                        await UpdateJobStatusProcessing(job.filePath);
                         result = await _scanService.ScanFile(job.filePath, scan.userId);
+                        await UpdateJobStatusCompleted(job.filePath);
+
                     }
                 }
-                
+                await UpdateJobStatusCompleted(scan.filePath);
+
                 return Ok(result);
             }
             catch (Exception ex)
@@ -100,6 +106,34 @@ namespace TASK_API.Controllers
 
             }
         }
+        public async Task UpdateJobStatusProcessing(string filepath)
+        {
+            var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION2");
+            var id = await GetJobId(filepath);
+
+            if(id == null)
+                return;
+
+            string query = "Update job Set Jobstatus = 1 Where id = @Id";
+            using (var conn = new SqlConnection(connectionString))
+            {
+                await conn.ExecuteAsync(query, new { Id = id });
+            }
+        }
+        public async Task UpdateJobStatusCompleted(string filepath)
+        {
+            var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION2");
+            var id = await GetJobId(filepath);
+            if (id == null)
+                return;
+            string query = "Update job Set Jobstatus = 2 Where id = @Id";
+            using (var conn = new SqlConnection(connectionString))
+            {
+                await conn.ExecuteAsync(query, new { Id = id });
+            }
+        }
+
+
         [HttpGet("get-id")]
         public async Task <IEnumerable<int>>GetJobId(string filePath)
         {
