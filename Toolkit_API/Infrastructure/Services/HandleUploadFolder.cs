@@ -1,4 +1,5 @@
-﻿using Toolkit_API.Application.Interfaces;
+﻿using System.Diagnostics;
+using Toolkit_API.Application.Interfaces;
 namespace Toolkit_API.Infrastructure.Services
 {
     public class HandleUploadFolder : IHandleUploadFolder
@@ -14,20 +15,23 @@ namespace Toolkit_API.Infrastructure.Services
         }
         public async Task<FileStream> ReadFile(string filePath)
         {
-            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            {
-                return stream;
-            }
+            var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            stream.Position = 0;
+            return stream;
         }
         public async Task<string> SaveFileToUploadFolder(string file)
         {
             await CreateUploadFolder();
+            
             using (var stream = new FileStream(Path.Combine(Environment.GetFolderPath
                 (Environment.SpecialFolder.LocalApplicationData),
                 "Uploads_API", Path.GetFileName(file)),
                 FileMode.Create, FileAccess.Write, FileShare.None))
             {
-
+                file = Path.GetFullPath(file);
+                var charsToTrim = new char[] { '\"' };
+                file = file.Trim(charsToTrim);
+                Debug.WriteLine($"Saving file to upload folder: {stream.Name}");
                 var result = await ReadFile(file);
                 await result.CopyToAsync(stream);
                 return stream.Name;

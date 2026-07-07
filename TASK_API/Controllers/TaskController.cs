@@ -11,7 +11,7 @@ namespace TASK_API.Controllers
     // NOTE : I will not make professional architecture,
     // just because of the time constraint and the fact that this is a test task.
     // So I will just put everything in the controller and make it work
-    // IM probably gonna do 3 layer architecture in the future, because i think project this small doesn't need onion/clean architecture
+    // Im probably gonna do 3 layer architecture in the future, because i think project this small doesn't need onion/clean architecture
     public class TaskController : Controller
     {
         private readonly FileScanOps _scanService;
@@ -26,6 +26,8 @@ namespace TASK_API.Controllers
             _handleFolder = handleFolder;
        
         }
+        // Also Note that for filescanning you should use this endpoint because this has the [ wip ] background workers 
+        // Also i know i could have use hangfire but i decided to try do the background worker myself!
         [HttpPost("scan")]
         public async Task<IActionResult> Scan([FromBody] ScanDTO scan)
         {
@@ -36,15 +38,27 @@ namespace TASK_API.Controllers
 
                 if (jobs == null || !jobs.Any())
                 {
-                    result = await _scanService.ScanFile(scan.FilePath, scan.UserId);
+                    
+                    result = await _scanService.ScanFile(scan.filePath, scan.userId);
+
                     return Ok(result);
                 }
 
                 foreach (var job in jobs)
                 {
-                    result = await _scanService.ScanFile(job.FilePath, scan.UserId);
+                    
+                    var jobId = await GetJobId(job.filePath);
+
+                    if (jobId != null && jobId.Any())
+                    {
+                        await UpdateJobStatusProcessing(job.filePath);
+                        result = await _scanService.ScanFile(job.filePath, scan.userId);
+                        await UpdateJobStatusCompleted(job.filePath);
+
+                    }
                 }
-                
+                await UpdateJobStatusCompleted(scan.filePath);
+
                 return Ok(result);
             }
             catch (Exception ex)
@@ -53,7 +67,7 @@ namespace TASK_API.Controllers
             }
         }
         [HttpPost("add-folder")]
-        public async Task<IActionResult> ScanFolder(int userId, string folderPath)
+        public async Task<IActionResult> AddFolder(int userId, string folderPath)
         {
             try
             {
@@ -92,6 +106,46 @@ namespace TASK_API.Controllers
 
             }
         }
+        public async Task UpdateJobStatusProcessing(string filepath)
+        {
+            var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION2");
+            var id = await GetJobId(filepath);
+
+            if(id == null)
+                return;
+
+            string query = "Update job Set Jobstatus = 1 Where id = @Id";
+            using (var conn = new SqlConnection(connectionString))
+            {
+                await conn.ExecuteAsync(query, new { Id = id });
+            }
+        }
+        public async Task UpdateJobStatusCompleted(string filepath)
+        {
+            var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION2");
+            var id = await GetJobId(filepath);
+            if (id == null)
+                return;
+            string query = "Update job Set Jobstatus = 2 Where id = @Id";
+            using (var conn = new SqlConnection(connectionString))
+            {
+                await conn.ExecuteAsync(query, new { Id = id });
+            }
+        }
+
+
+        [HttpGet("get-id")]
+        public async Task <IEnumerable<int>>GetJobId(string filePath)
+        {
+            var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION2");
+            using (var conn = new SqlConnection(connectionString))
+            {
+                var query = "SELECT id FROM job where Filepath = @FilePath";
+                var result = await conn.QueryAsync<int>(query, new { FilePath = filePath });
+                return result;
+            }
+        }
+
         [HttpPost("add-job")]
         public async Task<IActionResult> AddJob(int userId, string filePath, double score)
         {
@@ -100,8 +154,8 @@ namespace TASK_API.Controllers
                 var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION2");
                 using (var conn = new SqlConnection(connectionString))
                 {
-                    var query = "INSERT INTO job (Filepath, JobStatus, Score) VALUES ( @FilePath, '0', @Score)";
-                    await conn.ExecuteAsync(query, new { UserId = userId, FilePath = filePath, Score = score });
+                    var query = "INSERT INTO job (Filepath, JobStatus) VALUES ( @FilePath, '0', )";
+                    await conn.ExecuteAsync(query, new { FilePath = filePath, });
                 }
                 return Ok();
             }
