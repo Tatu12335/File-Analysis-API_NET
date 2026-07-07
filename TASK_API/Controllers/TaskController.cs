@@ -49,7 +49,7 @@ namespace TASK_API.Controllers
                     
                     var jobId = await GetJobId(job.filePath);
 
-                    if (jobId != null && jobId.Any())
+                    if (jobId != null)
                     {
                         await UpdateJobStatusProcessing(job.filePath);
                         result = await _scanService.ScanFile(job.filePath, scan.userId);
@@ -76,7 +76,7 @@ namespace TASK_API.Controllers
 
                 foreach (var file in files.Files)
                 {
-                    await AddJob(userId, file, 0);
+                    await AddJob(userId, file);
                 }
 
                 return Ok();
@@ -135,27 +135,27 @@ namespace TASK_API.Controllers
 
 
         [HttpGet("get-id")]
-        public async Task <IEnumerable<int>>GetJobId(string filePath)
+        public async Task<int?> GetJobId(string filePath)
         {
             var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION2");
             using (var conn = new SqlConnection(connectionString))
             {
-                var query = "SELECT id FROM job where Filepath = @FilePath";
-                var result = await conn.QueryAsync<int>(query, new { FilePath = filePath });
-                return result;
+                var query = "SELECT top 1 id FROM job where Filepath = @FilePath";
+                // Käytetään QueryFirstOrDefaultAsync-metodia listan sijaan
+                return await conn.QueryFirstOrDefaultAsync<int?>(query, new { FilePath = filePath });
             }
         }
 
         [HttpPost("add-job")]
-        public async Task<IActionResult> AddJob(int userId, string filePath, double score)
+        public async Task<IActionResult> AddJob(int userId, string filePath)
         {
             try
             {
                 var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION2");
                 using (var conn = new SqlConnection(connectionString))
                 {
-                    var query = "INSERT INTO job (Filepath, JobStatus) VALUES ( @FilePath, '0', )";
-                    await conn.ExecuteAsync(query, new { FilePath = filePath, });
+                    var query = "INSERT INTO job (Filepath, JobStatus, score) VALUES (@FilePath, '0', 0.0)";
+                    await conn.ExecuteAsync(query, new { FilePath = filePath });
                 }
                 return Ok();
             }
