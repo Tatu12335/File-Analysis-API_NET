@@ -42,12 +42,12 @@ namespace Toolkit_API.Application.Application_Services.Operations
             if (filePath == null)
                 throw new ArgumentNullException();
 
-            filePath = filePath.Trim('"');      
+            filePath = filePath.Trim('"');
             filePath = await _handleUploadFolder.SaveFileToUploadFolder(filePath);
-            
+
             Debug.WriteLine($"File saved to upload folder: {filePath}");
-            
-            
+
+
             var hash = await _fileHasher.HashFileAsync(filePath);
             // TODO : get the hashes from a cache maybe? And then, see if the file is already scanned.
             var hashExists = await _repository.DoubleHash(hash);
@@ -57,9 +57,9 @@ namespace Toolkit_API.Application.Application_Services.Operations
                 var existingFile = await _repository.GetFile(hash, userId);
 
                 if (existingFile != null)
-                    return filePath;
+                    return existingFile.Score.ToString();
             }
-            
+
 
             var result = await _externalAPI.CallAPI(hash, Environment.GetEnvironmentVariable("Malware_Bazaar_key"));
             var handled = await _handleResult.HandleAsync(result);
