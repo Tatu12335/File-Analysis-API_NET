@@ -1,11 +1,12 @@
 ﻿namespace TASK_API.Domain
 {
-    public enum Jobstatus {
+    public enum Jobstatus
+    {
         created,
         processing,
         completed,
         failed
-    }
+    };
     public class Job
     {
         public string filePath { get; set; }
