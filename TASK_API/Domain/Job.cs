@@ -1,6 +1,7 @@
 ﻿namespace TASK_API.Domain
 {
-    public enum Jobstatus {
+    public enum Jobstatus
+    {
         created,
         processing,
         completed,
