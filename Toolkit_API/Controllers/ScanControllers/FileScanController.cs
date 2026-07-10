@@ -34,7 +34,7 @@ namespace Toolkit_API.Controllers.ScanControllers
         [HttpPost("Scan/Folder")]
         public async Task<IActionResult> ScanFolder([FromBody] FolderScanDTO scanDTO)
         {
-            
+
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             var result = await _Handler.Handler(scanDTO.filepath, userId);
             return Ok(result);

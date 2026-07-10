@@ -22,7 +22,7 @@ namespace Toolkit_API.Infrastructure.Services
         public async Task<string> SaveFileToUploadFolder(string file)
         {
             await CreateUploadFolder();
-            
+
             using (var stream = new FileStream(Path.Combine(Environment.GetFolderPath
                 (Environment.SpecialFolder.LocalApplicationData),
                 "Uploads_API", Path.GetFileName(file)),
@@ -35,7 +35,7 @@ namespace Toolkit_API.Infrastructure.Services
                 var result = await ReadFile(file);
                 await result.CopyToAsync(stream);
                 return stream.Name;
-               
+
             }
         }
 
