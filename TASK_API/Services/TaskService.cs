@@ -35,19 +35,13 @@ namespace TASK_API.Services
         {
             await _repository.AddJob(filePath);
         }
-        public async Task<string> Scan(int userId, string filePath)
+        public async Task<string> Scan(int userId)
         {
             
                 var result = string.Empty;
                 var jobs = await _repository.GetPendingJobs();
 
-                if (jobs == null || !jobs.Any())
-                {
-
-                    result = await _operations.ScanFile(filePath, userId);
-                    
-                    return result;
-                }
+                
 
                 foreach (var job in jobs)
                 {
