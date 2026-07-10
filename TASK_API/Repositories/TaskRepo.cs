@@ -1,6 +1,8 @@
 ﻿using Dapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using TASK_API.Domain;
+using TASK_API.Services;
 using TASK_API.Services.Interfaces;
 
 namespace TASK_API.Repositories
@@ -53,16 +55,14 @@ namespace TASK_API.Repositories
                 return await conn.QueryFirstOrDefaultAsync<int?>(query, new { FilePath = filePath });
             }
         }
-        public async Task AddJob(int userId, string filePath)
+        public async Task AddJob(string filePath)
         {
+            string query = "INSERT INTO job (Filepath, JobStatus, score) VALUES (@FilePath, '0', 0.0)";
 
-            var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION2");
-            using (var conn = new SqlConnection(connectionString))
+            using(var conn = new SqlConnection(Environment.GetEnvironmentVariable("DB_CONNECTION2")))
             {
-                var query = "INSERT INTO job (Filepath, JobStatus, score) VALUES (@FilePath, '0', 0.0)";
                 await conn.ExecuteAsync(query, new { FilePath = filePath });
             }
-
         }
         public async Task UpdateJobStatusFailed(string filepath)
         {

@@ -1,4 +1,7 @@
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using TASK_API.Repositories;
+using TASK_API.Services;
+using TASK_API.Services.Interfaces;
 using Toolkit_API.Application.Analysis;
 using Toolkit_API.Application.App_Services.User;
 using Toolkit_API.Application.Application_Services.EmailServices;
@@ -107,6 +110,12 @@ builder.Services.AddTransient<FileScanOps>(options =>
     )
 
 );
+builder.Services.AddTransient<ITaskRepo, TaskRepo>();
+builder.Services.AddTransient<TaskService>(sp => new TaskService(
+    sp.GetRequiredService<ITaskRepo>(),
+    sp.GetRequiredService<FileScanOps>()
+));
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
