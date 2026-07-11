@@ -1,8 +1,7 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using System.Text;
-using System.Threading.RateLimiting;
+using TASK_API.Repositories;
+using TASK_API.Services;
+using TASK_API.Services.Interfaces;
 using Toolkit_API.Application.Analysis;
 using Toolkit_API.Application.App_Services.User;
 using Toolkit_API.Application.Application_Services.EmailServices;
@@ -17,51 +16,22 @@ using Toolkit_API.Infrastructure.Security;
 using Toolkit_API.Infrastructure.Security.Jwt;
 using Toolkit_API.Infrastructure.Services;
 using Toolkit_API.Middleware;
-
-// Time spent on the project : 37hrs 0min
 var builder = WebApplication.CreateBuilder(args);
-var connetionString = Environment.GetEnvironmentVariable("DB_CONNECTION")
-?? throw new InvalidOperationException("'DB_CONNECTION' not found");
-var jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET");
 
 // Add services to the container.
-builder.Services.AddRateLimiter(options =>
-{
-    options.AddFixedWindowLimiter(policyName: "Fixed", options =>
-    {
-        options.Window = TimeSpan.FromSeconds(10);
-        options.PermitLimit = 10;
-        options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-        options.QueueLimit = 2;
-    });
-    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
-    {
-        return RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: httpContext.User.Identity?.Name ?? httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
-            factory: partition => new FixedWindowRateLimiterOptions
-            {
-                Window = TimeSpan.FromSeconds(10),
-                PermitLimit = 5,
-            });
-    });
-    options.RejectionStatusCode = 429; // Too Many Requests
-});
-
-builder.Services.AddAuthorization();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-        {
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET")))
-        };
-    });
 
 builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddControllers();
+
+var connetionString = Environment.GetEnvironmentVariable("DB_CONNECTION")
+    ?? throw new InvalidOperationException("'DB_CONNECTION' not found");
+var jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET")
+    ?? throw new InvalidOperationException("'JWT_SECRET Not found");
+
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddTransient<Login>();
 builder.Services.AddTransient<CreateUser>();
@@ -80,7 +50,6 @@ builder.Services.AddTransient<StaticFileAnalysis>();
 builder.Services.AddTransient<FileAnalysisResult>();
 builder.Services.AddTransient<FolderInfo>();
 builder.Services.AddTransient<IHandleUploadFolder, HandleUploadFolder>();
-
 
 builder.Services.AddTransient<ScoringAlg>(
     options => new ScoringAlg(options.GetRequiredService<IFileAnalysis>(),
@@ -119,8 +88,7 @@ builder.Services.AddTransient<NewLetter>(options =>
 builder.Services.AddTransient<StaticFileAnalysis>(options =>
     new StaticFileAnalysis(options.GetRequiredService<IFileAnalysis>(),
         options.GetRequiredService<ScoringAlg>(),
-        options.GetRequiredService<ExtractedStrings>(),
-        options.GetRequiredService<CombinedOpcodes>()
+        options.GetRequiredService<ExtractedStrings>()
 
     )
 );
@@ -142,6 +110,12 @@ builder.Services.AddTransient<FileScanOps>(options =>
     )
 
 );
+builder.Services.AddTransient<ITaskRepo, TaskRepo>();
+builder.Services.AddTransient<TaskService>(sp => new TaskService(
+    sp.GetRequiredService<ITaskRepo>(),
+    sp.GetRequiredService<FileScanOps>()
+));
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -166,12 +140,7 @@ builder.Services.Configure<KestrelServerOptions>(options =>
 );
 
 var app = builder.Build();
-
-app.UseRateLimiter();
-app.UseAuthentication();
-app.UseAuthorization();
-
-
+app.UseMiddleware<ExceptionMiddleware>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -179,12 +148,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseMiddleware<ExceptionMiddleware>();
-app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
 app.MapControllers();
-await app.RunAsync();
 
+app.Run();

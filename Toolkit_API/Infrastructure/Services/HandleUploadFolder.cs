@@ -1,9 +1,10 @@
-﻿using Toolkit_API.Application.Interfaces;
+﻿using System.Diagnostics;
+using Toolkit_API.Application.Interfaces;
 namespace Toolkit_API.Infrastructure.Services
 {
     public class HandleUploadFolder : IHandleUploadFolder
     {
-        
+
         public async Task CreateUploadFolder()
         {
             var uploadFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Uploads_API");
@@ -12,24 +13,29 @@ namespace Toolkit_API.Infrastructure.Services
                 Directory.CreateDirectory(uploadFolderPath);
             }
         }
-        public async Task ReadFile(string filePath)
+        public async Task<FileStream> ReadFile(string filePath)
         {
-            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            {
-                
-            }
+            var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            stream.Position = 0;
+            return stream;
         }
-        public async Task<string> SaveFileToUploadFolder(IFormFile file)
+        public async Task<string> SaveFileToUploadFolder(string file)
         {
             await CreateUploadFolder();
+
             using (var stream = new FileStream(Path.Combine(Environment.GetFolderPath
                 (Environment.SpecialFolder.LocalApplicationData),
-                "Uploads_API", file.FileName),
+                "Uploads_API", Path.GetFileName(file)),
                 FileMode.Create, FileAccess.Write, FileShare.None))
             {
-
-                await file.CopyToAsync(stream);
+                file = Path.GetFullPath(file);
+                var charsToTrim = new char[] { '\"' };
+                file = file.Trim(charsToTrim);
+                Debug.WriteLine($"Saving file to upload folder: {stream.Name}");
+                var result = await ReadFile(file);
+                await result.CopyToAsync(stream);
                 return stream.Name;
+
             }
         }
 

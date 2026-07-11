@@ -6,7 +6,7 @@ namespace Toolkit_API.Application.Application_Services.FileOperations
     {
         private readonly FileScanOps _ops;
         private readonly FolderInfo _files;
- 
+
         public HandleFolder(FileScanOps ops, FolderInfo files)
         {
             _ops = ops;
