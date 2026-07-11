@@ -119,7 +119,8 @@ builder.Services.AddTransient<NewLetter>(options =>
 builder.Services.AddTransient<StaticFileAnalysis>(options =>
     new StaticFileAnalysis(options.GetRequiredService<IFileAnalysis>(),
         options.GetRequiredService<ScoringAlg>(),
-        options.GetRequiredService<ExtractedStrings>()
+        options.GetRequiredService<ExtractedStrings>(),
+        options.GetRequiredService<CombinedOpcodes>()
 
     )
 );

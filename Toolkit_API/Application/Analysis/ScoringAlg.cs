@@ -21,14 +21,16 @@ namespace Toolkit_API.Application.Analysis
             _extractedStrings = extractedStrings;
         }
 
-        public async Task<double> CalculateScore(string filepath, bool suspiciousPatterns, bool extensionMatches)
+        public async Task<double> CalculateScore(string filepath, bool suspiciousPatterns, bool extensionMatches, double combinedOpcodes)
         {
             if (suspiciousPatterns)
-                _score += 30.0; // Penalty for suspicious patterns
+                _score += 10.0; // Penalty for suspicious patterns
 
             if (!extensionMatches)
                 _score += 20.0; // Penalty for extension mismatch
-            // Im going to rethink this scoring alghorithmn, but this works for now
+            _score = _score + combinedOpcodes; // Penalty for combined opcodes
+
+
             switch (_score)
             {
                 case >= 80.0:
