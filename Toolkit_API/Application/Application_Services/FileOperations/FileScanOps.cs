@@ -68,7 +68,7 @@ namespace Toolkit_API.Application.Application_Services.Operations
 
             // As i've said before i need to rethink the scoring algorithmn but thats not for now.
             if (handled != null)
-                staticAnalysisResult.Score += 30.0;
+                staticAnalysisResult.Score += 100.0;
 
             await _repository.InsertAll(filePath, userId, staticAnalysisResult.Score);
 

@@ -28,7 +28,17 @@ namespace Toolkit_API.Application.Analysis
 
             if (!extensionMatches)
                 _score += 20.0; // Penalty for extension mismatch
+            
             _score = _score + combinedOpcodes; // Penalty for combined opcodes
+
+            double maxScore = 100.0;
+
+            double maxContribution = 100.0 - _score; // Calculate the maximum contribution to reach 100
+
+            double val = 30;
+
+            double heuristicScore = maxContribution * (1.0 - Math.Exp(-val / _score)); // Heuristic scoring based on the value
+
 
 
             switch (_score)
@@ -49,7 +59,8 @@ namespace Toolkit_API.Application.Analysis
 
 
 
-            return _score;
+            var finalScore = _score + heuristicScore;
+            return finalScore;
         }
     }
 }
