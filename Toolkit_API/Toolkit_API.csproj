@@ -8,6 +8,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Application\Settings\**" />
+    <Compile Remove="Infrastructure\Data\**" />
+    <Compile Remove="test_dataset\**" />
+    <Content Remove="Application\Settings\**" />
+    <Content Remove="Infrastructure\Data\**" />
+    <Content Remove="test_dataset\**" />
+    <EmbeddedResource Remove="Application\Settings\**" />
+    <EmbeddedResource Remove="Infrastructure\Data\**" />
+    <EmbeddedResource Remove="test_dataset\**" />
+    <None Remove="Application\Settings\**" />
+    <None Remove="Infrastructure\Data\**" />
+    <None Remove="test_dataset\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Dapper" Version="2.1.72" />
     <PackageReference Include="MailKit" Version="4.16.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
@@ -18,15 +33,6 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.5" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Application\Settings\" />
-    <Folder Include="Infrastructure\Data\" />
-    <Folder Include="test_dataset\clean\" />
-    <Folder Include="test_dataset\malicious\" />
-    <Folder Include="test_dataset\edge-cases\" />
-	  <Folder Include="test_dataset\suspicious\" />
   </ItemGroup>
 
 </Project>

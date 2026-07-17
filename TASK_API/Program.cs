@@ -50,7 +50,7 @@ builder.Services.AddTransient<StaticFileAnalysis>();
 builder.Services.AddTransient<FileAnalysisResult>();
 builder.Services.AddTransient<FolderInfo>();
 builder.Services.AddTransient<IHandleUploadFolder, HandleUploadFolder>();
-
+builder.Services.AddTransient<CombinedOpcodes>();
 builder.Services.AddTransient<ScoringAlg>(
     options => new ScoringAlg(options.GetRequiredService<IFileAnalysis>(),
     options.GetRequiredService<HandleResult>(),
@@ -88,8 +88,8 @@ builder.Services.AddTransient<NewLetter>(options =>
 builder.Services.AddTransient<StaticFileAnalysis>(options =>
     new StaticFileAnalysis(options.GetRequiredService<IFileAnalysis>(),
         options.GetRequiredService<ScoringAlg>(),
-        options.GetRequiredService<ExtractedStrings>()
-
+        options.GetRequiredService<ExtractedStrings>(),
+        options.GetRequiredService<CombinedOpcodes>()
     )
 );
 

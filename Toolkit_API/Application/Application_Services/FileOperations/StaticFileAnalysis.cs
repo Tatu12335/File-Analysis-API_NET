@@ -9,12 +9,15 @@ namespace Toolkit_API.Application.Application_Services.Operations
         private readonly IFileAnalysis _fileAnalysis;
         private readonly ScoringAlg _scoringAlg;
         private readonly ExtractedStrings _extractedStrings;
+        private readonly CombinedOpcodes _combinedOpcodes;
 
-        public StaticFileAnalysis(IFileAnalysis fileAnalysis, ScoringAlg scoringAlg, ExtractedStrings extractedStrings)
+        public StaticFileAnalysis(IFileAnalysis fileAnalysis, ScoringAlg scoringAlg, ExtractedStrings extractedStrings, CombinedOpcodes combinedOpcodes)
         {
             _fileAnalysis = fileAnalysis;
             _scoringAlg = scoringAlg;
             _extractedStrings = extractedStrings;
+            _combinedOpcodes = combinedOpcodes;
+
         }
         public async Task<FileAnalysisResult> AnalyzeFile(string filePath)
         {
@@ -26,8 +29,10 @@ namespace Toolkit_API.Application.Application_Services.Operations
             var analysisResult = await _fileAnalysis.AnalyzeFile(filePath);
             var extensionMatch = await _fileAnalysis.ExtensionMatches(filePath);
             var metadataBool = await _fileAnalysis.CheckForSuspiciousPatterns(filePath, _extractedStrings);
+            var opcodeScore  = await _fileAnalysis.CombinedOpcodes(filePath, _extractedStrings, _combinedOpcodes);
 
-            var score = await _scoringAlg.CalculateScore(filePath, metadataBool, extensionMatch);
+
+            var score = await _scoringAlg.CalculateScore(filePath, metadataBool, extensionMatch, opcodeScore);
 
             return new FileAnalysisResult
             {

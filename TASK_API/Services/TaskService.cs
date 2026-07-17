@@ -31,9 +31,9 @@ namespace TASK_API.Services
             }
 
         }
-        public async Task Add_Job(string filePath)
+        public async Task Add_Job(string filePath, int userId)
         {
-            await _repository.AddJob(filePath);
+            await _repository.AddJob(filePath, userId);
         }
         public async Task<string> Scan(int userId)
         {
