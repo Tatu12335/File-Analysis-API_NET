@@ -28,7 +28,11 @@ namespace Toolkit_API.Application.Analysis
 
             if (!extensionMatches)
                 _score += 20.0; // Penalty for extension mismatch
+            
             _score = _score + combinedOpcodes; // Penalty for combined opcodes
+
+           
+
 
 
             switch (_score)
@@ -49,7 +53,8 @@ namespace Toolkit_API.Application.Analysis
 
 
 
-            return _score;
+           
+            return _score ;
         }
     }
 }

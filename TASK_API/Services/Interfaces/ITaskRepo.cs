@@ -4,7 +4,7 @@ namespace TASK_API.Services.Interfaces
 {
     public interface ITaskRepo
     {
-        public Task AddJob(string filePath);
+        public Task AddJob(string filePath, int userId);
         public Task<int?> GetJobId(string filePath);
         public Task UpdateJobStatusCompleted(string filepath);
         public Task UpdateJobStatusFailed(string filepath);
