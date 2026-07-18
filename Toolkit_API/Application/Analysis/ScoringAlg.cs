@@ -31,13 +31,7 @@ namespace Toolkit_API.Application.Analysis
             
             _score = _score + combinedOpcodes; // Penalty for combined opcodes
 
-            double maxScore = 100.0;
-
-            double maxContribution = 100.0 - _score; // Calculate the maximum contribution to reach 100
-
-            double val = 30;
-
-            double heuristicScore = maxContribution * (1.0 - Math.Exp(-val / _score)); // Heuristic scoring based on the value
+           
 
 
 
@@ -59,8 +53,8 @@ namespace Toolkit_API.Application.Analysis
 
 
 
-            var finalScore = _score + heuristicScore;
-            return finalScore;
+           
+            return _score ;
         }
     }
 }

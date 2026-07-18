@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 using Toolkit_API.Application.Application_Services.FileOperations;
 using Toolkit_API.Application.Application_Services.Operations;
+using Toolkit_API.Application.Interfaces;
 using Toolkit_API.DTOs.FileDTOs;
 using Toolkit_API.DTOs.FIleDTOs;
+using Hangfire;
 
 namespace Toolkit_API.Controllers.ScanControllers
 {
@@ -16,19 +18,21 @@ namespace Toolkit_API.Controllers.ScanControllers
     {
         private readonly FileScanOps _fileScanOps;
         private readonly HandleFolder _Handler;
-        public FileScanController(FileScanOps fileScanOps, HandleFolder handle)
+        private readonly IhangfireService _HangfireService;
+        public FileScanController(FileScanOps fileScanOps, HandleFolder handleFolder, IhangfireService hangfireService)
         {
             _fileScanOps = fileScanOps;
-            _Handler = handle;
+            _Handler = handleFolder;
+            _HangfireService = hangfireService;
         }
         [HttpPost("Scan/File")]
         public async Task<IActionResult> ScanFile([FromBody] FileScanDTO scanDTO)
         {
+            _HangfireService.storage(Environment.GetEnvironmentVariable("HANGFIRE"));
+            //var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var res = BackgroundJob.Enqueue(() => _fileScanOps.ScanFile(scanDTO.filePath, 2025));
 
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            var result = await _fileScanOps.ScanFile(scanDTO.filePath, 2025);
-
-            return Ok(result);
+            return Ok(res);
 
         }
         [HttpPost("Scan/Folder")]
