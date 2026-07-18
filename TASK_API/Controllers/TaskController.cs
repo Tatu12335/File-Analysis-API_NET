@@ -6,6 +6,7 @@ using TASK_API.Services;
 using Toolkit_API.Application.Application_Services.FileOperations;
 using Toolkit_API.Application.Application_Services.Operations;
 using TASK_API.Services.Interfaces;
+using System.Security.Claims;
 
 namespace TASK_API.Controllers
 {
@@ -29,7 +30,7 @@ namespace TASK_API.Controllers
         [HttpPost("scan")]
         public async Task<IActionResult> Scan([FromBody] ScanDTO scan)
         {
-            var result = await _scanService2.Scan(scan.userId, scan.filePath);
+            var result = await _scanService2.Scan(scan.userId);
             return Ok(result);
         }
         [HttpPost("add-folder")]
@@ -43,7 +44,9 @@ namespace TASK_API.Controllers
         [HttpPost("add-job")]
         public async Task<IActionResult> AddJob(string filePath)
         {
-            await _scanService2.Add_Job(filePath);
+            //This is for whenever i make the frontend 
+            //var userId  = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            await _scanService2.Add_Job(filePath, 2025);
             return Ok();
         }
     }

@@ -55,13 +55,13 @@ namespace TASK_API.Repositories
                 return await conn.QueryFirstOrDefaultAsync<int?>(query, new { FilePath = filePath });
             }
         }
-        public async Task AddJob(string filePath)
+        public async Task AddJob(string filePath, int userId)
         {
-            string query = "INSERT INTO job (Filepath, JobStatus, score) VALUES (@FilePath, '0', 0.0)";
+            string query = "INSERT INTO job (Filepath, JobStatus, score, userId) VALUES (@FilePath, '0', 0.0, @UserId)";
 
             using(var conn = new SqlConnection(Environment.GetEnvironmentVariable("DB_CONNECTION2")))
             {
-                await conn.ExecuteAsync(query, new { FilePath = filePath });
+                await conn.ExecuteAsync(query, new { FilePath = filePath, UserId = userId });
             }
         }
         public async Task UpdateJobStatusFailed(string filepath)

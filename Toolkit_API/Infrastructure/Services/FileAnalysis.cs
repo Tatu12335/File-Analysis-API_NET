@@ -32,7 +32,7 @@ namespace Toolkit_API.Infrastructure.Services
         {
             if (!File.Exists(filepath))
                 throw new FileNotFoundException($"File not found: {filepath}");
-
+            
             var extension = Path.GetExtension(filepath);
             var bytes = await File.ReadAllBytesAsync(filepath);
             var detectedType = await Detect(bytes);
@@ -40,9 +40,26 @@ namespace Toolkit_API.Infrastructure.Services
             return detectedType.Contains(extension.TrimStart('.'), StringComparison.OrdinalIgnoreCase);
 
         }
+        // this might not be very effiecient, but it works for now. We can optimize it later if needed.
+        public async Task<double> CombinedOpcodes(string filePath, ExtractedStrings extractedStrings,CombinedOpcodes combinedOpcodes)
+        {
+            var bytes = await File.ReadAllBytesAsync(filePath);
+            foreach (var pattern in extractedStrings.Patterns)
+            {
+                if (bytes.AsSpan().IndexOf(pattern) >= 0)
+                {
+                    if (combinedOpcodes.Patterns.Any(p => bytes.AsSpan().IndexOf(p.Pattern) >= 0))
+                    {
+                        Debug.WriteLine($"Combined opcode pattern found in file: {filePath}");
+                        return combinedOpcodes.Patterns.First(p => bytes.AsSpan().IndexOf(p.Pattern) >= 0).Score;
+                    }
+                }
+            }
+            return 0.0;
+        }
         public async Task<bool> CheckForSuspiciousPatterns(string filePath, ExtractedStrings extractedStrings)
         {
-
+            
             var bytes = await File.ReadAllBytesAsync(filePath);
 
             foreach (var pattern in extractedStrings.Patterns)

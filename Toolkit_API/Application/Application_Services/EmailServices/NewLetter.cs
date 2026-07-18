@@ -6,7 +6,7 @@ namespace Toolkit_API.Application.Application_Services.EmailServices
     public class NewLetter
     {
         private readonly IEmailServices _emailServices;
-
+        // This class is completely useless, but it is here to demonstrate how to use the IEmailServices interface. It is not used anywhere in the application as of now.
         public NewLetter(IEmailServices emailServices)
         {
             _emailServices = emailServices;

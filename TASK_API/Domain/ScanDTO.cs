@@ -4,6 +4,6 @@
     public class ScanDTO
     {
         public int userId { get; set; }
-        public string filePath { get; set; }
+        //public string filePath { get; set; }
     }
 }
