@@ -81,6 +81,7 @@ builder.Services.AddTransient<FileAnalysisResult>();
 builder.Services.AddTransient<FolderInfo>();
 builder.Services.AddTransient<IHandleUploadFolder, HandleUploadFolder>();
 builder.Services.AddTransient<CombinedOpcodes>();
+builder.Services.AddTransient<IhangfireService, HangfireService>();
 
 builder.Services.AddTransient<ScoringAlg>(
     options => new ScoringAlg(options.GetRequiredService<IFileAnalysis>(),
