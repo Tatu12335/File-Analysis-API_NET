@@ -32,7 +32,7 @@ namespace Toolkit_API.Controllers.ScanControllers
             //var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             var res = BackgroundJob.Enqueue(() => _fileScanOps.ScanFile(scanDTO.filePath, 2025));
 
-            return Ok(res);
+            return Ok();
 
         }
         [HttpPost("Scan/Folder")]

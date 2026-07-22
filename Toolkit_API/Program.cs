@@ -17,12 +17,14 @@ using Toolkit_API.Infrastructure.Security;
 using Toolkit_API.Infrastructure.Security.Jwt;
 using Toolkit_API.Infrastructure.Services;
 using Toolkit_API.Middleware;
+using Hangfire;
 
 // Time spent on the project : 37hrs 0min
 var builder = WebApplication.CreateBuilder(args);
 var connetionString = Environment.GetEnvironmentVariable("DB_CONNECTION")
 ?? throw new InvalidOperationException("'DB_CONNECTION' not found");
 var jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET");
+var connectionStringHangfire = Environment.GetEnvironmentVariable("HANGFIRE") ?? throw new InvalidOperationException("'HANGFIRE' not found");
 
 // Add services to the container.
 builder.Services.AddRateLimiter(options =>
@@ -41,7 +43,7 @@ builder.Services.AddRateLimiter(options =>
             factory: partition => new FixedWindowRateLimiterOptions
             {
                 Window = TimeSpan.FromSeconds(10),
-                PermitLimit = 5,
+                PermitLimit = 100,
             });
     });
     options.RejectionStatusCode = 429; // Too Many Requests
@@ -82,6 +84,12 @@ builder.Services.AddTransient<FolderInfo>();
 builder.Services.AddTransient<IHandleUploadFolder, HandleUploadFolder>();
 builder.Services.AddTransient<CombinedOpcodes>();
 builder.Services.AddTransient<IhangfireService, HangfireService>();
+builder.Services.AddHangfire(options => 
+{
+    options.UseSqlServerStorage(connectionStringHangfire);
+});
+builder.Services.AddHangfireServer();
+
 
 builder.Services.AddTransient<ScoringAlg>(
     options => new ScoringAlg(options.GetRequiredService<IFileAnalysis>(),
@@ -171,7 +179,7 @@ var app = builder.Build();
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseHangfireDashboard();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
