@@ -41,13 +41,13 @@ namespace TASK_API.Controllers
         }
         
 
-        [HttpPost("add-job")]
+       /* [HttpPost("add-job")]
         public async Task<IActionResult> AddJob(string filePath)
         {
             //This is for whenever i make the frontend 
             //var userId  = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             await _scanService2.Add_Job(filePath, 2025);
             return Ok();
-        }
+        }*/
     }
 }

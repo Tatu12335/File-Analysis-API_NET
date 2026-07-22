@@ -24,7 +24,7 @@ var builder = WebApplication.CreateBuilder(args);
 var connetionString = Environment.GetEnvironmentVariable("DB_CONNECTION")
 ?? throw new InvalidOperationException("'DB_CONNECTION' not found");
 var jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET");
-
+var connectionStringHangfire = Environment.GetEnvironmentVariable("HANGFIRE") ?? throw new InvalidOperationException("'HANGFIRE' not found");
 
 // Add services to the container.
 builder.Services.AddRateLimiter(options =>
@@ -43,7 +43,7 @@ builder.Services.AddRateLimiter(options =>
             factory: partition => new FixedWindowRateLimiterOptions
             {
                 Window = TimeSpan.FromSeconds(10),
-                PermitLimit = 5,
+                PermitLimit = 100,
             });
     });
     options.RejectionStatusCode = 429; // Too Many Requests
@@ -86,8 +86,9 @@ builder.Services.AddTransient<CombinedOpcodes>();
 builder.Services.AddTransient<IhangfireService, HangfireService>();
 builder.Services.AddHangfire(options => 
 {
-    options.UseSqlServerStorage(connetionString);
+    options.UseSqlServerStorage(connectionStringHangfire);
 });
+builder.Services.AddHangfireServer();
 
 
 builder.Services.AddTransient<ScoringAlg>(
