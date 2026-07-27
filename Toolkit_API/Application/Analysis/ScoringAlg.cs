@@ -1,6 +1,7 @@
 ﻿using Toolkit_API.Application.Application_Services.Operations;
 using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Domain.Entities.FileAnalysis;
+using Toolkit_API.Domain.Entities.Files;
 
 namespace Toolkit_API.Application.Analysis
 {
@@ -9,52 +10,19 @@ namespace Toolkit_API.Application.Analysis
         private const int MaxScore = 100;
         private const int MinScore = 0;
 
-        private readonly IFileAnalysis _fileAnalysis;
-        public readonly HandleResult _handleResult;
-        private double _score;
-        private readonly ExtractedStrings _extractedStrings;
-        public ScoringAlg(IFileAnalysis fileAnalysis, HandleResult handleResult, double score, ExtractedStrings extractedStrings)
+
+        private readonly DetectionResult _detectionResult;
+
+        public ScoringAlg(DetectionResult result)
         {
-            _fileAnalysis = fileAnalysis;
-            _handleResult = handleResult;
-            this._score = score;
-            _extractedStrings = extractedStrings;
+            _detectionResult = result;
         }
 
-        public async Task<double> CalculateScore(string filepath, bool suspiciousPatterns, bool extensionMatches, double combinedOpcodes)
+        public async Task<double> CalculateScore(List<DetectionResult> detectionResults)
         {
-            if (suspiciousPatterns)
-                _score += 10.0; // Penalty for suspicious patterns
-
-            if (!extensionMatches)
-                _score += 20.0; // Penalty for extension mismatch
-            
-            _score = _score + combinedOpcodes; // Penalty for combined opcodes
-
-           
-
-
-
-            switch (_score)
-            {
-                case >= 80.0:
-                    _score += 10.0; // Bonus for highly suspicious files
-                    break;
-                case >= 50.0:
-                    _score += 5.0; // Bonus for moderately suspicious files
-                    break;
-                case >= 20.0:
-                    _score += 2.0; // Bonus for slightly suspicious files
-                    break;
-                case < 0:
-                    _score += 1;
-                    break;
-            }
-
-
-
-           
-            return _score ;
+            double totalScore = detectionResults
+                .Sum(m => m.Confidence);
+            return Math.Min(totalScore, MaxScore);
         }
     }
 }

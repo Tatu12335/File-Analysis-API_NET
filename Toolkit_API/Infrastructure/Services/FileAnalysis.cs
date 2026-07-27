@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
+using System.Text;
 using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Domain.Entities.FileAnalysis;
+using Toolkit_API.Domain.Entities.Files;
 namespace Toolkit_API.Infrastructure.Services
 {
     public class FileAnalysis : IFileAnalysis
@@ -28,51 +30,52 @@ namespace Toolkit_API.Infrastructure.Services
 
             return fileType;
         }
-        public async Task<bool> ExtensionMatches(string filepath)
+        public async Task<DetectionResult> ExtensionMatches(string filepath)
         {
             if (!File.Exists(filepath))
                 throw new FileNotFoundException($"File not found: {filepath}");
-            
+
             var extension = Path.GetExtension(filepath);
             var bytes = await File.ReadAllBytesAsync(filepath);
             var detectedType = await Detect(bytes);
 
-            return detectedType.Contains(extension.TrimStart('.'), StringComparison.OrdinalIgnoreCase);
+            if (!detectedType.Contains(extension.TrimStart('.'), StringComparison.OrdinalIgnoreCase))
+            {
+                return new DetectionResult
+                {
+                    RuleName = "Extension Mismatch",
+                    Score = 10,
+                    Confidence = 1.0
+                };
+            }
+            return new DetectionResult
+            {
+                RuleName = "Extension Matches",
+                Score = 0,
+                Confidence = 0.0
+            };
 
         }
-        // this might not be very effiecient, but it works for now. We can optimize it later if needed.
-        public async Task<double> CombinedOpcodes(string filePath, ExtractedStrings extractedStrings,CombinedOpcodes combinedOpcodes)
+
+        public async Task<List<DetectionResult>> ComboDetection(string filePath, ExtractedStrings.ComboRule comboRule, ExtractedStrings extractedStrings)
         {
-            var bytes = await File.ReadAllBytesAsync(filePath);
-            foreach (var pattern in extractedStrings.Patterns)
+            bool isComboActive = comboRule.RequiredPatternIds.All(patternId =>
+                extractedStrings.Patterns.Any(p => p.SequenceEqual(Encoding.UTF8.GetBytes(patternId))));
+
+            if (isComboActive)
             {
-                if (bytes.AsSpan().IndexOf(pattern) >= 0)
+                return new List<DetectionResult>
                 {
-                    if (combinedOpcodes.Patterns.Any(p => bytes.AsSpan().IndexOf(p.Pattern) >= 0))
+                    new DetectionResult
                     {
-                        Debug.WriteLine($"Combined opcode pattern found in file: {filePath}");
-                        return combinedOpcodes.Patterns.First(p => bytes.AsSpan().IndexOf(p.Pattern) >= 0).Score;
+                        RuleName = comboRule.Name,
+                        Score = comboRule.Score,
                     }
-                }
+                };
             }
-            return 0.0;
+
+            return new List<DetectionResult>();
         }
-        public async Task<bool> CheckForSuspiciousPatterns(string filePath, ExtractedStrings extractedStrings)
-        {
-            
-            var bytes = await File.ReadAllBytesAsync(filePath);
-
-            foreach (var pattern in extractedStrings.Patterns)
-            {
-                if (bytes.AsSpan().IndexOf(pattern) >= 0)
-                {
-                    Debug.WriteLine($"Suspicious pattern found in file: {filePath}");
-
-                    return true;
-                }
-
-            }
-            return false;
-        }
+        
     }
 }

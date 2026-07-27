@@ -30,7 +30,7 @@ namespace Toolkit_API.Controllers.ScanControllers
         {
             _HangfireService.storage(Environment.GetEnvironmentVariable("HANGFIRE"));
             //var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            var res = BackgroundJob.Enqueue(() => _fileScanOps.ScanFile(scanDTO.filePath, 2025));
+            BackgroundJob.Enqueue(() => _fileScanOps.ScanFile(scanDTO.filePath, 2025));
 
             return Ok();
 

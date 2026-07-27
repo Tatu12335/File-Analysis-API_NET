@@ -82,8 +82,12 @@ builder.Services.AddTransient<StaticFileAnalysis>();
 builder.Services.AddTransient<FileAnalysisResult>();
 builder.Services.AddTransient<FolderInfo>();
 builder.Services.AddTransient<IHandleUploadFolder, HandleUploadFolder>();
-builder.Services.AddTransient<CombinedOpcodes>();
 builder.Services.AddTransient<IhangfireService, HangfireService>();
+builder.Services.AddTransient<ExtractedStrings.ComboRule>();
+builder.Services.AddTransient<ExtractedStrings.PatternRule>();
+builder.Services.AddTransient<DetectionResult>();
+
+
 builder.Services.AddHangfire(options => 
 {
     options.UseSqlServerStorage(connectionStringHangfire);
@@ -91,13 +95,9 @@ builder.Services.AddHangfire(options =>
 builder.Services.AddHangfireServer();
 
 
-builder.Services.AddTransient<ScoringAlg>(
-    options => new ScoringAlg(options.GetRequiredService<IFileAnalysis>(),
-    options.GetRequiredService<HandleResult>(),
-    0.0,
-    options.GetRequiredService<ExtractedStrings>()
-
-));
+builder.Services.AddTransient<ScoringAlg>(options =>
+    new ScoringAlg(options.GetRequiredService<DetectionResult>())
+);
 
 builder.Services.AddTransient<IUserRepo, SqlUserRepo>(options =>
     new SqlUserRepo(options.GetRequiredService<IPasswordHasher>(), connetionString)
@@ -129,7 +129,6 @@ builder.Services.AddTransient<StaticFileAnalysis>(options =>
     new StaticFileAnalysis(options.GetRequiredService<IFileAnalysis>(),
         options.GetRequiredService<ScoringAlg>(),
         options.GetRequiredService<ExtractedStrings>(),
-        options.GetRequiredService<CombinedOpcodes>()
 
     )
 );
@@ -147,11 +146,16 @@ builder.Services.AddTransient<FileScanOps>(options =>
     options.GetRequiredService<StaticFileAnalysis>(),
     options.GetRequiredService<FileHasher>(),
     options.GetRequiredService<HandleZIP>(),
-    options.GetRequiredService<IHandleUploadFolder>()
+    options.GetRequiredService<IHandleUploadFolder>(),
+    options.GetRequiredService<List<ExtractedStrings.ComboRule>>(),
+    options.GetRequiredService<List<ExtractedStrings.PatternRule>>()
+
+
     )
 
+
+
 );
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddLogging(b =>
