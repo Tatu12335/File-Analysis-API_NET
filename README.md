@@ -12,4 +12,4 @@ Right now working on a job queue API, for this project. i decided to do that, be
 
 ## In the future ##
 ```
-
+As of now, im doing a freeze in features.
