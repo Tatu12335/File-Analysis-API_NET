@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.RateLimiting;
 using Toolkit_API.Application.Analysis;
 using Toolkit_API.Application.App_Services.User;
-using Toolkit_API.Application.Application_Services.EmailServices;
 using Toolkit_API.Application.Application_Services.FileOperations;
 using Toolkit_API.Application.Application_Services.Operations;
 using Toolkit_API.Application.Interfaces;
@@ -72,19 +71,14 @@ builder.Services.AddHttpClient<ICallExternalAPI, ExternalCalls>();
 builder.Services.AddTransient<HandleResult>();
 builder.Services.AddTransient<IFileAnalysis, FileAnalysis>();
 builder.Services.AddTransient<ExtractedStrings>();
-builder.Services.AddTransient<IEmailServices, EmailServices>();
 builder.Services.AddTransient<ZipPolicies>();
 builder.Services.AddTransient<IZipHandler, HandleZip>();
 builder.Services.AddTransient<HandleFolder>();
 builder.Services.AddTransient<HandleZip>();
 builder.Services.AddTransient<HandleResult>();
-builder.Services.AddTransient<StaticFileAnalysis>();
-builder.Services.AddTransient<FileAnalysisResult>();
 builder.Services.AddTransient<FolderInfo>();
 builder.Services.AddTransient<IHandleUploadFolder, HandleUploadFolder>();
 builder.Services.AddTransient<IhangfireService, HangfireService>();
-builder.Services.AddTransient<ExtractedStrings.ComboRule>();
-builder.Services.AddTransient<ExtractedStrings.PatternRule>();
 builder.Services.AddTransient<DetectionResult>();
 
 
@@ -95,9 +89,6 @@ builder.Services.AddHangfire(options =>
 builder.Services.AddHangfireServer();
 
 
-builder.Services.AddTransient<ScoringAlg>(options =>
-    new ScoringAlg(options.GetRequiredService<DetectionResult>())
-);
 
 builder.Services.AddTransient<IUserRepo, SqlUserRepo>(options =>
     new SqlUserRepo(options.GetRequiredService<IPasswordHasher>(), connetionString)
@@ -108,7 +99,7 @@ builder.Services.AddTransient<IAdminRepo, AdminRepository>(options =>
 );
 
 builder.Services.AddTransient<HandleFolder>(options =>
-    new HandleFolder(options.GetRequiredService<FileScanOps>(), new FolderInfo())
+    new HandleFolder(options.GetRequiredService<FolderInfo>())
 );
 
 builder.Services.AddTransient<HandleZIP>(options =>
@@ -121,17 +112,9 @@ builder.Services.AddTransient<IGenerateToken, TokenGenerator>(options =>
     new TokenGenerator(jwtKey)
 );
 
-builder.Services.AddTransient<NewLetter>(options =>
-    new NewLetter(options.GetRequiredService<IEmailServices>())
-);
 
-builder.Services.AddTransient<StaticFileAnalysis>(options =>
-    new StaticFileAnalysis(options.GetRequiredService<IFileAnalysis>(),
-        options.GetRequiredService<ScoringAlg>(),
-        options.GetRequiredService<ExtractedStrings>(),
 
-    )
-);
+
 
 builder.Services.AddTransient<IFileScanRepo, FileScanRepo>(options =>
     new FileScanRepo(options.GetRequiredService<FileHasher>(),
@@ -139,23 +122,8 @@ builder.Services.AddTransient<IFileScanRepo, FileScanRepo>(options =>
     )
 );
 
-builder.Services.AddTransient<FileScanOps>(options =>
-    new FileScanOps(options.GetRequiredService<IFileScanRepo>(),
-    options.GetRequiredService<ICallExternalAPI>(),
-    options.GetRequiredService<HandleResult>(),
-    options.GetRequiredService<StaticFileAnalysis>(),
-    options.GetRequiredService<FileHasher>(),
-    options.GetRequiredService<HandleZIP>(),
-    options.GetRequiredService<IHandleUploadFolder>(),
-    options.GetRequiredService<List<ExtractedStrings.ComboRule>>(),
-    options.GetRequiredService<List<ExtractedStrings.PatternRule>>()
 
 
-    )
-
-
-
-);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddLogging(b =>

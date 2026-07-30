@@ -3,13 +3,15 @@ using System.Text;
 using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Domain.Entities.FileAnalysis;
 using Toolkit_API.Domain.Entities.Files;
+using Toolkit_API.Domain.Policies;
 namespace Toolkit_API.Infrastructure.Services
 {
     public class FileAnalysis : IFileAnalysis
     {
-        public FileAnalysis()
+        private readonly ICapabilityAnalyzer _analyzer;
+        public FileAnalysis(ICapabilityAnalyzer analyzer)
         {
-
+            _analyzer = analyzer;
         }
         public async Task<string> Detect(byte[] bytes) => bytes switch
         {
@@ -57,24 +59,26 @@ namespace Toolkit_API.Infrastructure.Services
 
         }
 
-        public async Task<List<DetectionResult>> ComboDetection(string filePath, ExtractedStrings.ComboRule comboRule, ExtractedStrings extractedStrings)
+        public async Task<List<DetectionResult>> ComboDetection(string filePath, ExtractedStrings extractedStrings)
         {
-            bool isComboActive = comboRule.RequiredPatternIds.All(patternId =>
-                extractedStrings.Patterns.Any(p => p.SequenceEqual(Encoding.UTF8.GetBytes(patternId))));
+            
+            var bytes = File.ReadAllBytes(filePath);
 
-            if (isComboActive)
+            foreach ( var entry in extractedStrings.Patterns)
             {
-                return new List<DetectionResult>
+                if(bytes.AsSpan().IndexOf(entry) != -1)
                 {
-                    new DetectionResult
+                    return new List<DetectionResult>
                     {
-                        RuleName = comboRule.Name,
-                        Score = comboRule.Score,
-                    }
-                };
+                        new DetectionResult
+                        {
+                            RuleName = entry.ToString()
+                        }
+                    };
+                }
             }
 
-            return new List<DetectionResult>();
+            
         }
         
     }

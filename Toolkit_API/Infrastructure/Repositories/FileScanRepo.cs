@@ -2,6 +2,7 @@
 using Microsoft.Data.SqlClient;
 using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Domain.Entities.Files;
+using Toolkit_API.Domain.Policies;
 using Toolkit_API.Infrastructure.Services;
 
 namespace Toolkit_API.Infrastructure.Repositories
@@ -82,5 +83,16 @@ namespace Toolkit_API.Infrastructure.Repositories
                 return existingHash;
             }
         }
+        public async Task<IEnumerable<Capability>> GetCapability(byte[] FileHash, int userId)
+        {
+            using (var conn = new SqlConnection(_connetionString))
+            {
+                var capability = await conn.QueryAsync<Capability>("Select capabilities FROM SconLog Where FileHash = @Hash and userId = @UserID",
+                new { FileHash = FileHash, UserId = userId });
+
+                return capability;
+            }
+        }
+        
     }
 }

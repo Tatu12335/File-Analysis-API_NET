@@ -16,12 +16,12 @@ namespace Toolkit_API.Controllers.ScanControllers
     //[Authorize]
     public class FileScanController : ControllerBase
     {
-        private readonly FileScanOps _fileScanOps;
+        
         private readonly HandleFolder _Handler;
         private readonly IhangfireService _HangfireService;
-        public FileScanController(FileScanOps fileScanOps, HandleFolder handleFolder, IhangfireService hangfireService)
+        public FileScanController( HandleFolder handleFolder, IhangfireService hangfireService)
         {
-            _fileScanOps = fileScanOps;
+            
             _Handler = handleFolder;
             _HangfireService = hangfireService;
         }
@@ -30,7 +30,7 @@ namespace Toolkit_API.Controllers.ScanControllers
         {
             _HangfireService.storage(Environment.GetEnvironmentVariable("HANGFIRE"));
             //var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            BackgroundJob.Enqueue(() => _fileScanOps.ScanFile(scanDTO.filePath, 2025));
+            BackgroundJob.Enqueue(() => //_fileScanOps.ScanFile(scanDTO.filePath, 2025));
 
             return Ok();
 

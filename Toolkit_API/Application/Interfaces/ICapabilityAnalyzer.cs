@@ -1,9 +1,10 @@
-﻿using Toolkit_API.Domain.Policies;
+﻿using Toolkit_API.Domain.Entities.Files;
+using Toolkit_API.Domain.Policies;
 
 namespace Toolkit_API.Application.Interfaces
 {
     public interface ICapabilityAnalyzer
     {
-        public Task<Capability> AnalyzeCapabilities(string filePath);
+        public Task<DetectionResult> AnalyzeCapabilities(ScanResult scanResult);
     }
 }
