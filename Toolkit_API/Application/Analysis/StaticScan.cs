@@ -31,16 +31,14 @@ namespace Toolkit_API.Application.Analysis
             if (File != null)
             {
                 var cabalities = await _fileScanRepository.GetCapability(File.FileHash, userId);
-                var risklevel = await _Risk_Level.Calculate()
 
-
-
+                    
                 return new List<ScanResult>() {
                         new ScanResult
                         {
                             capabilities = cabalities,
                             score = File.Score,
-                             
+                            riskLevel = await _Risk_Level.Calculate()
                         }
 
                 };

@@ -21,7 +21,12 @@ namespace Toolkit_API.Domain.Entities.FileAnalysis
             "WriteProcessMemory",
             "GetProcAddress",
             "GetAsyncKeyState",
-            "vssadmin"
+            "vssadmin",
+            "VirtualAlloc",
+            "VirtualProtect",
+            "NtMapViewOfSection",
+            "ZwMapViewOfSection",
+            "QueueUserAPC"
 
         }.Select(s => Encoding.ASCII.GetBytes(s))
          .ToList();

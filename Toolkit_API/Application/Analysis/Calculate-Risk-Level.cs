@@ -20,8 +20,8 @@ namespace Toolkit_API.Application.Analysis
 
             return scanResult.capabilities switch
             {
-                var c when c.Contains(Capability.ReverseShell) ||
-                c.Contains(Capability.ProcessInjection)
+                var c when c.Contains(Capability.ReverseShell) 
+                || c.Contains(Capability.ProcessInjection)
                 => RiskLevel.Critical,
 
                 var c when c.Contains(Capability.PrivilegeEscalation)

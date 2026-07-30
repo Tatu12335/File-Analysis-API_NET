@@ -3,13 +3,15 @@ using System.Text;
 using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Domain.Entities.FileAnalysis;
 using Toolkit_API.Domain.Entities.Files;
+using Toolkit_API.Domain.Policies;
 namespace Toolkit_API.Infrastructure.Services
 {
     public class FileAnalysis : IFileAnalysis
     {
-        public FileAnalysis()
+        private readonly ICapabilityAnalyzer _analyzer;
+        public FileAnalysis(ICapabilityAnalyzer analyzer)
         {
-
+            _analyzer = analyzer;
         }
         public async Task<string> Detect(byte[] bytes) => bytes switch
         {
@@ -60,8 +62,23 @@ namespace Toolkit_API.Infrastructure.Services
         public async Task<List<DetectionResult>> ComboDetection(string filePath, ExtractedStrings extractedStrings)
         {
             
+            var bytes = File.ReadAllBytes(filePath);
 
-            return new List<DetectionResult>();
+            foreach ( var entry in extractedStrings.Patterns)
+            {
+                if(bytes.AsSpan().IndexOf(entry) != -1)
+                {
+                    return new List<DetectionResult>
+                    {
+                        new DetectionResult
+                        {
+                            RuleName = entry.ToString()
+                        }
+                    };
+                }
+            }
+
+            
         }
         
     }
