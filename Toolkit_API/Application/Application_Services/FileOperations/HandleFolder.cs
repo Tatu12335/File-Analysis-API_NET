@@ -4,12 +4,12 @@ namespace Toolkit_API.Application.Application_Services.FileOperations
 {
     public class HandleFolder
     {
-        private readonly FileScanOps _ops;
+        
         private readonly FolderInfo _files;
 
-        public HandleFolder(FileScanOps ops, FolderInfo files)
+        public HandleFolder( FolderInfo files)
         {
-            _ops = ops;
+            
             _files = files;
         }
 
@@ -39,7 +39,7 @@ namespace Toolkit_API.Application.Application_Services.FileOperations
 
                 if (File.Exists(current))
                 {
-                    var scanResult = await _ops.ScanFile(current, userId);
+                    //var scanResult = await _ops.ScanFile(current, userId);
                     _files.Files.Add(scanResult);
                     return _files;
                 }
@@ -48,7 +48,7 @@ namespace Toolkit_API.Application.Application_Services.FileOperations
 
                     if (File.Exists(file))
                     {
-                        var ScanResult = await _ops.ScanFile(file, userId);
+                       // var ScanResult = await _ops.ScanFile(file, userId);
                         _files.Files.Add(ScanResult);
 
                         if (!File.Exists(file))

@@ -1,4 +1,5 @@
 ﻿using Toolkit_API.Application.Interfaces;
+using Toolkit_API.Domain.Entities.Files;
 using Toolkit_API.Infrastructure.Repositories;
 
 namespace Toolkit_API.Application.Application_Services.FileOperations
@@ -13,7 +14,7 @@ namespace Toolkit_API.Application.Application_Services.FileOperations
             _fileScanRepo = fileScanRepo;
         }
 
-        public async Task<byte[]> ComputeFileHashAsync(string filePath, int userId)
+        public async Task<FileScanLog> ComputeFileHashAsync(string filePath, int userId)
         {
             var hashBytes = await _fileHasher.HashFileAsync(filePath);
             var hashExists = await _fileScanRepo.DoubleHash(hashBytes);
@@ -21,9 +22,10 @@ namespace Toolkit_API.Application.Application_Services.FileOperations
             if (hashExists != null)
             {
                 var file = await _fileScanRepo.GetFile(hashBytes, userId); 
+                return file;
             }
-
-            return hashBytes;
+            return null;
+            
         }
     }
 }

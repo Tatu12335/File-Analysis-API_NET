@@ -57,22 +57,9 @@ namespace Toolkit_API.Infrastructure.Services
 
         }
 
-        public async Task<List<DetectionResult>> ComboDetection(string filePath, ExtractedStrings.ComboRule comboRule, ExtractedStrings extractedStrings)
+        public async Task<List<DetectionResult>> ComboDetection(string filePath, ExtractedStrings extractedStrings)
         {
-            bool isComboActive = comboRule.RequiredPatternIds.All(patternId =>
-                extractedStrings.Patterns.Any(p => p.SequenceEqual(Encoding.UTF8.GetBytes(patternId))));
-
-            if (isComboActive)
-            {
-                return new List<DetectionResult>
-                {
-                    new DetectionResult
-                    {
-                        RuleName = comboRule.Name,
-                        Score = comboRule.Score,
-                    }
-                };
-            }
+            
 
             return new List<DetectionResult>();
         }

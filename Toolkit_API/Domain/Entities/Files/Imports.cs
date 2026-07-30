@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿
 using System.Text;
 
-namespace Toolkit_API.Domain.Entities.FileAnalysis
+namespace Toolkit_API.Domain.Entities.Files
 {
-    public class ExtractedStrings
+ 
+    public class Imports
     {
-        
-        public List<byte[]> Patterns = new List<string>()           
+        public List<byte[]> Patterns = new List<string>()
         {
             "http://",
             "https://",
@@ -21,7 +19,13 @@ namespace Toolkit_API.Domain.Entities.FileAnalysis
             "WriteProcessMemory",
             "GetProcAddress",
             "GetAsyncKeyState",
-            "vssadmin"
+            "vssadmin",
+            "VirtualAlloc",
+            "VirtualProtect",
+            "NtMapViewOfSection",
+            "ZwMapViewOfSection",
+            "QueueUserAPC",
+            ""
 
         }.Select(s => Encoding.ASCII.GetBytes(s))
          .ToList();
