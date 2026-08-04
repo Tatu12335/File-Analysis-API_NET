@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Text;
+using System.Threading.Tasks;
 using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Domain.Entities.FileAnalysis;
 using Toolkit_API.Domain.Entities.Files;
@@ -58,27 +59,33 @@ namespace Toolkit_API.Infrastructure.Services
             };
 
         }
-
-        public async Task<List<DetectionResult>> ComboDetection(string filePath, ExtractedStrings extractedStrings)
+       
+        public async Task<List<DetectionResult>> FindDetections(byte[] bytes, ExtractedStrings extractedStrings)
         {
-            
-            var bytes = File.ReadAllBytes(filePath);
-
-            foreach ( var entry in extractedStrings.Patterns)
+            var detections = new List<DetectionResult>();
+            foreach (var entry in extractedStrings.Patterns)
             {
-                if(bytes.AsSpan().IndexOf(entry) != -1)
+                if (bytes.AsSpan().IndexOf(entry) != -1)
                 {
-                    return new List<DetectionResult>
+                    var detectionResult = new DetectionResult
                     {
-                        new DetectionResult
-                        {
-                            RuleName = entry.ToString()
-                        }
+                        RuleName = Encoding.UTF8.GetString(entry),
+                        Score = 0,
+                        Confidence = 0.0
                     };
+                    var analyzedResult = await _analyzer.AnalyzeCapabilities(detectionResult);
+                    detections.Add(analyzedResult);
                 }
             }
+            return detections;
+        }
+        public async Task <List<DetectionResult>> ComboDetection(string filePath, ExtractedStrings extractedStrings)
+        {
+            byte[] bytes = await File.ReadAllBytesAsync(filePath);
 
-            
+            return await FindDetections(bytes, extractedStrings);
+
+
         }
         
     }

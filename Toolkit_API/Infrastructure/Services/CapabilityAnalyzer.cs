@@ -39,7 +39,7 @@ namespace Toolkit_API.Infrastructure.Services
                     Debug.WriteLine("Unknown strings");
                     return null;
             }
-
+            return Task.FromResult( detectionResult );
 
         }
 

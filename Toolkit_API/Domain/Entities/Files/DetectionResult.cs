@@ -6,5 +6,6 @@
         public double Score { get; set; }
         public double Confidence { get; set; }
         public string Description { get; set; }
+        public double Severity { get; set; } = 0;
     }
 }

@@ -11,6 +11,7 @@ namespace Toolkit_API.Application.Interfaces
         public Task<IEnumerable<byte[]>> DoubleHash(byte[] hash);
         public Task<FileScanLog> GetFile(byte[] hash, int userId);
         public Task<IEnumerable<int>> GetFileId(byte[] FileHash, int userId);
+        public Task InsertCapabalities(byte[] FileHash, int userId, IEnumerable<Capability> capabilities);
         public Task<IEnumerable<Capability>> GetCapability(byte[] FileHash, int userId);
     }
 }

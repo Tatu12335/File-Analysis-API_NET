@@ -83,6 +83,17 @@ namespace Toolkit_API.Infrastructure.Repositories
                 return existingHash;
             }
         }
+        public async Task InsertCapabalities(byte[] FileHash, int userId, IEnumerable<Capability> capabilities)
+        {
+            using (var conn = new SqlConnection(_connetionString))
+            {
+                foreach (var capability in capabilities)
+                {
+                    await conn.ExecuteAsync("Insert Into SconLog (FileHash, userId, capabilities) values (@FileHash, @UserId, @Capabilities)",
+                        new { FileHash = FileHash, UserId = userId, Capabilities = capability });
+                }
+            }
+        }
         public async Task<IEnumerable<Capability>> GetCapability(byte[] FileHash, int userId)
         {
             using (var conn = new SqlConnection(_connetionString))

@@ -24,7 +24,12 @@ namespace Toolkit_API.Application.Application_Services.FileOperations
                 var file = await _fileScanRepo.GetFile(hashBytes, userId); 
                 return file;
             }
-            return null;
+            // incase the hash does not exist, create a new FileScanLog object and return it
+            return new FileScanLog{
+                FileHash = hashBytes,
+                FileName = Path.GetFileName(filePath),
+                Score = 0
+            };
             
         }
     }

@@ -7,6 +7,7 @@ namespace Toolkit_API.Application.Interfaces
         public Task<string> Detect(byte[] bytes);
         public Task<string> AnalyzeFile(string filePath);
         public Task<DetectionResult> ExtensionMatches(string filepath);
+        public Task <List<DetectionResult>> FindDetections(byte[] bytes, ExtractedStrings extractedStrings);
         public Task<List<DetectionResult>> ComboDetection(string filePath, ExtractedStrings extractedStrings);
         
     }
