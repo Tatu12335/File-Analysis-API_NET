@@ -81,6 +81,29 @@ builder.Services.AddTransient<IhangfireService, HangfireService>();
 builder.Services.AddTransient<DetectionResult>();
 builder.Services.AddTransient<ICapabilityAnalyzer, CapabilityAnalyzer>();
 builder.Services.AddTransient<InsertAll>();
+builder.Services.AddTransient<Calculate_Risk_Level>();
+builder.Services.AddTransient<IFileHasher, FileHasher>();
+
+
+builder.Services.AddTransient<HashOps>(options =>
+    new HashOps(
+        options.GetRequiredService<IFileHasher>(),
+        options.GetRequiredService<IFileScanRepo>()
+
+    )
+
+);
+builder.Services.AddTransient<StaticScan>(options =>
+    new StaticScan(
+        options.GetRequiredService<IFileScanRepo>(),
+        options.GetRequiredService<HashOps>(),
+        options.GetRequiredService<ICallExternalAPI>(),
+        options.GetRequiredService<Calculate_Risk_Level>(),
+        options.GetRequiredService<ICapabilityAnalyzer>(),
+        options.GetRequiredService<ExtractedStrings>(),
+        options.GetRequiredService<IFileAnalysis>()
+    )
+);
 builder.Services.AddHangfire(options => 
 {
     options.UseSqlServerStorage(connectionStringHangfire);

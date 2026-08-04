@@ -38,6 +38,7 @@ namespace Toolkit_API.Application.Analysis
                 
 
             filepath = Path.GetFullPath(filepath);
+            IEnumerable<Capability> capabilities = null;
 
             var File = await _hashOps.ComputeFileHashAsync(filepath, userId);
 
@@ -50,26 +51,45 @@ namespace Toolkit_API.Application.Analysis
                         {
                             capabilities = cabalities,
                             score = File.Score,
-                            riskLevel = 0,
                             fileHash = File.FileHash,
                             fileName = File.FileName,
                         }
 
                 };
             }
+            
 
             var MalwareBazaarResult = await _callExternalAPI.CallAPI(File.FileHash, Environment.GetEnvironmentVariable("Malware_Bazaar_key"));
+            var Patterns = await _fileAnalysis.ComboDetection(filepath, _extractedStrings);
 
-            if(MalwareBazaarResult != null)
+            if (Patterns != null || !Patterns.Any())
+            {
+                foreach (var pattern in Patterns)
+                {
+                     capabilities = pattern.capabilities;
+                }
+
+                return new List<ScanResult>() {
+                        new ScanResult
+                        {
+                            capabilities = capabilities,
+                            score = File.Score,
+                            fileHash = File.FileHash,
+                            fileName = File.FileName,
+                        }
+                };
+            
+            }
+
+            if (MalwareBazaarResult != null)
             {
                 
                 
                 return new List<ScanResult>() {
                         new ScanResult
                         {
-                            capabilities = cabalities,
+                            capabilities = capabilities,
                             score = File.Score,
-                            riskLevel = riskLevel,
                             fileHash = File.FileHash,
                             fileName = File.FileName,
                         }

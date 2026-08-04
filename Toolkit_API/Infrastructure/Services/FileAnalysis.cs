@@ -10,9 +10,11 @@ namespace Toolkit_API.Infrastructure.Services
     public class FileAnalysis : IFileAnalysis
     {
         private readonly ICapabilityAnalyzer _analyzer;
+        
         public FileAnalysis(ICapabilityAnalyzer analyzer)
         {
             _analyzer = analyzer;
+            
         }
         public async Task<string> Detect(byte[] bytes) => bytes switch
         {
@@ -47,22 +49,18 @@ namespace Toolkit_API.Infrastructure.Services
                 return new DetectionResult
                 {
                     RuleName = "Extension Mismatch",
-                    Score = 10,
-                    Confidence = 1.0
+                    Score = +10,
+                    Confidence = 0.9
+  
                 };
             }
-            return new DetectionResult
-            {
-                RuleName = "Extension Matches",
-                Score = 0,
-                Confidence = 0.0
-            };
+            return new DetectionResult{ };
 
         }
-       
-        public async Task<List<DetectionResult>> FindDetections(byte[] bytes, ExtractedStrings extractedStrings)
+        
+        public async Task<IEnumerable<ScanResult>> FindDetections(byte[] bytes, ExtractedStrings extractedStrings)
         {
-            var detections = new List<DetectionResult>();
+            var detections = new List<ScanResult>();
             foreach (var entry in extractedStrings.Patterns)
             {
                 if (bytes.AsSpan().IndexOf(entry) != -1)
@@ -79,7 +77,7 @@ namespace Toolkit_API.Infrastructure.Services
             }
             return detections;
         }
-        public async Task <List<DetectionResult>> ComboDetection(string filePath, ExtractedStrings extractedStrings)
+        public async Task <IEnumerable<ScanResult>> ComboDetection(string filePath, ExtractedStrings extractedStrings)
         {
             byte[] bytes = await File.ReadAllBytesAsync(filePath);
 

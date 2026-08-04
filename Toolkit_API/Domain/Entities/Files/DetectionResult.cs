@@ -7,5 +7,6 @@
         public double Confidence { get; set; }
         public string Description { get; set; }
         public double Severity { get; set; } = 0;
+        public bool IsMalwareBazaarMatch { get; set; } = false;
     }
 }

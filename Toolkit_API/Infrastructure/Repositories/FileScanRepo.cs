@@ -75,11 +75,11 @@ namespace Toolkit_API.Infrastructure.Repositories
                 return result;
             }
         }
-        public async Task<IEnumerable<byte[]>> DoubleHash(byte[] hash)
+        public async Task<byte[]> DoubleHash(byte[] hash)
         {
             using (var conn = new SqlConnection(_connetionString))
             {
-                var existingHash = await conn.QueryAsync<byte[]>("Select FileHash From ScanLog Where FileHash = @Hash", new { Hash = hash });
+                var existingHash = await conn.QueryFirstOrDefaultAsync<byte[]>("Select FileHash From ScanLog Where FileHash = @Hash", new { Hash = hash });
                 return existingHash;
             }
         }

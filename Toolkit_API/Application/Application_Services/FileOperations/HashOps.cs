@@ -22,7 +22,12 @@ namespace Toolkit_API.Application.Application_Services.FileOperations
             if (hashExists != null)
             {
                 var file = await _fileScanRepo.GetFile(hashBytes, userId); 
-                return file;
+                return new FileScanLog
+                {
+                    FileHash = file.FileHash,
+                    FileName = file.FileName,
+                    Score = file.Score
+                };
             }
             // incase the hash does not exist, create a new FileScanLog object and return it
             return new FileScanLog{

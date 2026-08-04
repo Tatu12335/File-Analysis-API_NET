@@ -31,6 +31,7 @@ namespace Toolkit_API.Controllers.ScanControllers
         [HttpPost("Scan/File")]
         public async Task<IActionResult> ScanFile([FromBody] FileScanDTO scanDTO)
         {
+            scanDTO.filePath = scanDTO.filePath.Replace("\\", "/");
             _HangfireService.storage(Environment.GetEnvironmentVariable("HANGFIRE"));
             //var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             BackgroundJob.Enqueue(() => _scan.ScanFile(scanDTO.filePath,scanDTO.userId));
