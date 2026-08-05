@@ -5,6 +5,6 @@ namespace Toolkit_API.Application.Interfaces
 {
     public interface ICapabilityAnalyzer
     {
-        public Task<DetectionResult> AnalyzeCapabilities(ScanResult scanResult);
+        public Task <ScanResult> AnalyzeCapabilities(DetectionResult scanResult);
     }
 }

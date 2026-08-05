@@ -73,21 +73,48 @@ builder.Services.AddTransient<IFileAnalysis, FileAnalysis>();
 builder.Services.AddTransient<ExtractedStrings>();
 builder.Services.AddTransient<ZipPolicies>();
 builder.Services.AddTransient<IZipHandler, HandleZip>();
-builder.Services.AddTransient<HandleFolder>();
 builder.Services.AddTransient<HandleZip>();
 builder.Services.AddTransient<HandleResult>();
 builder.Services.AddTransient<FolderInfo>();
 builder.Services.AddTransient<IHandleUploadFolder, HandleUploadFolder>();
 builder.Services.AddTransient<IhangfireService, HangfireService>();
 builder.Services.AddTransient<DetectionResult>();
+builder.Services.AddTransient<ICapabilityAnalyzer, CapabilityAnalyzer>();
+builder.Services.AddTransient<InsertAll>();
+builder.Services.AddTransient<Calculate_Risk_Level>();
+builder.Services.AddTransient<IFileHasher, FileHasher>();
 
 
+builder.Services.AddTransient<HashOps>(options =>
+    new HashOps(
+        options.GetRequiredService<IFileHasher>(),
+        options.GetRequiredService<IFileScanRepo>()
+
+    )
+
+);
+builder.Services.AddTransient<StaticScan>(options =>
+    new StaticScan(
+        options.GetRequiredService<IFileScanRepo>(),
+        options.GetRequiredService<HashOps>(),
+        options.GetRequiredService<ICallExternalAPI>(),
+        options.GetRequiredService<Calculate_Risk_Level>(),
+        options.GetRequiredService<ICapabilityAnalyzer>(),
+        options.GetRequiredService<ExtractedStrings>(),
+        options.GetRequiredService<IFileAnalysis>()
+    )
+);
 builder.Services.AddHangfire(options => 
 {
     options.UseSqlServerStorage(connectionStringHangfire);
 });
 builder.Services.AddHangfireServer();
 
+builder.Services.AddTransient<InsertAll>(options => 
+    new InsertAll(
+    options.GetRequiredService<IFileScanRepo>()
+    )
+);
 
 
 builder.Services.AddTransient<IUserRepo, SqlUserRepo>(options =>
@@ -96,10 +123,6 @@ builder.Services.AddTransient<IUserRepo, SqlUserRepo>(options =>
 
 builder.Services.AddTransient<IAdminRepo, AdminRepository>(options =>
     new AdminRepository(connetionString)
-);
-
-builder.Services.AddTransient<HandleFolder>(options =>
-    new HandleFolder(options.GetRequiredService<FolderInfo>())
 );
 
 builder.Services.AddTransient<HandleZIP>(options =>
@@ -112,7 +135,11 @@ builder.Services.AddTransient<IGenerateToken, TokenGenerator>(options =>
     new TokenGenerator(jwtKey)
 );
 
-
+builder.Services.AddTransient<IFileAnalysis, FileAnalysis>(options =>
+    new FileAnalysis(
+        options.GetRequiredService<ICapabilityAnalyzer>()
+    )
+);
 
 
 

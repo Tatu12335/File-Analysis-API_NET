@@ -8,11 +8,11 @@ namespace Toolkit_API.Infrastructure.Services
     public class CapabilityAnalyzer : ICapabilityAnalyzer
     {
         // this method should only be called from FileAnalysis class.
-        public Task<DetectionResult> AnalyzeCapabilities(DetectionResult detectionResult)
+        public Task<ScanResult> AnalyzeCapabilities(DetectionResult detectionResult)
         {
             if (detectionResult == null)
-                return Task.FromResult(new DetectionResult());
-
+                return Task.FromResult(new ScanResult());
+            List<Capability> capabilities = new List<Capability>();
             switch (detectionResult.RuleName)
             {
                 case "http://" or "https://":
@@ -20,12 +20,14 @@ namespace Toolkit_API.Infrastructure.Services
                     detectionResult.Description = "Application makes unencrypted network calls";
                     detectionResult.RuleName = "Network.Unencrypted";
                     detectionResult.Confidence = 10.0;
+                    capabilities.Add(Capability.NetworkCommunication);
                     break;
-                case "cmd.exe" or "powershell.exe":
+                    case "cmd.exe" or "powershell.exe":
                     detectionResult.Score = 20;
                     detectionResult.Description = "Application uses commandline";
                     detectionResult.RuleName = "Uses.CommandLine";
                     detectionResult.Confidence = 20.0;
+                    capabilities.Add(Capability.CommandLineExecution);
                     break;
                 case string name when name.Contains("CreateRemoteThread")
                        && name.Contains("VirtualAllocEx")
@@ -34,12 +36,13 @@ namespace Toolkit_API.Infrastructure.Services
                     detectionResult.Description = "Application injects process/s";
                     detectionResult.RuleName = "Process.Injection";
                     detectionResult.Confidence = 50.0;
+                    capabilities.Add(Capability.ProcessInjection);
                     break;
                 default:
                     Debug.WriteLine("Unknown strings");
                     return null;
             }
-
+            return Task.FromResult(new ScanResult() { capabilities = capabilities });
 
         }
 

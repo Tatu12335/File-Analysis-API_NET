@@ -7,6 +7,7 @@ using Toolkit_API.Application.Interfaces;
 using Toolkit_API.DTOs.FileDTOs;
 using Toolkit_API.DTOs.FIleDTOs;
 using Hangfire;
+using Toolkit_API.Application.Analysis;
 
 namespace Toolkit_API.Controllers.ScanControllers
 {
@@ -17,32 +18,28 @@ namespace Toolkit_API.Controllers.ScanControllers
     public class FileScanController : ControllerBase
     {
         
-        private readonly HandleFolder _Handler;
+       
         private readonly IhangfireService _HangfireService;
-        public FileScanController( HandleFolder handleFolder, IhangfireService hangfireService)
+        private readonly StaticScan _scan;
+        public FileScanController( IhangfireService hangfireService, StaticScan scan)
         {
             
-            _Handler = handleFolder;
+            
             _HangfireService = hangfireService;
+            _scan = scan;
         }
         [HttpPost("Scan/File")]
         public async Task<IActionResult> ScanFile([FromBody] FileScanDTO scanDTO)
         {
+            scanDTO.filePath = scanDTO.filePath.Replace("\\", "/");
             _HangfireService.storage(Environment.GetEnvironmentVariable("HANGFIRE"));
             //var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            BackgroundJob.Enqueue(() => //_fileScanOps.ScanFile(scanDTO.filePath, 2025));
+            BackgroundJob.Enqueue(() => _scan.ScanFile(scanDTO.filePath,scanDTO.userId));
 
-            return Ok();
+            return Ok(BackgroundJob.Enqueue(() => _scan.ScanFile(scanDTO.filePath, scanDTO.userId)));
 
         }
-        [HttpPost("Scan/Folder")]
-        public async Task<IActionResult> ScanFolder([FromBody] FolderScanDTO scanDTO)
-        {
-
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            var result = await _Handler.Handler(scanDTO.filepath, userId);
-            return Ok(result);
-        }
+      
 
     }
 }

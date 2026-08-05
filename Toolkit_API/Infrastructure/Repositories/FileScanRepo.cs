@@ -75,19 +75,30 @@ namespace Toolkit_API.Infrastructure.Repositories
                 return result;
             }
         }
-        public async Task<IEnumerable<byte[]>> DoubleHash(byte[] hash)
+        public async Task<byte[]> DoubleHash(byte[] hash)
         {
             using (var conn = new SqlConnection(_connetionString))
             {
-                var existingHash = await conn.QueryAsync<byte[]>("Select FileHash From ScanLog Where FileHash = @Hash", new { Hash = hash });
+                var existingHash = await conn.QueryFirstOrDefaultAsync<byte[]>("Select FileHash From ScanLog Where FileHash = @Hash", new { Hash = hash });
                 return existingHash;
+            }
+        }
+        public async Task InsertCapabalities(byte[] FileHash, int userId, IEnumerable<Capability> capabilities)
+        {
+            using (var conn = new SqlConnection(_connetionString))
+            {
+                foreach (var capability in capabilities)
+                {
+                    await conn.ExecuteAsync("Update ScanLog Set capabilities = @Capabilities Where FileHash = @FileHash and userId = @UserId",
+                        new { FileHash = FileHash, UserId = userId, Capabilities = capability });
+                }
             }
         }
         public async Task<IEnumerable<Capability>> GetCapability(byte[] FileHash, int userId)
         {
             using (var conn = new SqlConnection(_connetionString))
             {
-                var capability = await conn.QueryAsync<Capability>("Select capabilities FROM SconLog Where FileHash = @Hash and userId = @UserID",
+                var capability = await conn.QueryAsync<Capability>("Select capabilities FROM ScanLog Where FileHash = @FileHash and userId = @UserId",
                 new { FileHash = FileHash, UserId = userId });
 
                 return capability;

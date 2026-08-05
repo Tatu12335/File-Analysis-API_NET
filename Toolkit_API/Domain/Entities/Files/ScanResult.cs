@@ -7,6 +7,8 @@ namespace Toolkit_API.Domain.Entities.Files
         public double score { get; set; }
         public RiskLevel riskLevel { get; set; } = RiskLevel.Low;
         public IEnumerable<Capability> capabilities { get; set; } = new List<Capability>();
+        public byte[] fileHash { get; set; }
+        public string fileName { get; set; }
         //public IReadOnlyCollection<DetectionResult> detections { get; set; } = new List<DetectionResult>();
     }
 }

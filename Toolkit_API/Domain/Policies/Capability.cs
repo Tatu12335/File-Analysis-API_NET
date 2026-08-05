@@ -31,5 +31,6 @@
         CommandExecution,
         PowerShellExecution,
         WMIEExecution,
+        CommandLineExecution
     }
 }
