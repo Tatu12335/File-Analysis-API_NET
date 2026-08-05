@@ -1,4 +1,5 @@
-﻿using Toolkit_API.Application.Application_Services.FileOperations;
+﻿using System.Diagnostics;
+using Toolkit_API.Application.Application_Services.FileOperations;
 using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Domain.Entities.FileAnalysis;
 using Toolkit_API.Domain.Entities.Files;
@@ -33,19 +34,24 @@ namespace Toolkit_API.Application.Analysis
         }
         public async Task<List<ScanResult>> ScanFile(string filepath, int userId)
         {
+            Debug.WriteLine($"Scanning file: {filepath} for user: {userId}");
             if (string.IsNullOrWhiteSpace(filepath))
                 return null;
                 
 
             filepath = Path.GetFullPath(filepath);
             IEnumerable<Capability> capabilities = null;
+            Debug.WriteLine($"Full path of the file: {filepath}");
+
 
             var File = await _hashOps.ComputeFileHashAsync(filepath, userId);
-
-            if (File != null)
+            Debug.WriteLine($"File hash: {BitConverter.ToString(File.FileHash).Replace("-", "").ToLower()}");
+           /* if (File.Capability != null)
             {
+                
+                
                 var cabalities = await _fileScanRepository.GetCapability(File.FileHash, userId);
-                    
+                 
                 return new List<ScanResult>() {
                         new ScanResult
                         {
@@ -56,11 +62,12 @@ namespace Toolkit_API.Application.Analysis
                         }
 
                 };
-            }
+            }*/
             
 
             var MalwareBazaarResult = await _callExternalAPI.CallAPI(File.FileHash, Environment.GetEnvironmentVariable("Malware_Bazaar_key"));
             var Patterns = await _fileAnalysis.ComboDetection(filepath, _extractedStrings);
+            Debug.WriteLine($"Patterns found: {Patterns?.Count() ?? 0}");
 
             if (Patterns != null || !Patterns.Any())
             {
@@ -69,6 +76,8 @@ namespace Toolkit_API.Application.Analysis
                      capabilities = pattern.capabilities;
                 }
 
+                await _fileScanRepository.InsertCapabalities(File.FileHash, userId, capabilities);
+                Debug.WriteLine($"Inserted capabilities for file hash: {BitConverter.ToString(File.FileHash).Replace("-", "").ToLower()}");
                 return new List<ScanResult>() {
                         new ScanResult
                         {

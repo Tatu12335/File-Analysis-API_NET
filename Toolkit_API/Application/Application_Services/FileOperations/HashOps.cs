@@ -24,6 +24,7 @@ namespace Toolkit_API.Application.Application_Services.FileOperations
                 var file = await _fileScanRepo.GetFile(hashBytes, userId); 
                 return new FileScanLog
                 {
+                    Capability = file.Capability,
                     FileHash = file.FileHash,
                     FileName = file.FileName,
                     Score = file.Score

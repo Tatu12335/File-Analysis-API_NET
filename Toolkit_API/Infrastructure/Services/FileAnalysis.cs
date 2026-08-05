@@ -61,6 +61,7 @@ namespace Toolkit_API.Infrastructure.Services
         public async Task<IEnumerable<ScanResult>> FindDetections(byte[] bytes, ExtractedStrings extractedStrings)
         {
             var detections = new List<ScanResult>();
+           
             foreach (var entry in extractedStrings.Patterns)
             {
                 if (bytes.AsSpan().IndexOf(entry) != -1)

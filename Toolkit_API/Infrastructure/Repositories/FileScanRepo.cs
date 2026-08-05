@@ -89,7 +89,7 @@ namespace Toolkit_API.Infrastructure.Repositories
             {
                 foreach (var capability in capabilities)
                 {
-                    await conn.ExecuteAsync("Insert Into SconLog (FileHash, userId, capabilities) values (@FileHash, @UserId, @Capabilities)",
+                    await conn.ExecuteAsync("Update ScanLog Set capabilities = @Capabilities Where FileHash = @FileHash and userId = @UserId",
                         new { FileHash = FileHash, UserId = userId, Capabilities = capability });
                 }
             }
@@ -98,7 +98,7 @@ namespace Toolkit_API.Infrastructure.Repositories
         {
             using (var conn = new SqlConnection(_connetionString))
             {
-                var capability = await conn.QueryAsync<Capability>("Select capabilities FROM SconLog Where FileHash = @Hash and userId = @UserID",
+                var capability = await conn.QueryAsync<Capability>("Select capabilities FROM ScanLog Where FileHash = @FileHash and userId = @UserId",
                 new { FileHash = FileHash, UserId = userId });
 
                 return capability;
