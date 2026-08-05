@@ -75,9 +75,13 @@ namespace Toolkit_API.Application.Analysis
                 {
                      capabilities = pattern.capabilities;
                 }
+                
+                if (capabilities != null)
+                    await _fileScanRepository.InsertCapabalities(File.FileHash, userId, capabilities);
 
-                await _fileScanRepository.InsertCapabalities(File.FileHash, userId, capabilities);
                 Debug.WriteLine($"Inserted capabilities for file hash: {BitConverter.ToString(File.FileHash).Replace("-", "").ToLower()}");
+                Debug.WriteLine($"Capabilities: {string.Join(", ", capabilities.Select(c => c.ToString()))}");
+              
                 return new List<ScanResult>() {
                         new ScanResult
                         {

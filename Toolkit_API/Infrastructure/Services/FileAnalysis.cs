@@ -49,7 +49,7 @@ namespace Toolkit_API.Infrastructure.Services
                 return new DetectionResult
                 {
                     RuleName = "Extension Mismatch",
-                    Score = +10,
+                    Score =+ 10.0,
                     Confidence = 0.9
   
                 };
