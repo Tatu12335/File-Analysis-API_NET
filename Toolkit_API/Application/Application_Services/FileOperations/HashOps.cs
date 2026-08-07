@@ -21,7 +21,19 @@ namespace Toolkit_API.Application.Application_Services.FileOperations
 
             if (hashExists != null)
             {
-                var file = await _fileScanRepo.GetFile(hashBytes, userId); 
+                var file = await _fileScanRepo.GetFile(hashBytes, userId);
+                
+                if(file == null)
+                {
+                    // if the file does not exist for the user, create a new FileScanLog object and return it
+                    return new FileScanLog
+                    {
+                        FileHash = hashBytes,
+                        FileName = Path.GetFileName(filePath),
+                        Score = 0
+                    };
+                }
+
                 return new FileScanLog
                 {
                     Capability = file.Capability,

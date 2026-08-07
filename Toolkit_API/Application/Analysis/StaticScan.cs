@@ -16,13 +16,15 @@ namespace Toolkit_API.Application.Analysis
         private readonly ICapabilityAnalyzer _capabilityAnalyzer;
         private readonly ExtractedStrings _extractedStrings;
         private readonly IFileAnalysis _fileAnalysis;
+        private readonly IResultRepository _resultRepo;
         public StaticScan(IFileScanRepo fileScanRepository, 
             HashOps hashOps, 
             ICallExternalAPI callExternalAPI, 
             Calculate_Risk_Level risk_Level, 
             ICapabilityAnalyzer capabilityAnalyzer,
             ExtractedStrings extractedStrings, 
-            IFileAnalysis fileAnalysis)
+            IFileAnalysis fileAnalysis,
+            IResultRepository resultRepository)
         {
             _fileScanRepository = fileScanRepository;
             _hashOps = hashOps;
@@ -31,6 +33,7 @@ namespace Toolkit_API.Application.Analysis
             _Risk_Level = risk_Level;
             _extractedStrings = extractedStrings;
             _fileAnalysis = fileAnalysis;
+            _resultRepo = resultRepository;
         }
         public async Task<List<ScanResult>> ScanFile(string filepath, int userId)
         {
@@ -81,7 +84,13 @@ namespace Toolkit_API.Application.Analysis
 
                 Debug.WriteLine($"Inserted capabilities for file hash: {BitConverter.ToString(File.FileHash).Replace("-", "").ToLower()}");
                 Debug.WriteLine($"Capabilities: {string.Join(", ", capabilities.Select(c => c.ToString()))}");
-              
+                await _resultRepo.SaveResultAsync(Guid.NewGuid().ToString(), new ScanResult
+                {
+                    capabilities = capabilities,
+                    score = File.Score,
+                    fileHash = File.FileHash,
+                    fileName = File.FileName,
+                });
                 return new List<ScanResult>() {
                         new ScanResult
                         {

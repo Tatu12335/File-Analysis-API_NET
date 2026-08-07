@@ -17,6 +17,7 @@ using Toolkit_API.Infrastructure.Security.Jwt;
 using Toolkit_API.Infrastructure.Services;
 using Toolkit_API.Middleware;
 using Hangfire;
+using Toolkit_API.Application.Hangfire;
 
 // Time spent on the project : 37hrs 0min
 var builder = WebApplication.CreateBuilder(args);
@@ -83,7 +84,9 @@ builder.Services.AddTransient<ICapabilityAnalyzer, CapabilityAnalyzer>();
 builder.Services.AddTransient<InsertAll>();
 builder.Services.AddTransient<Calculate_Risk_Level>();
 builder.Services.AddTransient<IFileHasher, FileHasher>();
-
+builder.Services.AddTransient<IResultRepository, ResultRepository>(options =>
+    new ResultRepository(connetionString)
+);
 
 builder.Services.AddTransient<HashOps>(options =>
     new HashOps(
@@ -101,7 +104,8 @@ builder.Services.AddTransient<StaticScan>(options =>
         options.GetRequiredService<Calculate_Risk_Level>(),
         options.GetRequiredService<ICapabilityAnalyzer>(),
         options.GetRequiredService<ExtractedStrings>(),
-        options.GetRequiredService<IFileAnalysis>()
+        options.GetRequiredService<IFileAnalysis>(),
+        options.GetRequiredService<IResultRepository>()
     )
 );
 builder.Services.AddHangfire(options => 
@@ -148,7 +152,7 @@ builder.Services.AddTransient<IFileScanRepo, FileScanRepo>(options =>
     connetionString
     )
 );
-
+builder.Services.AddSignalR();
 
 
 builder.Services.AddEndpointsApiExplorer();
@@ -186,6 +190,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.MapHub<Scanhub>("/scanHub");
 
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseCors("AllowAll");
