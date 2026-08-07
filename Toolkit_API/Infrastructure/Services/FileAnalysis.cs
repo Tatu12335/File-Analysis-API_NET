@@ -1,13 +1,20 @@
 ﻿using System.Diagnostics;
+using System.Text;
+using System.Threading.Tasks;
 using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Domain.Entities.FileAnalysis;
+using Toolkit_API.Domain.Entities.Files;
+using Toolkit_API.Domain.Policies;
 namespace Toolkit_API.Infrastructure.Services
 {
     public class FileAnalysis : IFileAnalysis
     {
-        public FileAnalysis()
+        private readonly ICapabilityAnalyzer _analyzer;
+        
+        public FileAnalysis(ICapabilityAnalyzer analyzer)
         {
-
+            _analyzer = analyzer;
+            
         }
         public async Task<string> Detect(byte[] bytes) => bytes switch
         {
@@ -28,51 +35,57 @@ namespace Toolkit_API.Infrastructure.Services
 
             return fileType;
         }
-        public async Task<bool> ExtensionMatches(string filepath)
+        public async Task<DetectionResult> ExtensionMatches(string filepath)
         {
             if (!File.Exists(filepath))
                 throw new FileNotFoundException($"File not found: {filepath}");
-            
+
             var extension = Path.GetExtension(filepath);
             var bytes = await File.ReadAllBytesAsync(filepath);
             var detectedType = await Detect(bytes);
 
-            return detectedType.Contains(extension.TrimStart('.'), StringComparison.OrdinalIgnoreCase);
+            if (!detectedType.Contains(extension.TrimStart('.'), StringComparison.OrdinalIgnoreCase))
+            {
+                return new DetectionResult
+                {
+                    RuleName = "Extension Mismatch",
+                    Score =+ 10.0,
+                    Confidence = 0.9
+  
+                };
+            }
+            return new DetectionResult{ };
 
         }
-        // this might not be very effiecient, but it works for now. We can optimize it later if needed.
-        public async Task<double> CombinedOpcodes(string filePath, ExtractedStrings extractedStrings,CombinedOpcodes combinedOpcodes)
+        
+        public async Task<IEnumerable<ScanResult>> FindDetections(byte[] bytes, ExtractedStrings extractedStrings)
         {
-            var bytes = await File.ReadAllBytesAsync(filePath);
-            foreach (var pattern in extractedStrings.Patterns)
+            var detections = new List<ScanResult>();
+           
+            foreach (var entry in extractedStrings.Patterns)
             {
-                if (bytes.AsSpan().IndexOf(pattern) >= 0)
+                if (bytes.AsSpan().IndexOf(entry) != -1)
                 {
-                    if (combinedOpcodes.Patterns.Any(p => bytes.AsSpan().IndexOf(p.Pattern) >= 0))
+                    var detectionResult = new DetectionResult
                     {
-                        Debug.WriteLine($"Combined opcode pattern found in file: {filePath}");
-                        return combinedOpcodes.Patterns.First(p => bytes.AsSpan().IndexOf(p.Pattern) >= 0).Score;
-                    }
+                        RuleName = Encoding.UTF8.GetString(entry),
+                        Score = 0,
+                        Confidence = 0.0
+                    };
+                    var analyzedResult = await _analyzer.AnalyzeCapabilities(detectionResult);
+                    detections.Add(analyzedResult);
                 }
             }
-            return 0.0;
+            return detections;
         }
-        public async Task<bool> CheckForSuspiciousPatterns(string filePath, ExtractedStrings extractedStrings)
+        public async Task <IEnumerable<ScanResult>> ComboDetection(string filePath, ExtractedStrings extractedStrings)
         {
-            
-            var bytes = await File.ReadAllBytesAsync(filePath);
+            byte[] bytes = await File.ReadAllBytesAsync(filePath);
 
-            foreach (var pattern in extractedStrings.Patterns)
-            {
-                if (bytes.AsSpan().IndexOf(pattern) >= 0)
-                {
-                    Debug.WriteLine($"Suspicious pattern found in file: {filePath}");
+            return await FindDetections(bytes, extractedStrings);
 
-                    return true;
-                }
 
-            }
-            return false;
         }
+        
     }
 }

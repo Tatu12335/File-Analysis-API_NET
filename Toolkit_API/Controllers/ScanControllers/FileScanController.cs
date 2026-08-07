@@ -7,6 +7,9 @@ using Toolkit_API.Application.Interfaces;
 using Toolkit_API.DTOs.FileDTOs;
 using Toolkit_API.DTOs.FIleDTOs;
 using Hangfire;
+using Toolkit_API.Application.Analysis;
+using Microsoft.AspNetCore.SignalR;
+using Toolkit_API.Application.Hangfire;
 
 namespace Toolkit_API.Controllers.ScanControllers
 {
@@ -16,33 +19,39 @@ namespace Toolkit_API.Controllers.ScanControllers
     //[Authorize]
     public class FileScanController : ControllerBase
     {
-        private readonly FileScanOps _fileScanOps;
-        private readonly HandleFolder _Handler;
+        
+       
         private readonly IhangfireService _HangfireService;
-        public FileScanController(FileScanOps fileScanOps, HandleFolder handleFolder, IhangfireService hangfireService)
-        {
-            _fileScanOps = fileScanOps;
-            _Handler = handleFolder;
+        private readonly StaticScan _scan;
+        private readonly IResultRepository _resultRepository;
+        public FileScanController( IhangfireService hangfireService, StaticScan scan, IResultRepository resultRepository)
+        { 
             _HangfireService = hangfireService;
+            _scan = scan;
+            _resultRepository = resultRepository;
         }
-        [HttpPost("Scan/File")]
+        // todo : enqueue the scan file method to hangfire and return the job id to the user
+        // Then make a endpoint that will return the scan result based on the job id and user id
+        [HttpPost("Scan")]
         public async Task<IActionResult> ScanFile([FromBody] FileScanDTO scanDTO)
         {
+            scanDTO.filePath = scanDTO.filePath.Replace("\\", "/");
             _HangfireService.storage(Environment.GetEnvironmentVariable("HANGFIRE"));
+            
             //var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            var res = BackgroundJob.Enqueue(() => _fileScanOps.ScanFile(scanDTO.filePath, 2025));
-
-            return Ok();
+            
+            var jobId = BackgroundJob.Enqueue(() => _scan.ScanFile(scanDTO.filePath,scanDTO.userId));
+            
+            return Accepted(new {jobId = jobId });
 
         }
-        [HttpPost("Scan/Folder")]
-        public async Task<IActionResult> ScanFolder([FromBody] FolderScanDTO scanDTO)
+        [HttpGet("Scan/Fetch/{jobId}")]
+        public async Task<IActionResult> GetScanResult(string jobId)
         {
-
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            var result = await _Handler.Handler(scanDTO.filepath, userId);
-            return Ok(result);
+            var result = await _resultRepository.GetResultAsync(jobId);
+            return Ok(new { result = result });
         }
+
 
     }
 }
