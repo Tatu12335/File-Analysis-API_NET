@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.RateLimiting;
 using Toolkit_API.Application.Analysis;
 using Toolkit_API.Application.App_Services.User;
-using Toolkit_API.Application.Application_Services.EmailServices;
 using Toolkit_API.Application.Application_Services.FileOperations;
 using Toolkit_API.Application.Application_Services.Operations;
 using Toolkit_API.Application.Interfaces;
@@ -18,6 +17,7 @@ using Toolkit_API.Infrastructure.Security.Jwt;
 using Toolkit_API.Infrastructure.Services;
 using Toolkit_API.Middleware;
 using Hangfire;
+using Toolkit_API.Application.Hangfire;
 
 // Time spent on the project : 37hrs 0min
 var builder = WebApplication.CreateBuilder(args);
@@ -72,32 +72,54 @@ builder.Services.AddHttpClient<ICallExternalAPI, ExternalCalls>();
 builder.Services.AddTransient<HandleResult>();
 builder.Services.AddTransient<IFileAnalysis, FileAnalysis>();
 builder.Services.AddTransient<ExtractedStrings>();
-builder.Services.AddTransient<IEmailServices, EmailServices>();
 builder.Services.AddTransient<ZipPolicies>();
 builder.Services.AddTransient<IZipHandler, HandleZip>();
-builder.Services.AddTransient<HandleFolder>();
 builder.Services.AddTransient<HandleZip>();
 builder.Services.AddTransient<HandleResult>();
-builder.Services.AddTransient<StaticFileAnalysis>();
-builder.Services.AddTransient<FileAnalysisResult>();
 builder.Services.AddTransient<FolderInfo>();
 builder.Services.AddTransient<IHandleUploadFolder, HandleUploadFolder>();
-builder.Services.AddTransient<CombinedOpcodes>();
 builder.Services.AddTransient<IhangfireService, HangfireService>();
+builder.Services.AddTransient<DetectionResult>();
+builder.Services.AddTransient<ICapabilityAnalyzer, CapabilityAnalyzer>();
+builder.Services.AddTransient<InsertAll>();
+builder.Services.AddTransient<Calculate_Risk_Level>();
+builder.Services.AddTransient<IFileHasher, FileHasher>();
+builder.Services.AddTransient<IResultRepository, ResultRepository>(options =>
+    new ResultRepository(connetionString)
+);
+
+builder.Services.AddTransient<HashOps>(options =>
+    new HashOps(
+        options.GetRequiredService<IFileHasher>(),
+        options.GetRequiredService<IFileScanRepo>()
+
+    )
+
+);
+builder.Services.AddTransient<StaticScan>(options =>
+    new StaticScan(
+        options.GetRequiredService<IFileScanRepo>(),
+        options.GetRequiredService<HashOps>(),
+        options.GetRequiredService<ICallExternalAPI>(),
+        options.GetRequiredService<Calculate_Risk_Level>(),
+        options.GetRequiredService<ICapabilityAnalyzer>(),
+        options.GetRequiredService<ExtractedStrings>(),
+        options.GetRequiredService<IFileAnalysis>(),
+        options.GetRequiredService<IResultRepository>()
+    )
+);
 builder.Services.AddHangfire(options => 
 {
     options.UseSqlServerStorage(connectionStringHangfire);
 });
 builder.Services.AddHangfireServer();
 
+builder.Services.AddTransient<InsertAll>(options => 
+    new InsertAll(
+    options.GetRequiredService<IFileScanRepo>()
+    )
+);
 
-builder.Services.AddTransient<ScoringAlg>(
-    options => new ScoringAlg(options.GetRequiredService<IFileAnalysis>(),
-    options.GetRequiredService<HandleResult>(),
-    0.0,
-    options.GetRequiredService<ExtractedStrings>()
-
-));
 
 builder.Services.AddTransient<IUserRepo, SqlUserRepo>(options =>
     new SqlUserRepo(options.GetRequiredService<IPasswordHasher>(), connetionString)
@@ -105,10 +127,6 @@ builder.Services.AddTransient<IUserRepo, SqlUserRepo>(options =>
 
 builder.Services.AddTransient<IAdminRepo, AdminRepository>(options =>
     new AdminRepository(connetionString)
-);
-
-builder.Services.AddTransient<HandleFolder>(options =>
-    new HandleFolder(options.GetRequiredService<FileScanOps>(), new FolderInfo())
 );
 
 builder.Services.AddTransient<HandleZIP>(options =>
@@ -121,37 +139,22 @@ builder.Services.AddTransient<IGenerateToken, TokenGenerator>(options =>
     new TokenGenerator(jwtKey)
 );
 
-builder.Services.AddTransient<NewLetter>(options =>
-    new NewLetter(options.GetRequiredService<IEmailServices>())
-);
-
-builder.Services.AddTransient<StaticFileAnalysis>(options =>
-    new StaticFileAnalysis(options.GetRequiredService<IFileAnalysis>(),
-        options.GetRequiredService<ScoringAlg>(),
-        options.GetRequiredService<ExtractedStrings>(),
-        options.GetRequiredService<CombinedOpcodes>()
-
+builder.Services.AddTransient<IFileAnalysis, FileAnalysis>(options =>
+    new FileAnalysis(
+        options.GetRequiredService<ICapabilityAnalyzer>()
     )
 );
+
+
 
 builder.Services.AddTransient<IFileScanRepo, FileScanRepo>(options =>
     new FileScanRepo(options.GetRequiredService<FileHasher>(),
     connetionString
     )
 );
+builder.Services.AddSignalR();
 
-builder.Services.AddTransient<FileScanOps>(options =>
-    new FileScanOps(options.GetRequiredService<IFileScanRepo>(),
-    options.GetRequiredService<ICallExternalAPI>(),
-    options.GetRequiredService<HandleResult>(),
-    options.GetRequiredService<StaticFileAnalysis>(),
-    options.GetRequiredService<FileHasher>(),
-    options.GetRequiredService<HandleZIP>(),
-    options.GetRequiredService<IHandleUploadFolder>()
-    )
 
-);
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddLogging(b =>
@@ -187,6 +190,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.MapHub<Scanhub>("/scanHub");
 
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseCors("AllowAll");

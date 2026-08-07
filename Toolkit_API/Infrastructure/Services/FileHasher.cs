@@ -1,13 +1,10 @@
 ﻿using System.Security.Cryptography;
+using Toolkit_API.Application.Interfaces;
 
 namespace Toolkit_API.Infrastructure.Services
 {
-    public class FileHasher
+    public class FileHasher : IFileHasher
     {
-        public FileHasher()
-        {
-
-        }
         public async Task<FileStream> OpenFS(string filePath)
         {
             return new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
@@ -23,5 +20,6 @@ namespace Toolkit_API.Infrastructure.Services
 
             }
         }
+        
     }
 }

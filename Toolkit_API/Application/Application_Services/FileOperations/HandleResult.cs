@@ -12,7 +12,7 @@ namespace Toolkit_API.Application.Application_Services.Operations
             {
                 var malwareData = response.Data[0];
 
-                return $"The file is might be malicious. SIGNATURE : [{malwareData.Signature}]. FILE : [{malwareData.FileName}].";
+                return $"{malwareData.Signature},{malwareData.FileName}";
             }
             else
             {
