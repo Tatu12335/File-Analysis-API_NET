@@ -8,6 +8,8 @@ using Toolkit_API.DTOs.FileDTOs;
 using Toolkit_API.DTOs.FIleDTOs;
 using Hangfire;
 using Toolkit_API.Application.Analysis;
+using Microsoft.AspNetCore.SignalR;
+using Toolkit_API.Application.Hangfire;
 
 namespace Toolkit_API.Controllers.ScanControllers
 {
@@ -21,25 +23,35 @@ namespace Toolkit_API.Controllers.ScanControllers
        
         private readonly IhangfireService _HangfireService;
         private readonly StaticScan _scan;
-        public FileScanController( IhangfireService hangfireService, StaticScan scan)
-        {
-            
-            
+        private readonly IResultRepository _resultRepository;
+        public FileScanController( IhangfireService hangfireService, StaticScan scan, IResultRepository resultRepository)
+        { 
             _HangfireService = hangfireService;
             _scan = scan;
+            _resultRepository = resultRepository;
         }
-        [HttpPost("Scan/File")]
+        // todo : enqueue the scan file method to hangfire and return the job id to the user
+        // Then make a endpoint that will return the scan result based on the job id and user id
+        [HttpPost("Scan")]
         public async Task<IActionResult> ScanFile([FromBody] FileScanDTO scanDTO)
         {
             scanDTO.filePath = scanDTO.filePath.Replace("\\", "/");
             _HangfireService.storage(Environment.GetEnvironmentVariable("HANGFIRE"));
+            
             //var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            BackgroundJob.Enqueue(() => _scan.ScanFile(scanDTO.filePath,scanDTO.userId));
-
-            return Ok(BackgroundJob.Enqueue(() => _scan.ScanFile(scanDTO.filePath, scanDTO.userId)));
+            
+            var jobId = BackgroundJob.Enqueue(() => _scan.ScanFile(scanDTO.filePath,scanDTO.userId));
+            
+            return Accepted(new {jobId = jobId });
 
         }
-      
+        [HttpGet("Scan/Fetch/{jobId}")]
+        public async Task<IActionResult> GetScanResult(string jobId)
+        {
+            var result = await _resultRepository.GetResultAsync(jobId);
+            return Ok(new { result = result });
+        }
+
 
     }
 }
