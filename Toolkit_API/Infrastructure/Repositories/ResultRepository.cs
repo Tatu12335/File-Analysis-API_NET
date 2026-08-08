@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
+using System.Diagnostics;
 using System.Text.Json;
 using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Domain.Entities.Files;
@@ -19,8 +20,11 @@ namespace Toolkit_API.Infrastructure.Repositories
 
             using (var connection = new SqlConnection(_connectionString))
             {
-                string query = "SELECT JsonData FROM ScanResult WHERE JobId = @JobId";
-                string jsonData = await connection.QueryFirstOrDefaultAsync<string>(query, new { JobId = jobId });
+                Debug.WriteLine($"Getting result for jobId: {jobId}");
+                string query = "SELECT JsonData FROM ScanResult WHERE jobId = @JobId";
+                string jsonData = await connection.QuerySingleAsync<string>(query, new { JobId = jobId });
+
+               
 
                 return JsonSerializer.Deserialize<ScanResult>(jsonData);
 
@@ -32,7 +36,9 @@ namespace Toolkit_API.Infrastructure.Repositories
             using (var connection = new SqlConnection(_connectionString))
             {
                 string jsonData = JsonSerializer.Serialize(result);
-                string query = "INSERT INTO ScanResult (JobId, JsonData) VALUES (@JobId, @JsonData)";
+                Debug.WriteLine($"Saving result for jobId: {jobId}, jsonData: {jsonData}");
+                
+                string query = "INSERT INTO ScanResult (jobId, JsonData) VALUES (@JobId, @JsonData)";
                 await connection.ExecuteAsync(query, new { JobId = jobId, JsonData = jsonData });
             }
         }

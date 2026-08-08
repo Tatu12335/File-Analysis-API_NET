@@ -11,5 +11,6 @@ namespace Toolkit_API.Domain.Entities.Files
         public double Score { get; set; }
         public Capability Capability { get; set; } = Capability.None;
         public double confidence { get; set; } = 0.0;
+        public double severity { get; set; } = 0.0;
     }
 }

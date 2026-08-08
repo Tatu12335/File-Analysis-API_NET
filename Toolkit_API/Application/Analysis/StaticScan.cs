@@ -17,6 +17,7 @@ namespace Toolkit_API.Application.Analysis
         private readonly ExtractedStrings _extractedStrings;
         private readonly IFileAnalysis _fileAnalysis;
         private readonly IResultRepository _resultRepo;
+        private readonly ScoringAlgorithmn _scoringAlgoritmn;
         public StaticScan(IFileScanRepo fileScanRepository, 
             HashOps hashOps, 
             ICallExternalAPI callExternalAPI, 
@@ -24,7 +25,8 @@ namespace Toolkit_API.Application.Analysis
             ICapabilityAnalyzer capabilityAnalyzer,
             ExtractedStrings extractedStrings, 
             IFileAnalysis fileAnalysis,
-            IResultRepository resultRepository)
+            IResultRepository resultRepository,
+            ScoringAlgorithmn scoringAlgorithmn)
         {
             _fileScanRepository = fileScanRepository;
             _hashOps = hashOps;
@@ -34,8 +36,9 @@ namespace Toolkit_API.Application.Analysis
             _extractedStrings = extractedStrings;
             _fileAnalysis = fileAnalysis;
             _resultRepo = resultRepository;
+            _scoringAlgoritmn = scoringAlgorithmn;
         }
-        public async Task<List<ScanResult>> ScanFile(string filepath, int userId)
+        public async Task<ScanResult> ScanFile(string filepath, int userId)
         {
             Debug.WriteLine($"Scanning file: {filepath} for user: {userId}");
             if (string.IsNullOrWhiteSpace(filepath))
@@ -71,6 +74,7 @@ namespace Toolkit_API.Application.Analysis
             var MalwareBazaarResult = await _callExternalAPI.CallAPI(File.FileHash, Environment.GetEnvironmentVariable("Malware_Bazaar_key"));
             var Patterns = await _fileAnalysis.ComboDetection(filepath, _extractedStrings);
             Debug.WriteLine($"Patterns found: {Patterns?.Count() ?? 0}");
+            
 
             if (Patterns != null || !Patterns.Any())
             {
@@ -80,26 +84,23 @@ namespace Toolkit_API.Application.Analysis
                 }
                 
                 if (capabilities != null)
-                    await _fileScanRepository.InsertCapabalities(File.FileHash, userId, capabilities);
+                    await _fileScanRepository.InsertCapabalities(File.FileHash, File.userId, capabilities);
 
                 Debug.WriteLine($"Inserted capabilities for file hash: {BitConverter.ToString(File.FileHash).Replace("-", "").ToLower()}");
                 Debug.WriteLine($"Capabilities: {string.Join(", ", capabilities.Select(c => c.ToString()))}");
-                await _resultRepo.SaveResultAsync(Guid.NewGuid().ToString(), new ScanResult
-                {
-                    capabilities = capabilities,
-                    score = File.Score,
-                    fileHash = File.FileHash,
-                    fileName = File.FileName,
-                });
-                return new List<ScanResult>() {
-                        new ScanResult
+                
+                  
+                       return new ScanResult
                         {
                             capabilities = capabilities,
-                            score = File.Score,
+                            
+                            score = _scoringAlgoritmn
+                            .CalculateScore(new ScanResult 
+                            { capabilities = capabilities, confidence = File.Score, severity = File.Score }),
+
                             fileHash = File.FileHash,
                             fileName = File.FileName,
-                        }
-                };
+                        };
             
             }
 
@@ -107,26 +108,29 @@ namespace Toolkit_API.Application.Analysis
             {
                 
                 
-                return new List<ScanResult>() {
+                
                         new ScanResult
                         {
                             capabilities = capabilities,
                             score = File.Score,
                             fileHash = File.FileHash,
                             fileName = File.FileName,
-                        }
-                };
+                            isMalwareBazaarMatch = 1,
+
+                        };
             }
 
 
-            return new List<ScanResult>() { 
-                new ScanResult
+
+
+             
+                return new ScanResult
                 {
                     fileHash = File.FileHash,
                     fileName = File.FileName,
                     score = 0,
-                }
-            };
+                };
+            
             
             
 
