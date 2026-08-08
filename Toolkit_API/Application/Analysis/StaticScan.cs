@@ -38,7 +38,7 @@ namespace Toolkit_API.Application.Analysis
             _resultRepo = resultRepository;
             _scoringAlgoritmn = scoringAlgorithmn;
         }
-        public async Task<List<ScanResult>> ScanFile(string filepath, int userId)
+        public async Task<ScanResult> ScanFile(string filepath, int userId)
         {
             Debug.WriteLine($"Scanning file: {filepath} for user: {userId}");
             if (string.IsNullOrWhiteSpace(filepath))
@@ -88,17 +88,9 @@ namespace Toolkit_API.Application.Analysis
 
                 Debug.WriteLine($"Inserted capabilities for file hash: {BitConverter.ToString(File.FileHash).Replace("-", "").ToLower()}");
                 Debug.WriteLine($"Capabilities: {string.Join(", ", capabilities.Select(c => c.ToString()))}");
-                await _resultRepo.SaveResultAsync(Guid.NewGuid().ToString(), new ScanResult
-                {
-                    capabilities = capabilities,
-                    score = File.Score,
-                    fileHash = File.FileHash,
-                    fileName = File.FileName,
-                    
-                    
-                });
-                return new List<ScanResult>() {
-                        new ScanResult
+                
+                  
+                       return new ScanResult
                         {
                             capabilities = capabilities,
                             
@@ -108,8 +100,7 @@ namespace Toolkit_API.Application.Analysis
 
                             fileHash = File.FileHash,
                             fileName = File.FileName,
-                        }
-                };
+                        };
             
             }
 
@@ -117,7 +108,7 @@ namespace Toolkit_API.Application.Analysis
             {
                 
                 
-                return new List<ScanResult>() {
+                
                         new ScanResult
                         {
                             capabilities = capabilities,
@@ -126,21 +117,20 @@ namespace Toolkit_API.Application.Analysis
                             fileName = File.FileName,
                             isMalwareBazaarMatch = 1,
 
-                        }
-                };
+                        };
             }
 
 
 
 
-            return new List<ScanResult>() { 
-                new ScanResult
+             
+                return new ScanResult
                 {
                     fileHash = File.FileHash,
                     fileName = File.FileName,
                     score = 0,
-                }
-            };
+                };
+            
             
             
 

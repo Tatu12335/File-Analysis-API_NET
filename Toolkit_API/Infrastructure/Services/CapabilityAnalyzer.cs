@@ -12,7 +12,9 @@ namespace Toolkit_API.Infrastructure.Services
         {
             if (detectionResult == null)
                 return Task.FromResult(new ScanResult());
+            
             List<Capability> capabilities = new List<Capability>();
+            
             switch (detectionResult.RuleName)
             {
                 case "http://":
@@ -91,7 +93,7 @@ namespace Toolkit_API.Infrastructure.Services
                     Debug.WriteLine("Unknown strings");
                     break;
             }
-            Debug.WriteLine($"Capabilities: {string.Join(", ", capabilities)}");
+            
             return Task.FromResult(new ScanResult() { capabilities = capabilities });
 
         }

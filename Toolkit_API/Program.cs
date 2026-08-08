@@ -85,6 +85,9 @@ builder.Services.AddTransient<InsertAll>();
 builder.Services.AddTransient<Calculate_Risk_Level>();
 builder.Services.AddTransient<IFileHasher, FileHasher>();
 builder.Services.AddTransient<ScoringAlgorithmn>();
+builder.Services.AddTransient<IScan, ScanService>(options =>
+    new ScanService(options.GetRequiredService<IResultRepository>(), options.GetRequiredService<StaticScan>())
+);
 builder.Services.AddTransient<IResultRepository, ResultRepository>(options =>
     new ResultRepository(connetionString)
 );
