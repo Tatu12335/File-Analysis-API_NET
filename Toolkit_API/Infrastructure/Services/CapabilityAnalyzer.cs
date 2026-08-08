@@ -64,6 +64,7 @@ namespace Toolkit_API.Infrastructure.Services
                     Debug.WriteLine("Unknown strings");
                     break;
             }
+            Debug.WriteLine($"Capabilities: {string.Join(", ", capabilities)}");
             return Task.FromResult(new ScanResult() { capabilities = capabilities });
 
         }
