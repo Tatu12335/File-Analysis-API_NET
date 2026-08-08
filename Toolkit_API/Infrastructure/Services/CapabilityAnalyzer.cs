@@ -12,7 +12,9 @@ namespace Toolkit_API.Infrastructure.Services
         {
             if (detectionResult == null)
                 return Task.FromResult(new ScanResult());
+            
             List<Capability> capabilities = new List<Capability>();
+            
             switch (detectionResult.RuleName)
             {
                 case "http://":
@@ -58,13 +60,40 @@ namespace Toolkit_API.Infrastructure.Services
                     detectionResult.Confidence = 20.0;
                     capabilities.Add(Capability.CommandExecution);
                     break;
-
+                case "GetAsyncKeyState" or "GetKeyState":
+                    detectionResult.Score = 80;
+                    detectionResult.Description = "Application logs keystrokes";
+                    detectionResult.RuleName = "Keylogging";
+                    detectionResult.Confidence = 50.0;
+                    capabilities.Add(Capability.Keylogging);
+                    break;
+                case "CreateFileA" or "CreateFileW":
+                    detectionResult.Score = 20;
+                    detectionResult.Description = "Application creates files";
+                    detectionResult.RuleName = "File.Creation";
+                    detectionResult.Confidence = 20.0;
+                    capabilities.Add(Capability.FileModification);
+                    break; 
+                case "DeleteFileA" or "DeleteFileW":
+                    detectionResult.Score = 20;
+                    detectionResult.Description = "Application deletes files";
+                    detectionResult.RuleName = "File.Deletion";
+                    detectionResult.Confidence = 20.0;
+                    capabilities.Add(Capability.FileDeletion);
+                    break;
+                case "OpenProcess":
+                    detectionResult.Score = 20;
+                    detectionResult.Description = "Application opens processes";
+                    detectionResult.RuleName = "Process.Opening";
+                    detectionResult.Confidence = 20.0;
+                    capabilities.Add(Capability.ProcessEnumeration);
+                    break;
 
                 default:
                     Debug.WriteLine("Unknown strings");
                     break;
             }
-            Debug.WriteLine($"Capabilities: {string.Join(", ", capabilities)}");
+            
             return Task.FromResult(new ScanResult() { capabilities = capabilities });
 
         }
