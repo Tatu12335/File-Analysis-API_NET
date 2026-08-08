@@ -9,6 +9,8 @@ namespace Toolkit_API.Domain.Entities.Files
         public IEnumerable<Capability> capabilities { get; set; } = new List<Capability>();
         public byte[] fileHash { get; set; }
         public string fileName { get; set; }
-        //public IReadOnlyCollection<DetectionResult> detections { get; set; } = new List<DetectionResult>();
+        public int isMalwareBazaarMatch { get; set; } // INT Beacause of sql server , 0 = false, 1 = true
+        public double confidence { get; set; } = 0.0;
+        public double severity { get; set; } = 0.0;
     }
 }

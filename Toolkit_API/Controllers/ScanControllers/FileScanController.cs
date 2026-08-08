@@ -9,7 +9,6 @@ using Toolkit_API.DTOs.FIleDTOs;
 using Hangfire;
 using Toolkit_API.Application.Analysis;
 using Microsoft.AspNetCore.SignalR;
-using Toolkit_API.Application.Hangfire;
 
 namespace Toolkit_API.Controllers.ScanControllers
 {
