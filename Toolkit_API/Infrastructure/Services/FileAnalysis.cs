@@ -57,27 +57,28 @@ namespace Toolkit_API.Infrastructure.Services
             return new DetectionResult{ };
 
         }
-        
+
         public async Task<IEnumerable<ScanResult>> FindDetections(byte[] bytes, ExtractedStrings extractedStrings)
         {
             var detections = new List<ScanResult>();
-           
+
             foreach (var entry in extractedStrings.Patterns)
             {
                 if (bytes.AsSpan().IndexOf(entry) != -1)
                 {
-                    var detectionResult = new DetectionResult
-                    {
-                        RuleName = Encoding.UTF8.GetString(entry),
-                        Score = 0,
-                        Confidence = 0.0
-                    };
-                    var analyzedResult = await _analyzer.AnalyzeCapabilities(detectionResult);
-                    detections.Add(analyzedResult);
+                    var kys = _analyzer.GetCapabilitiesName(bytes);
+
+                    
+                    //var analyzedResult = await _analyzer.AnalyzeCapabilities(detectionResult);
+                    detections.Add(kys);
                 }
             }
+
+            
+
             return detections;
         }
+        
         public async Task <IEnumerable<ScanResult>> ComboDetection(string filePath, ExtractedStrings extractedStrings)
         {
             byte[] bytes = await File.ReadAllBytesAsync(filePath);
