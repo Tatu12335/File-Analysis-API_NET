@@ -71,12 +71,13 @@ namespace Toolkit_API.Infrastructure.Services
                     
                     //var analyzedResult = await _analyzer.AnalyzeCapabilities(detectionResult);
                     detections.Add(kys);
+                    
                 }
             }
-
+            Debug.WriteLine("All the detections: " + string.Join(", ", detections));
             
 
-            return detections;
+            return new List<ScanResult>(detections);
         }
         
         public async Task <IEnumerable<ScanResult>> ComboDetection(string filePath, ExtractedStrings extractedStrings)

@@ -4,9 +4,9 @@ using Toolkit_API.Domain.Policies;
 
 namespace Toolkit_API.Middleware.Dapper
 {
-    public class CapabalityCollectionHandler : SqlMapper.TypeHandler<List<Capability>>
+    public class CapabalityCollectionHandler : SqlMapper.TypeHandler<IEnumerable<Capability>>
     {
-        public override void SetValue(IDbDataParameter parameter, List<Capability>? value)
+        public override void SetValue(IDbDataParameter parameter, IEnumerable<Capability>? value)
         {
             if (value == null || !value.Any())
             {
@@ -23,8 +23,7 @@ namespace Toolkit_API.Middleware.Dapper
             {
                 return strVal
                     .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(s => Enum.TryParse<Capability>(s, out var capability) ? capability : Capability.None)
-                    .Where(c => c != Capability.None)
+                    .Select(s => Enum.Parse<Capability>(s.Trim(), ignoreCase:true))
                     .ToList();
             }
             return new List<Capability>();

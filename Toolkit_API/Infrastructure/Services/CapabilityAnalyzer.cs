@@ -10,7 +10,7 @@ namespace Toolkit_API.Infrastructure.Services
     public class CapabilityAnalyzer : ICapabilityAnalyzer
     {
         // this method should only be called from FileAnalysis class.
-        public Task<ScanResult> AnalyzeCapabilities(DetectionResult detectionResult)
+       /* public Task<ScanResult> AnalyzeCapabilities(DetectionResult detectionResult)
         {
             if (detectionResult == null)
                 return Task.FromResult(new ScanResult());
@@ -162,88 +162,83 @@ namespace Toolkit_API.Infrastructure.Services
 
             return Task.FromResult(new ScanResult() { capabilities = capabilities });
 
-        }
+        }*/
         // I know this is not the most efficient way to do this, but it works for now. We can optimize this later if needed.
-        public ScanResult? GetCapabilitiesName(ReadOnlySpan<byte> pattern) => pattern switch
+        public ScanResult? GetCapabilitiesName(ReadOnlySpan<byte> pattern) 
         {
+            var capabilities = new HashSet<Capability>();
+
+            if(pattern.IndexOf("http://"u8) >= 0)
+            {
+                capabilities.Add(Capability.NetworkCommunication);
+            }
+            if(pattern.IndexOf("https://"u8) >= 0 || pattern.IndexOf("InternetOpenA"u8) >= 0
+                || pattern.IndexOf("InternetOpenW"u8) >= 0 ) 
+            {
             
+                capabilities.Add(Capability.NetworkCommunication);
+            }
+            if(pattern.IndexOf("cmd.exe"u8) >= 0 || pattern.IndexOf("powershell.exe"u8) >= 0)
+            {
+                capabilities.Add(Capability.CommandLineExecution);
+            }
+            if(pattern.IndexOf("CreateRemoteThread"u8) >= 0 || pattern.IndexOf("VirtualAlloc"u8) >= 0
+                || pattern.IndexOf("WriteProcessMemory"u8) >= 0)
+            {
+                capabilities.Add(Capability.ProcessInjection);
+            }
+            if(pattern.IndexOf("CreateProcessA"u8) >= 0 || pattern.IndexOf("CreateProcessW"u8) >= 0)
+            {
+                capabilities.Add(Capability.ProcessManipulation);
+            }
+            if(pattern.IndexOf("GetAsyncKeyState"u8) >= 0 || pattern.IndexOf("GetKeyState"u8) >= 0)
+            {
+                capabilities.Add(Capability.Keylogging);
+            }
+            if(pattern.IndexOf("CreateFileA"u8) >= 0 || pattern.IndexOf("CreateFileW"u8) >= 0)
+            {
+                capabilities.Add(Capability.FileManipulation);
+            }
+            if(pattern.IndexOf("DeleteFileA"u8) >= 0 || pattern.IndexOf("DeleteFileW"u8) >= 0)
+            {
+                capabilities.Add(Capability.FileDeletion);
+            }
+            if(pattern.IndexOf("OpenProcess"u8) >= 0)
+            {
+                capabilities.Add(Capability.ProcessEnumeration);
+            }
+            if(pattern.IndexOf("ReadProcessMemory"u8) >= 0)
+            {
+                capabilities.Add(Capability.MemoryReading);
+            }
+            if(pattern.IndexOf("IsDebuggerPresent"u8) >= 0)
+            {
+                capabilities.Add(Capability.AntiDebug);
+            }
+            if(pattern.IndexOf("IsVirtualMachine"u8) >= 0)
+            {
+                capabilities.Add(Capability.AntiVM);
+            }
+            if(pattern.IndexOf("CreateServiceA"u8) >= 0 || pattern.IndexOf("CreateServiceW"u8) >= 0)
+            {
+                capabilities.Add(Capability.ServiceInstalation);
+            }
+            if(pattern.IndexOf("RegCreateKeyA"u8) >= 0 || pattern.IndexOf("RegCreateKeyW"u8) >= 0
+                || pattern.IndexOf("RegSetValueA"u8) >= 0 || pattern.IndexOf("RegSetValueW"u8) >= 0
+                || pattern.IndexOf("RegDeleteKeyA"u8) >= 0 || pattern.IndexOf("RegDeleteKeyW"u8) >= 0
+                || pattern.IndexOf("RegDeleteValueA"u8) >= 0 || pattern.IndexOf("RegDeleteValueW"u8) >= 0)
+            {
+                capabilities.Add(Capability.RegisteryModification);
+            }
+            if(pattern.IndexOf("GetProcAddress"u8) >= 0)
+            {
+                capabilities.Add(Capability.ProcessEnumeration);
+            }
+            
+            Debug.WriteLine($"Capabilities found: {string.Join(", ", capabilities)}");
 
-            var p when p.IndexOf(Encoding.ASCII.GetBytes("http://")) >= 0 =>
-            new ScanResult {capabilities = new List<Capability> { Capability.NetworkCommunication }},
-
-            var p when p.IndexOf(Encoding.ASCII.GetBytes("https://")) >= 0 =>
-            new ScanResult { capabilities = new List<Capability> { Capability.NetworkCommunication }},
-
-            var p when p.IndexOf(Encoding.ASCII.GetBytes("cmd.exe")) >= 0 =>
-            new ScanResult { capabilities = new List<Capability> { Capability.CommandExecution } },
-
-            var p when p.IndexOf(Encoding.ASCII.GetBytes("powershell.exe")) >= 0 =>
-            new ScanResult {capabilities = new List<Capability> { Capability.CommandExecution }},
-
-            var p when p.IndexOf(Encoding.ASCII.GetBytes("CreateRemoteThread")) >= 0 =>
-            new ScanResult {capabilities = new List<Capability> { Capability.ProcessManipulation }},
-
-            var p when p.IndexOf(Encoding.ASCII.GetBytes("VirtualAllocEx")) >= 0 =>
-            new ScanResult {capabilities = new List<Capability> { Capability.ProcessManipulation }},
-
-            var p when p.IndexOf(Encoding.ASCII.GetBytes("WriteProcessMemory")) >= 0 =>
-            new ScanResult {capabilities = new List<Capability> { Capability.ProcessManipulation }},
-
-            var p when p.IndexOf(Encoding.ASCII.GetBytes("InternetOpenA")) >= 0 =>
-            new ScanResult {capabilities = new List<Capability> { Capability.NetworkCommunication }},
-
-            var p when p.IndexOf(Encoding.ASCII.GetBytes("InternetOpenW")) >= 0 =>
-            new ScanResult {capabilities = new List<Capability> { Capability.NetworkCommunication }},
-
-            var p when p.IndexOf(Encoding.ASCII.GetBytes("CreateProcessA")) >= 0 =>
-            new ScanResult {capabilities = new List<Capability> { Capability.ProcessManipulation }},
-
-            var p when p.IndexOf(Encoding.ASCII.GetBytes("CreateProcessW")) >= 0 =>
-            new ScanResult {capabilities = new List<Capability> { Capability.ProcessManipulation }},
-
-            var p when p.IndexOf(Encoding.ASCII.GetBytes("GetAsyncKeyState")) >= 0 =>
-            new ScanResult {capabilities = new List<Capability> { Capability.Keylogging}},
-
-            var p when p.IndexOf(Encoding.ASCII.GetBytes("GetKeyState")) >= 0 =>
-            new ScanResult {capabilities = new List<Capability> { Capability.Keylogging }},
-
-            var p when p.IndexOf(Encoding.ASCII.GetBytes("CreateFileA")) >= 0 =>
-            new ScanResult {capabilities = new List<Capability> { Capability.FileManipulation }},
-
-            var p when p.IndexOf(Encoding.ASCII.GetBytes("CreateFileW")) >= 0 =>
-            new ScanResult {capabilities = new List<Capability> { Capability.FileManipulation }},
-
-            var p when p.IndexOf(Encoding.ASCII.GetBytes("DeleteFileA")) >= 0 =>
-            new ScanResult {capabilities = new List<Capability> { Capability.FileManipulation }},
-
-            var p when p.IndexOf(Encoding.ASCII.GetBytes("DeleteFileW")) >= 0 =>
-            new ScanResult {capabilities = new List<Capability> { Capability.FileManipulation }},
-            var p when p.IndexOf(Encoding.ASCII.GetBytes("OpenProcess")) >= 0 =>
-            new ScanResult {capabilities = new List<Capability> { Capability.ProcessManipulation }},
-
-            var p when p.IndexOf(Encoding.ASCII.GetBytes("ReadProcessMemory")) >= 0 =>
-            new ScanResult {capabilities = new List<Capability> { Capability.ProcessManipulation }},
-
-            var p when p.IndexOf(Encoding.ASCII.GetBytes("IsDebuggerPresent")) >= 0 =>
-            new ScanResult {capabilities = new List<Capability> { Capability.AntiDebug }},
-
-            var p when p.IndexOf(Encoding.ASCII.GetBytes("IsVirtualMachine")) >= 0 =>
-            new ScanResult {capabilities = new List<Capability> { Capability.AntiVM }},
-
-            var p when p.IndexOf(Encoding.ASCII.GetBytes("CreateServiceA")) >= 0 =>
-            new ScanResult {capabilities = new List<Capability> { Capability.ServiceInstalation }},
-
-            var p when p.IndexOf(Encoding.ASCII.GetBytes("CreateServiceW")) >= 0 =>
-            new ScanResult {capabilities = new List<Capability> { Capability.ServiceInstalation }},
-
-            var p when p.IndexOf(Encoding.ASCII.GetBytes("RegCreateKeyA")) >= 0 =>
-            new ScanResult {capabilities = new List<Capability> { Capability.RegisteryModification }},
-
-            var p when p.IndexOf(Encoding.ASCII.GetBytes("RegCreateKeyW")) >= 0 =>
-            new ScanResult {capabilities = new List<Capability> { Capability.RegisteryModification }},
-
-            _ => null
-        };
+            return new ScanResult() { capabilities = capabilities };
+        }
     }
         
 }
