@@ -46,7 +46,7 @@ namespace Toolkit_API.Application.Analysis
                 
 
             filepath = Path.GetFullPath(filepath);
-            IEnumerable<Capability> capabilities = null;
+            
             Debug.WriteLine($"Full path of the file: {filepath}");
 
 
@@ -75,35 +75,31 @@ namespace Toolkit_API.Application.Analysis
             var Patterns = await _fileAnalysis.ComboDetection(filepath, _extractedStrings);
             Debug.WriteLine($"Patterns found: {Patterns?.Count() ?? 0}");
             
+            var capabilities = Patterns?
+                .Where(p => p.capabilities != null)
+                .SelectMany(p => p.capabilities)
+                .Distinct()
+                .ToList();
 
-            if (Patterns != null || !Patterns.Any())
+
+            if (capabilities != null && capabilities.Any())
             {
-                foreach (var pattern in Patterns)
-                {
-                     capabilities = pattern.capabilities;
-                }
-                
-                if (capabilities != null)
-                    await _fileScanRepository.InsertCapabalities(File.FileHash, File.userId, capabilities);
-
+                await _fileScanRepository.InsertCapabalities(File.FileHash, File.userId, capabilities);
                 Debug.WriteLine($"Inserted capabilities for file hash: {BitConverter.ToString(File.FileHash).Replace("-", "").ToLower()}");
                 Debug.WriteLine($"Capabilities: {string.Join(", ", capabilities.Select(c => c.ToString()))}");
-                
-                  
-                       return new ScanResult
-                        {
-                            capabilities = capabilities,
-                            
-                            score = _scoringAlgoritmn
-                            .CalculateScore(new ScanResult 
+                return new ScanResult
+                {
+                    capabilities = capabilities,
+
+                    score = _scoringAlgoritmn
+                            .CalculateScore(new ScanResult
                             { capabilities = capabilities, confidence = File.Score, severity = File.Score }),
 
-                            fileHash = File.FileHash,
-                            fileName = File.FileName,
-                        };
-            
+                    fileHash = File.FileHash,
+                    fileName = File.FileName,
+                };
             }
-
+            
             if (MalwareBazaarResult != null)
             {
                 

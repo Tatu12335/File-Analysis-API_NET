@@ -31,6 +31,10 @@
         CommandExecution,
         PowerShellExecution,
         WMIEExecution,
-        CommandLineExecution
+        CommandLineExecution,
+        DLLInjection,
+        CodeInjection,
+        ProcessManipulation,
+        FileManipulation,
     }
 }
