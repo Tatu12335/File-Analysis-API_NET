@@ -1,6 +1,5 @@
 ﻿using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Domain.Entities.Files;
-using Toolkit_API.Infrastructure.Repositories;
 
 namespace Toolkit_API.Application.Application_Services.FileOperations
 {
@@ -22,8 +21,8 @@ namespace Toolkit_API.Application.Application_Services.FileOperations
             if (hashExists != null)
             {
                 var file = await _fileScanRepo.GetFile(hashBytes, userId);
-                
-                if(file == null)
+
+                if (file == null)
                 {
                     // if the file does not exist for the user, create a new FileScanLog object and return it
                     return new FileScanLog
@@ -43,12 +42,13 @@ namespace Toolkit_API.Application.Application_Services.FileOperations
                 };
             }
             // incase the hash does not exist, create a new FileScanLog object and return it
-            return new FileScanLog{
+            return new FileScanLog
+            {
                 FileHash = hashBytes,
                 FileName = Path.GetFileName(filePath),
                 Score = 0
             };
-            
+
         }
     }
 }

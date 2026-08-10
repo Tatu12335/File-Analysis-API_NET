@@ -5,10 +5,10 @@ namespace Toolkit_API.Application.Analysis
 {
     public class Calculate_Risk_Level
     {
-        public Calculate_Risk_Level() 
-        { 
-            
-            
+        public Calculate_Risk_Level()
+        {
+
+
         }
 
         public async Task<RiskLevel> Calculate(ScanResult scanResult)
@@ -20,7 +20,7 @@ namespace Toolkit_API.Application.Analysis
 
             return scanResult.capabilities switch
             {
-                var c when c.Contains(Capability.ReverseShell) 
+                var c when c.Contains(Capability.ReverseShell)
                 || c.Contains(Capability.ProcessInjection)
                 => RiskLevel.Critical,
 

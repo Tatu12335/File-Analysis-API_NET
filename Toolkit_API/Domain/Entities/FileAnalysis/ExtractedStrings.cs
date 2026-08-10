@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 
 namespace Toolkit_API.Domain.Entities.FileAnalysis
 {
     public class ExtractedStrings
     {
-        
-        public List<byte[]> Patterns = new List<string>()           
+
+        public List<byte[]> Patterns = new List<string>()
         {
             // network calls
             "http://",

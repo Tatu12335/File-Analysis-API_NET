@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using TASK_API.Domain;
-using TASK_API.Services.Interfaces;
-using Toolkit_API.Application.Application_Services.Operations;
+﻿using TASK_API.Services.Interfaces;
 
 namespace TASK_API.Services
 {
@@ -17,9 +14,9 @@ namespace TASK_API.Services
         public async Task Add_Folder(int userId, string folderPath)
         {
             var files = await _repository.GetPendingJobs();
-          
+
             if (files == null || !files.Any())
-            {    
+            {
                 return;
             }
 
@@ -37,30 +34,30 @@ namespace TASK_API.Services
         }
         public async Task<string> Scan(int userId)
         {
-            
-                var result = string.Empty;
-                var jobs = await _repository.GetPendingJobs();
 
-                
+            var result = string.Empty;
+            var jobs = await _repository.GetPendingJobs();
 
-                foreach (var job in jobs)
+
+
+            foreach (var job in jobs)
+            {
+
+                var jobId = await _repository.GetJobId(job.filePath);
+
+                if (jobId != null)
                 {
+                    await _repository.UpdateJobStatusProcessing(job.filePath);
+                    result = await _operations.ScanFile(job.filePath, userId);
+                    await _repository.UpdateJobStatusCompleted(job.filePath);
 
-                    var jobId = await _repository.GetJobId(job.filePath);
-
-                    if (jobId != null)
-                    {
-                        await _repository.UpdateJobStatusProcessing(job.filePath);
-                        result = await _operations.ScanFile(job.filePath, userId);
-                        await _repository.UpdateJobStatusCompleted(job.filePath);
-
-                    }
                 }
-                
+            }
 
-                return result;
-            
-           
+
+            return result;
+
+
         }
     }
 }

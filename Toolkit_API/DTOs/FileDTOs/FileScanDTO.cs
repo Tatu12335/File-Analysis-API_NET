@@ -1,5 +1,4 @@
-﻿using Hangfire.Server;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Toolkit_API.DTOs.FIleDTOs
 {
@@ -9,8 +8,8 @@ namespace Toolkit_API.DTOs.FIleDTOs
         public string filePath { get; set; }
         [Required]
         public int userId { get; set; } = 0;
-        
-       
+
+
 
 
     }
