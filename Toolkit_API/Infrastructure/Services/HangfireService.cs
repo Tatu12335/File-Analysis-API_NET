@@ -1,5 +1,5 @@
-﻿using Toolkit_API.Application.Interfaces;
-using Hangfire;
+﻿using Hangfire;
+using Toolkit_API.Application.Interfaces;
 namespace Toolkit_API.Infrastructure.Services
 {
     public class HangfireService : IhangfireService

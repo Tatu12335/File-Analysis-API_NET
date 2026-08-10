@@ -5,7 +5,7 @@ namespace Toolkit_API.Application.Analysis
     public class InsertAll
     {
         private readonly IFileScanRepo _fileScanRepository;
-        
+
         public InsertAll(IFileScanRepo fileScanRepository)
         {
             _fileScanRepository = fileScanRepository;
