@@ -24,7 +24,7 @@ namespace Toolkit_API.Infrastructure.Repositories
                 string query = "SELECT JsonData FROM ScanResult WHERE jobId = @JobId";
                 string jsonData = await connection.QuerySingleAsync<string>(query, new { JobId = jobId });
 
-               
+
 
                 return JsonSerializer.Deserialize<ScanResult>(jsonData);
 
@@ -37,7 +37,7 @@ namespace Toolkit_API.Infrastructure.Repositories
             {
                 string jsonData = JsonSerializer.Serialize(result);
                 Debug.WriteLine($"Saving result for jobId: {jobId}, jsonData: {jsonData}");
-                
+
                 string query = "INSERT INTO ScanResult (jobId, JsonData) VALUES (@JobId, @JsonData)";
                 await connection.ExecuteAsync(query, new { JobId = jobId, JsonData = jsonData });
             }

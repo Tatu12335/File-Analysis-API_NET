@@ -1,7 +1,4 @@
-﻿using System.Diagnostics;
-using System.Text;
-using System.Threading.Tasks;
-using Toolkit_API.Application.Interfaces;
+﻿using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Domain.Entities.FileAnalysis;
 using Toolkit_API.Domain.Entities.Files;
 using Toolkit_API.Domain.Policies;
@@ -10,11 +7,11 @@ namespace Toolkit_API.Infrastructure.Services
     public class FileAnalysis : IFileAnalysis
     {
         private readonly ICapabilityAnalyzer _analyzer;
-        
+
         public FileAnalysis(ICapabilityAnalyzer analyzer)
         {
             _analyzer = analyzer;
-            
+
         }
         public async Task<string> Detect(byte[] bytes) => bytes switch
         {
@@ -49,45 +46,48 @@ namespace Toolkit_API.Infrastructure.Services
                 return new DetectionResult
                 {
                     RuleName = "Extension Mismatch",
-                    Score =+ 10.0,
+                    Score = +10.0,
                     Confidence = 0.9
-  
+
                 };
             }
-            return new DetectionResult{ };
+            return new DetectionResult { };
 
         }
-
-        public async Task<IEnumerable<ScanResult>> FindDetections(byte[] bytes, ExtractedStrings extractedStrings)
+        // This method should only be called from the "ComboDetection" Method
+        public Task<IEnumerable<Capability>> FindDetections(byte[] bytes, ExtractedStrings extractedStrings)
         {
-            var detections = new List<ScanResult>();
+            var FoundCapabilies = new List<Capability>();
 
             foreach (var entry in extractedStrings.Patterns)
             {
                 if (bytes.AsSpan().IndexOf(entry) != -1)
                 {
-                    var kys = _analyzer.GetCapabilitiesName(bytes);
+                    var Capabilities = _analyzer.GetCapabilitiesName(entry);
 
-                    
+                    FoundCapabilies.AddRange(Capabilities);
+
                     //var analyzedResult = await _analyzer.AnalyzeCapabilities(detectionResult);
-                    detections.Add(kys);
-                    
+
+
                 }
             }
-            Debug.WriteLine("All the detections: " + string.Join(", ", detections));
-            
 
-            return new List<ScanResult>(detections);
+
+
+            return Task.FromResult<IEnumerable<Capability>>(FoundCapabilies);
         }
-        
-        public async Task <IEnumerable<ScanResult>> ComboDetection(string filePath, ExtractedStrings extractedStrings)
+
+        public async Task<IEnumerable<Capability>> ComboDetection(string filePath, ExtractedStrings extractedStrings)
         {
             byte[] bytes = await File.ReadAllBytesAsync(filePath);
 
-            return await FindDetections(bytes, extractedStrings);
+            IEnumerable<Capability> result = await FindDetections(bytes, extractedStrings);
+
+            return result;
 
 
         }
-        
+
     }
 }

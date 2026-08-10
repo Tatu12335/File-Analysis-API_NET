@@ -1,3 +1,5 @@
+using Dapper;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -16,8 +18,6 @@ using Toolkit_API.Infrastructure.Security;
 using Toolkit_API.Infrastructure.Security.Jwt;
 using Toolkit_API.Infrastructure.Services;
 using Toolkit_API.Middleware;
-using Hangfire;
-using Dapper;
 using Toolkit_API.Middleware.Dapper;
 
 // Time spent on the project : 37hrs 0min
@@ -114,13 +114,13 @@ builder.Services.AddTransient<StaticScan>(options =>
         options.GetRequiredService<ScoringAlgorithmn>()
     )
 );
-builder.Services.AddHangfire(options => 
+builder.Services.AddHangfire(options =>
 {
     options.UseSqlServerStorage(connectionStringHangfire);
 });
 builder.Services.AddHangfireServer();
 
-builder.Services.AddTransient<InsertAll>(options => 
+builder.Services.AddTransient<InsertAll>(options =>
     new InsertAll(
     options.GetRequiredService<IFileScanRepo>()
     )
