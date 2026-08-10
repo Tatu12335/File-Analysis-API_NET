@@ -23,7 +23,7 @@ namespace Toolkit_API.Middleware.Dapper
             {
                 return strVal
                     .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(s => Enum.Parse<Capability>(s.Trim(), ignoreCase:true))
+                    .Select(s => Enum.Parse<Capability>(s.Trim(), ignoreCase: true))
                     .ToList();
             }
             return new List<Capability>();

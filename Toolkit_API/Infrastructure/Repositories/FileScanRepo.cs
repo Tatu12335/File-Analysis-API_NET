@@ -104,6 +104,6 @@ namespace Toolkit_API.Infrastructure.Repositories
                 return capability;
             }
         }
-        
+
     }
 }
