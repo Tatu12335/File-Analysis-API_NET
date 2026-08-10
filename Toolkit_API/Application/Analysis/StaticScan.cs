@@ -88,12 +88,16 @@ namespace Toolkit_API.Application.Analysis
                 }
             }
 
-            await _fileScanRepository.InsertCapabalities(File.FileHash, File.userId, capabilities);
+            var uniqueCapabilities = capabilities.Distinct().ToList();
+
+            if(uniqueCapabilities.Any())
+                await _fileScanRepository.InsertCapabalities(File.FileHash, File.userId, uniqueCapabilities);
+            
             Debug.WriteLine($"Inserted capabilities for file hash: {BitConverter.ToString(File.FileHash).Replace("-", "").ToLower()}");
             //Debug.WriteLine($"Capabilities: {string.Join(", ", capabilities.Select(c => c.ToString()))}");
             return new ScanResult
             {
-                capabilities = capabilities,
+                capabilities = uniqueCapabilities,
 
                 score = _scoringAlgoritmn
                         .CalculateScore(new ScanResult

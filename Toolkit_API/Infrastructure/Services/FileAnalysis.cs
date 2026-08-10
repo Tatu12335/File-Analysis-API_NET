@@ -64,8 +64,9 @@ namespace Toolkit_API.Infrastructure.Services
                 if (bytes.AsSpan().IndexOf(entry) != -1)
                 {
                     var Capabilities = _analyzer.GetCapabilitiesName(entry);
-
-                    FoundCapabilies.AddRange(Capabilities);
+                    
+                    if(Capabilities != null)
+                        FoundCapabilies.AddRange(Capabilities);
 
                     //var analyzedResult = await _analyzer.AnalyzeCapabilities(detectionResult);
 
@@ -75,7 +76,7 @@ namespace Toolkit_API.Infrastructure.Services
 
 
 
-            return Task.FromResult<IEnumerable<Capability>>(FoundCapabilies);
+            return Task.FromResult<IEnumerable<Capability>>(FoundCapabilies.Distinct());
         }
 
         public async Task<IEnumerable<Capability>> ComboDetection(string filePath, ExtractedStrings extractedStrings)
