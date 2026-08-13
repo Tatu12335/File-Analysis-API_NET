@@ -43,24 +43,18 @@ namespace Toolkit_API.Controllers.ScanControllers
             return Ok(new { jobId = jobId });
 
         }
-        [HttpGet("Scan/Capabilities/{jobId}")]
-        public async Task<IActionResult> GetCapabilities(string jobId)
-        {
-            var capabilities = await _resultRepository.GetCapabilities(jobId);
-            return Ok(new {Capabilities = capabilities });
-        }
         [HttpGet("Scan/Fetch/{jobId}")]
         public async Task<IActionResult> GetScanResult(string jobId)
         {
 
             var result = await _resultRepository.GetResultAsync(jobId);
            
-           /* var result2 = result.capabilities
+             var StringCapabilties = result.capabilities
                 .Select(x => x.ToString())
-                .ToList();*/
+                .ToList();
 
             
-            return Ok(new { RawScanResult = result});
+            return Ok(new { RawScanResult = result, StringCapabilties});
         }
 
 

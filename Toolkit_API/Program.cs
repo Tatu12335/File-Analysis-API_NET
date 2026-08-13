@@ -82,7 +82,7 @@ builder.Services.AddTransient<IHandleUploadFolder, HandleUploadFolder>();
 builder.Services.AddTransient<IhangfireService, HangfireService>();
 builder.Services.AddTransient<DetectionResult>();
 builder.Services.AddTransient<ICapabilityAnalyzer, CapabilityAnalyzer>();
-builder.Services.AddTransient<InsertAll>();
+builder.Services.AddTransient<Insert>();
 builder.Services.AddTransient<Calculate_Risk_Level>();
 builder.Services.AddTransient<IFileHasher, FileHasher>();
 builder.Services.AddTransient<ScoringAlgorithmn>();
@@ -120,8 +120,8 @@ builder.Services.AddHangfire(options =>
 });
 builder.Services.AddHangfireServer();
 
-builder.Services.AddTransient<InsertAll>(options =>
-    new InsertAll(
+builder.Services.AddTransient<Insert>(options =>
+    new Insert(
     options.GetRequiredService<IFileScanRepo>()
     )
 );

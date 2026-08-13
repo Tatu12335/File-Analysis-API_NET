@@ -68,8 +68,6 @@ namespace Toolkit_API.Infrastructure.Services
                     if(Capabilities != null)
                         FoundCapabilies.AddRange(Capabilities);
 
-                    //var analyzedResult = await _analyzer.AnalyzeCapabilities(detectionResult);
-
 
                 }
             }

@@ -1,12 +1,13 @@
 ﻿using Toolkit_API.Application.Interfaces;
+using Toolkit_API.Domain.Policies;
 
 namespace Toolkit_API.Application.Analysis
 {
-    public class InsertAll
+    public class Insert
     {
         private readonly IFileScanRepo _fileScanRepository;
 
-        public InsertAll(IFileScanRepo fileScanRepository)
+        public Insert(IFileScanRepo fileScanRepository)
         {
             _fileScanRepository = fileScanRepository;
         }

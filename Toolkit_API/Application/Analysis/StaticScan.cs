@@ -54,23 +54,7 @@ namespace Toolkit_API.Application.Analysis
 
             var File = await _hashOps.ComputeFileHashAsync(filepath, userId);
             Debug.WriteLine($"File hash: {BitConverter.ToString(File.FileHash).Replace("-", "").ToLower()}");
-            /* if (File.Capability != null)
-             {
-
-
-                 var cabalities = await _fileScanRepository.GetCapability(File.FileHash, userId);
-
-                 return new List<ScanResult>() {
-                         new ScanResult
-                         {
-                             capabilities = cabalities,
-                             score = File.Score,
-                             fileHash = File.FileHash,
-                             fileName = File.FileName,
-                         }
-
-                 };
-             }*/
+            
 
 
             var MalwareBazaarResult = await _callExternalAPI.CallAPI(File.FileHash, Environment.GetEnvironmentVariable("Malware_Bazaar_key"));
@@ -91,27 +75,13 @@ namespace Toolkit_API.Application.Analysis
             }
 
             var uniqueCapabilities = capabilities.Distinct().ToList();
-            var plainCapabilities = new List<string>();
             if (uniqueCapabilities.Any())
             {
-                plainCapabilities = uniqueCapabilities.Select(x => x.ToString()).ToList();
-                await _fileScanRepository.InsertCapabalities(File.FileHash, File.userId, plainCapabilities);
+                await _fileScanRepository.InsertCapabalities(File.FileHash, File.userId, uniqueCapabilities);
             }
 
 
             Debug.WriteLine($"Inserted capabilities for file hash: {BitConverter.ToString(File.FileHash).Replace("-", "").ToLower()}");
-           
-            return new ScanResult
-            {   
-                capabilities = uniqueCapabilities,
-
-                score = _scoringAlgoritmn
-                        .CalculateScore(new ScanResult
-                        { capabilities = capabilities, confidence = File.Score, severity = File.Score }),
-
-                fileHash = File.FileHash,
-                fileName = File.FileName,
-            };
             if (MalwareBazaarResult != null)
             {
 
@@ -125,19 +95,21 @@ namespace Toolkit_API.Application.Analysis
                     fileName = File.FileName,
                     isMalwareBazaarMatch = 1,
 
+
                 };
             }
-
-
-
-
-
             return new ScanResult
             {
+                capabilities = uniqueCapabilities,
+
+                score = _scoringAlgoritmn
+                        .CalculateScore(new ScanResult
+                        { capabilities = capabilities, confidence = File.Score, severity = File.Score }),
+                isMalwareBazaarMatch = 0, 
                 fileHash = File.FileHash,
                 fileName = File.FileName,
-                score = 0,
             };
+            
 
 
 
