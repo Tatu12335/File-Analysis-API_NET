@@ -12,6 +12,6 @@ Right now working on a job queue API, for this project. i decided to do that, be
 
 ## In the future ##
 ```
-• Add test [ Load,latency,etc ]
+• Add tests [ Load,latency,etc ]
 • Finish the analysis pipeline [ Might take awhile tho ]
-• Make a better solution to the capability analyzer, so tldr : Fix the if statement hell that ive built.
+• Make a better solution to the capability analyzer, so tldr : Fix the if statement hell that ive built, i think a kind of data ruleset would do the trick maybe.
