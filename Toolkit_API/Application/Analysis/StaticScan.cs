@@ -1,9 +1,11 @@
-﻿using System.Diagnostics;
+﻿using MimeKit.Cryptography;
+using System.Diagnostics;
 using Toolkit_API.Application.Application_Services.FileOperations;
 using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Domain.Entities.FileAnalysis;
 using Toolkit_API.Domain.Entities.Files;
 using Toolkit_API.Domain.Policies;
+using Toolkit_API.Middleware;
 
 namespace Toolkit_API.Application.Analysis
 {
@@ -52,23 +54,7 @@ namespace Toolkit_API.Application.Analysis
 
             var File = await _hashOps.ComputeFileHashAsync(filepath, userId);
             Debug.WriteLine($"File hash: {BitConverter.ToString(File.FileHash).Replace("-", "").ToLower()}");
-            /* if (File.Capability != null)
-             {
-
-
-                 var cabalities = await _fileScanRepository.GetCapability(File.FileHash, userId);
-
-                 return new List<ScanResult>() {
-                         new ScanResult
-                         {
-                             capabilities = cabalities,
-                             score = File.Score,
-                             fileHash = File.FileHash,
-                             fileName = File.FileName,
-                         }
-
-                 };
-             }*/
+            
 
 
             var MalwareBazaarResult = await _callExternalAPI.CallAPI(File.FileHash, Environment.GetEnvironmentVariable("Malware_Bazaar_key"));
@@ -89,23 +75,13 @@ namespace Toolkit_API.Application.Analysis
             }
 
             var uniqueCapabilities = capabilities.Distinct().ToList();
-
-            if(uniqueCapabilities.Any())
-                await _fileScanRepository.InsertCapabalities(File.FileHash, File.userId, uniqueCapabilities);
-            
-            Debug.WriteLine($"Inserted capabilities for file hash: {BitConverter.ToString(File.FileHash).Replace("-", "").ToLower()}");
-            //Debug.WriteLine($"Capabilities: {string.Join(", ", capabilities.Select(c => c.ToString()))}");
-            return new ScanResult
+            if (uniqueCapabilities.Any())
             {
-                capabilities = uniqueCapabilities,
+                await _fileScanRepository.InsertCapabalities(File.FileHash, File.userId, uniqueCapabilities);
+            }
 
-                score = _scoringAlgoritmn
-                        .CalculateScore(new ScanResult
-                        { capabilities = capabilities, confidence = File.Score, severity = File.Score }),
 
-                fileHash = File.FileHash,
-                fileName = File.FileName,
-            };
+            Debug.WriteLine($"Inserted capabilities for file hash: {BitConverter.ToString(File.FileHash).Replace("-", "").ToLower()}");
             if (MalwareBazaarResult != null)
             {
 
@@ -119,19 +95,21 @@ namespace Toolkit_API.Application.Analysis
                     fileName = File.FileName,
                     isMalwareBazaarMatch = 1,
 
+
                 };
             }
-
-
-
-
-
             return new ScanResult
             {
+                capabilities = uniqueCapabilities,
+
+                score = _scoringAlgoritmn
+                        .CalculateScore(new ScanResult
+                        { capabilities = capabilities, confidence = File.Score, severity = File.Score }),
+                isMalwareBazaarMatch = 0, 
                 fileHash = File.FileHash,
                 fileName = File.FileName,
-                score = 0,
             };
+            
 
 
 

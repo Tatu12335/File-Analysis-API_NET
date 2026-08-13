@@ -1,9 +1,11 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using System.Diagnostics;
+using System.Text;
 using System.Text.Json;
 using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Domain.Entities.Files;
+using Toolkit_API.Middleware;
 
 namespace Toolkit_API.Infrastructure.Repositories
 {
@@ -15,7 +17,18 @@ namespace Toolkit_API.Infrastructure.Repositories
         {
             _connectionString = connectionString;
         }
-        public async Task<ScanResult?> GetResultAsync(string jobId)
+        public async Task <List<string>> GetCapabilities(string jobId)
+        {
+            string query = "SELECT JsonData FROM ScanResult WHERE jobId = @JobId";
+
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var sqlResult = await conn.QuerySingleAsync<ScanResult>(query, new { JobId = jobId });
+                var final = sqlResult.capabilities.Select(x => x.ToString()).ToList();
+                return final;
+            }
+        }
+        public async Task <ScanResult> GetResultAsync(string jobId)
         {
 
             using (var connection = new SqlConnection(_connectionString))
@@ -24,9 +37,10 @@ namespace Toolkit_API.Infrastructure.Repositories
                 string query = "SELECT JsonData FROM ScanResult WHERE jobId = @JobId";
                 string jsonData = await connection.QuerySingleAsync<string>(query, new { JobId = jobId });
 
+                var json = JsonSerializer.Deserialize<ScanResult>(jsonData);               
 
+                return json;
 
-                return JsonSerializer.Deserialize<ScanResult>(jsonData);
 
             }
 
@@ -35,11 +49,15 @@ namespace Toolkit_API.Infrastructure.Repositories
         {
             using (var connection = new SqlConnection(_connectionString))
             {
-                string jsonData = JsonSerializer.Serialize(result);
-                Debug.WriteLine($"Saving result for jobId: {jobId}, jsonData: {jsonData}");
+                
+                var JsonData = JsonSerializer.Serialize(result);
+                    
+                Debug.WriteLine($"Saving result for jobId: {jobId}, jsonData: {JsonData}");
 
                 string query = "INSERT INTO ScanResult (jobId, JsonData) VALUES (@JobId, @JsonData)";
-                await connection.ExecuteAsync(query, new { JobId = jobId, JsonData = jsonData });
+                await connection.ExecuteAsync(query, new { JobId = jobId, JsonData = JsonData });
+
+                
             }
         }
     }
