@@ -18,7 +18,7 @@ using Toolkit_API.Infrastructure.Security;
 using Toolkit_API.Infrastructure.Security.Jwt;
 using Toolkit_API.Infrastructure.Services;
 using Toolkit_API.Middleware;
-using Toolkit_API.Middleware.Dapper;
+
 
 // Time spent on the project : 37hrs 0min
 var builder = WebApplication.CreateBuilder(args);
@@ -82,7 +82,7 @@ builder.Services.AddTransient<IHandleUploadFolder, HandleUploadFolder>();
 builder.Services.AddTransient<IhangfireService, HangfireService>();
 builder.Services.AddTransient<DetectionResult>();
 builder.Services.AddTransient<ICapabilityAnalyzer, CapabilityAnalyzer>();
-builder.Services.AddTransient<InsertAll>();
+builder.Services.AddTransient<Insert>();
 builder.Services.AddTransient<Calculate_Risk_Level>();
 builder.Services.AddTransient<IFileHasher, FileHasher>();
 builder.Services.AddTransient<ScoringAlgorithmn>();
@@ -120,8 +120,8 @@ builder.Services.AddHangfire(options =>
 });
 builder.Services.AddHangfireServer();
 
-builder.Services.AddTransient<InsertAll>(options =>
-    new InsertAll(
+builder.Services.AddTransient<Insert>(options =>
+    new Insert(
     options.GetRequiredService<IFileScanRepo>()
     )
 );
@@ -151,7 +151,6 @@ builder.Services.AddTransient<IFileAnalysis, FileAnalysis>(options =>
     )
 );
 
-SqlMapper.AddTypeHandler(new CapabalityCollectionHandler());
 
 builder.Services.AddTransient<IFileScanRepo, FileScanRepo>(options =>
     new FileScanRepo(options.GetRequiredService<FileHasher>(),
@@ -194,7 +193,7 @@ app.UseHangfireDashboard();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI( );
 }
 //app.MapHub<Scanhub>("/scanHub");
 

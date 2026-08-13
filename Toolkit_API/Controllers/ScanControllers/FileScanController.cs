@@ -1,9 +1,12 @@
 ﻿using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using System.Diagnostics;
 using Toolkit_API.Application.Analysis;
 using Toolkit_API.Application.Interfaces;
+using Toolkit_API.Domain.Entities.Files;
 using Toolkit_API.DTOs.FIleDTOs;
+using Toolkit_API.Middleware;
 
 namespace Toolkit_API.Controllers.ScanControllers
 {
@@ -26,8 +29,7 @@ namespace Toolkit_API.Controllers.ScanControllers
             _resultRepository = resultRepository;
             _ScannerService = scannerService;
         }
-        // todo : enqueue the scan file method to hangfire and return the job id to the user
-        // Then make a endpoint that will return the scan result based on the job id and user id
+        
         [HttpPost("Scan")]
         public async Task<IActionResult> ScanFile(FileScanDTO fileScanDTO)
         {
@@ -46,7 +48,13 @@ namespace Toolkit_API.Controllers.ScanControllers
         {
 
             var result = await _resultRepository.GetResultAsync(jobId);
-            return Ok(new { result = result });
+           
+             var StringCapabilties = result.capabilities
+                .Select(x => x.ToString())
+                .ToList();
+
+            
+            return Ok(new { RawScanResult = result, StringCapabilties});
         }
 
 
