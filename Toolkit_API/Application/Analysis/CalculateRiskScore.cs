@@ -3,14 +3,15 @@ using Toolkit_API.Domain.Policies;
 
 namespace Toolkit_API.Application.Analysis
 {
-    public class CalculateConfidence
+    public class CalculateRiskScore
     {
         public async Task<ScanResult>  Calculate(IEnumerable<Capability> capabilites)
         {
             if (capabilites.Contains(Capability.NetworkCommunication) && capabilites.Contains(Capability.ServiceInstalation))
             {
-                return new ScanResult {
+                return new ScanResult { };
             }
+            return new ScanResult { };
         }
     }
 }

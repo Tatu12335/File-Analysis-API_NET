@@ -63,11 +63,10 @@ namespace Toolkit_API.Infrastructure.Services
             {
                 if (bytes.AsSpan().IndexOf(entry) != -1)
                 {
-                    var Capabilities = _analyzer.GetCapabilitiesName(entry);
-                    
-                    if(Capabilities != null)
-                        FoundCapabilies.AddRange(Capabilities);
+                    var kys =  _analyzer.DetectCapabilites(entry);
 
+                    if (kys != null)
+                        FoundCapabilies.AddRange(kys);
 
                 }
             }

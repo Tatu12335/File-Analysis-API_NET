@@ -5,6 +5,6 @@ namespace Toolkit_API.Application.Interfaces
     public interface ICapabilityAnalyzer
     {
         //public Task <ScanResult> AnalyzeCapabilities(DetectionResult scanResult);
-        public IEnumerable<Capability> GetCapabilitiesName(ReadOnlySpan<byte> pattern);
+        public IEnumerable<Capability> DetectCapabilites(ReadOnlySpan<byte> rawData);
     }
 }
