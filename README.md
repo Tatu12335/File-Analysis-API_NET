@@ -12,4 +12,5 @@ Right now working on a job queue API, for this project. i decided to do that, be
 
 ## In the future ##
 ```
-As of now, im going to rewrite this probably.
+• Add test [ Load,latency,etc ]
+• Finish the analysis pipeline [ Might take awhile tho ]
