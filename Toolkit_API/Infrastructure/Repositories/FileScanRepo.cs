@@ -83,7 +83,7 @@ namespace Toolkit_API.Infrastructure.Repositories
                 return existingHash;
             }
         }
-        public async Task InsertCapabalities(byte[] FileHash, int userId, IEnumerable<Capability> capabilities)
+        public async Task InsertCapabalities(byte[] FileHash, int userId, IEnumerable<string> capabilities)
         {
             using (var conn = new SqlConnection(_connetionString))
             {

@@ -1,9 +1,11 @@
-﻿using System.Diagnostics;
+﻿using MimeKit.Cryptography;
+using System.Diagnostics;
 using Toolkit_API.Application.Application_Services.FileOperations;
 using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Domain.Entities.FileAnalysis;
 using Toolkit_API.Domain.Entities.Files;
 using Toolkit_API.Domain.Policies;
+using Toolkit_API.Middleware;
 
 namespace Toolkit_API.Application.Analysis
 {
@@ -89,14 +91,18 @@ namespace Toolkit_API.Application.Analysis
             }
 
             var uniqueCapabilities = capabilities.Distinct().ToList();
-
-            if(uniqueCapabilities.Any())
-                await _fileScanRepository.InsertCapabalities(File.FileHash, File.userId, uniqueCapabilities);
-            
-            Debug.WriteLine($"Inserted capabilities for file hash: {BitConverter.ToString(File.FileHash).Replace("-", "").ToLower()}");
-            //Debug.WriteLine($"Capabilities: {string.Join(", ", capabilities.Select(c => c.ToString()))}");
-            return new ScanResult
+            var plainCapabilities = new List<string>();
+            if (uniqueCapabilities.Any())
             {
+                plainCapabilities = uniqueCapabilities.Select(x => x.ToString()).ToList();
+                await _fileScanRepository.InsertCapabalities(File.FileHash, File.userId, plainCapabilities);
+            }
+
+
+            Debug.WriteLine($"Inserted capabilities for file hash: {BitConverter.ToString(File.FileHash).Replace("-", "").ToLower()}");
+           
+            return new ScanResult
+            {   
                 capabilities = uniqueCapabilities,
 
                 score = _scoringAlgoritmn
