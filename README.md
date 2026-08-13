@@ -14,3 +14,4 @@ Right now working on a job queue API, for this project. i decided to do that, be
 ```
 • Add test [ Load,latency,etc ]
 • Finish the analysis pipeline [ Might take awhile tho ]
+• Make a better solution to the capability analyzer, so tldr : Fix the if statement hell that ive built.
