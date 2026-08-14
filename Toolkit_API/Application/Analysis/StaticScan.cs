@@ -79,6 +79,9 @@ namespace Toolkit_API.Application.Analysis
             {
                 await _fileScanRepository.InsertCapabalities(File.FileHash, File.userId, uniqueCapabilities);
             }
+            var imports = await _fileAnalysis.ImportAnalysis(filepath, _extractedStrings);
+
+            
 
 
             Debug.WriteLine($"Inserted capabilities for file hash: {BitConverter.ToString(File.FileHash).Replace("-", "").ToLower()}");
@@ -94,7 +97,7 @@ namespace Toolkit_API.Application.Analysis
                     fileHash = File.FileHash,
                     fileName = File.FileName,
                     isMalwareBazaarMatch = 1,
-
+                    imports = imports
 
                 };
             }
@@ -108,6 +111,7 @@ namespace Toolkit_API.Application.Analysis
                 isMalwareBazaarMatch = 0, 
                 fileHash = File.FileHash,
                 fileName = File.FileName,
+                imports = imports
             };
             
 

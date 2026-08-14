@@ -34,7 +34,5 @@
         CommandLineExecution,
         DLLInjection,
         CodeInjection,
-        ProcessManipulation,
-        FileManipulation,
     }
 }
