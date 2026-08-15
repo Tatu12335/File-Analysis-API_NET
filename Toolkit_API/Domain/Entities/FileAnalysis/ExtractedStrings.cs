@@ -50,7 +50,7 @@ namespace Toolkit_API.Domain.Entities.FileAnalysis
             "CryptGenKey",
             // Living off the land
             "rundll32.exe",
-            "regsvr32",
+            "regsvr32.exe",
             "certutil.exe",
             "mshta.exe",
             "wmic.exe",
