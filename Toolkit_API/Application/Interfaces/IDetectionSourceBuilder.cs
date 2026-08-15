@@ -5,7 +5,7 @@ namespace Toolkit_API.Application.Interfaces
 {
     public interface IDetectionSourceBuilder
     {
-        public Task<DetectionSource> RegisterFindings(string filepath, ExtractedStrings extractedStrings);
-        public Task CreateContext(string filepath, ExtractedStrings extractedStrings);
+        public DetectionSource RegisterFindings(Capability capability, Source source);
+        public Task<IEnumerable<DetectionSource>> CreateContext(string filepath, ExtractedStrings extractedStrings);
     }
 }

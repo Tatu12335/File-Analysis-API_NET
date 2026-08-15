@@ -90,10 +90,10 @@ namespace Toolkit_API.Application.Analysis
             }*/
 
             var Capabilities = await _detectionSourceBuilder.CreateContext(filepath, _extractedStrings);
+            
 
 
-
-            Debug.WriteLine(Capabilities);
+            
             
             Debug.WriteLine($"Inserted capabilities for file hash: {BitConverter.ToString(File.FileHash).Replace("-", "").ToLower()}");
             if (MalwareBazaarResult != null)

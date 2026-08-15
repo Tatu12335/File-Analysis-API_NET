@@ -12,39 +12,38 @@ namespace Toolkit_API.Infrastructure.Services
         {
             _fileAnalysis = fileAnalysis;
         }
-        public async Task CreateContext(string filepath, ExtractedStrings extractedStrings)
+        public async Task<IEnumerable<DetectionSource>> CreateContext(string filepath, ExtractedStrings extractedStrings)
         {
             var imports = await _fileAnalysis.ImportAnalysis(filepath, extractedStrings);
-            var strings = await _fileAnalysis.ComboDetection(filepath, extractedStrings);
-            var capabilityDict = new Dictionary<Capability, Source>();
+            var ComboFindings = await _fileAnalysis.ComboDetection(filepath, extractedStrings);
+            var PlainFindings = new List<DetectionSource>();
 
-            if (!strings.Any() && !imports.Any())
-                return;
-            // WHAT THE FUCK IS THIS SHIT!
-            foreach(var import in imports)
-            {
-                await RegisterFindings(import, Source.Import);
-                if(strings.Any()) 
+
+
+            if (!ComboFindings.Any() && !imports.Any())
+                return new List<DetectionSource>();
+
+                foreach (var import in imports)
                 {
-                    foreach(var str in strings)
-                    {
-                        await RegisterFindings(str, Source.String);
-                    }
+                    PlainFindings.Add(RegisterFindings(import, Source.Import));
                 }
-            }
-            foreach(var str in strings)
+
+
+            foreach (var str in ComboFindings)
             {
-                await RegisterFindings(str, Source.String); 
+                PlainFindings.Add(RegisterFindings(str, Source.String));
             }
 
-            return;
+            return PlainFindings;
         }
-        public async Task<DetectionSource> RegisterFindings(Capability capability, Source source)
+        public DetectionSource RegisterFindings(Capability capability, Source source)
         {
            
             var CapabalityList = new Dictionary<Capability, Source>();
 
-
+            CapabalityList[capability] = CapabalityList.TryGetValue(capability, out var existing)
+                ? existing | source
+                : source;
              
             
             

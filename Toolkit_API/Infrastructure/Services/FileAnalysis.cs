@@ -67,13 +67,12 @@ namespace Toolkit_API.Infrastructure.Services
                 if (bytes.AsSpan().IndexOf(entry) != -1)
                 {
                     var rawByteCapabilties =  _analyzer.DetectCapabilites(entry);
-                    var ImportedCapabilities = _importAnalyzer.AnalyzeImports(bytes, extractedStrings);
+                    
 
 
                     if (rawByteCapabilties != null)
                         byteCapabilities.AddRange(rawByteCapabilties);
-                    if(ImportedCapabilities != null)
-                        imports.AddRange(ImportedCapabilities);
+                   
 
 
 
