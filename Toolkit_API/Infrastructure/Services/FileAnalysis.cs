@@ -1,4 +1,7 @@
-﻿using Toolkit_API.Application.Interfaces;
+﻿using Org.BouncyCastle.Utilities;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Domain.Entities.FileAnalysis;
 using Toolkit_API.Domain.Entities.Files;
 using Toolkit_API.Domain.Policies;
@@ -7,11 +10,11 @@ namespace Toolkit_API.Infrastructure.Services
     public class FileAnalysis : IFileAnalysis
     {
         private readonly ICapabilityAnalyzer _analyzer;
-
-        public FileAnalysis(ICapabilityAnalyzer analyzer)
+        private readonly IImportAnalyzer _importAnalyzer;
+        public FileAnalysis(ICapabilityAnalyzer analyzer, IImportAnalyzer importAnalyzer)
         {
             _analyzer = analyzer;
-
+            _importAnalyzer = importAnalyzer;
         }
         public async Task<string> Detect(byte[] bytes) => bytes switch
         {
@@ -55,33 +58,53 @@ namespace Toolkit_API.Infrastructure.Services
 
         }
         // This method should only be called from the "ComboDetection" Method
-        public Task<IEnumerable<Capability>> FindDetections(byte[] bytes, ExtractedStrings extractedStrings)
+        public IEnumerable<Capability> FindDetections(byte[] bytes, ExtractedStrings extractedStrings)
         {
-            var FoundCapabilies = new List<Capability>();
-
+            var byteCapabilities = new List<Capability>();
+            var imports = new List<Capability>();
             foreach (var entry in extractedStrings.Patterns)
             {
                 if (bytes.AsSpan().IndexOf(entry) != -1)
                 {
-                    var kys =  _analyzer.DetectCapabilites(entry);
+                    var rawByteCapabilties =  _analyzer.DetectCapabilites(entry);
+                    
 
-                    if (kys != null)
-                        FoundCapabilies.AddRange(kys);
+
+                    if (rawByteCapabilties != null)
+                        byteCapabilities.AddRange(rawByteCapabilties);
+                   
+
+
 
                 }
             }
 
+            imports.AddRange(byteCapabilities);
+            Debug.WriteLine(string.Join(", ",imports.Select(x => x.ToString())));
 
 
-            return Task.FromResult<IEnumerable<Capability>>(FoundCapabilies.Distinct());
+            return imports;
         }
+        public async Task <IEnumerable<Capability>> ImportAnalysis(string filePath, ExtractedStrings extractedStrings)
+        {
+            var fileBytes = await File.ReadAllBytesAsync(filePath);
 
+            var importList = new List<Capability>();
+            foreach(var entry in importList)
+            {
+                var imports = _importAnalyzer.AnalyzeImports(fileBytes, extractedStrings);
+                if(imports != null)
+                    importList.AddRange(imports);
+
+            }
+            return importList;
+        }
         public async Task<IEnumerable<Capability>> ComboDetection(string filePath, ExtractedStrings extractedStrings)
         {
             byte[] bytes = await File.ReadAllBytesAsync(filePath);
 
-            IEnumerable<Capability> result = await FindDetections(bytes, extractedStrings);
-
+            IEnumerable<Capability> result = FindDetections(bytes, extractedStrings);
+            
             return result;
 
 

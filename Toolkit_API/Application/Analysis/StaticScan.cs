@@ -20,6 +20,7 @@ namespace Toolkit_API.Application.Analysis
         private readonly IFileAnalysis _fileAnalysis;
         private readonly IResultRepository _resultRepo;
         private readonly ScoringAlgorithmn _scoringAlgoritmn;
+        private readonly IDetectionSourceBuilder _detectionSourceBuilder;
         public StaticScan(IFileScanRepo fileScanRepository,
             HashOps hashOps,
             ICallExternalAPI callExternalAPI,
@@ -28,7 +29,8 @@ namespace Toolkit_API.Application.Analysis
             ExtractedStrings extractedStrings,
             IFileAnalysis fileAnalysis,
             IResultRepository resultRepository,
-            ScoringAlgorithmn scoringAlgorithmn)
+            ScoringAlgorithmn scoringAlgorithmn,
+            IDetectionSourceBuilder detectionSourceBuilder)
         {
             _fileScanRepository = fileScanRepository;
             _hashOps = hashOps;
@@ -39,6 +41,7 @@ namespace Toolkit_API.Application.Analysis
             _fileAnalysis = fileAnalysis;
             _resultRepo = resultRepository;
             _scoringAlgoritmn = scoringAlgorithmn;
+            _detectionSourceBuilder = detectionSourceBuilder;
         }
         public async Task<ScanResult> ScanFile(string filepath, int userId)
         {
@@ -46,7 +49,7 @@ namespace Toolkit_API.Application.Analysis
             if (string.IsNullOrWhiteSpace(filepath))
                 return null;
 
-
+            var capabilities = new List<Capability>();
             filepath = Path.GetFullPath(filepath);
 
             Debug.WriteLine($"Full path of the file: {filepath}");
@@ -61,7 +64,7 @@ namespace Toolkit_API.Application.Analysis
             var Patterns = await _fileAnalysis.ComboDetection(filepath, _extractedStrings);
             Debug.WriteLine($"Patterns found: {Patterns?.Count() ?? 0}");
 
-            var capabilities = new List<Capability>();
+            
 
             if (Patterns != null && Patterns.Any())
             {
@@ -73,14 +76,25 @@ namespace Toolkit_API.Application.Analysis
                     }
                 }
             }
-
+            /*
             var uniqueCapabilities = capabilities.Distinct().ToList();
             if (uniqueCapabilities.Any())
             {
                 await _fileScanRepository.InsertCapabalities(File.FileHash, File.userId, uniqueCapabilities);
             }
+            var imports = await _fileAnalysis.ImportAnalysis(filepath, _extractedStrings);
+
+            foreach(var import in imports)
+            {
+
+            }*/
+
+            var Capabilities = await _detectionSourceBuilder.CreateContext(filepath, _extractedStrings);
+            
 
 
+            
+            
             Debug.WriteLine($"Inserted capabilities for file hash: {BitConverter.ToString(File.FileHash).Replace("-", "").ToLower()}");
             if (MalwareBazaarResult != null)
             {
@@ -94,13 +108,13 @@ namespace Toolkit_API.Application.Analysis
                     fileHash = File.FileHash,
                     fileName = File.FileName,
                     isMalwareBazaarMatch = 1,
-
+                    detectionSource = Capabilities
 
                 };
             }
             return new ScanResult
             {
-                capabilities = uniqueCapabilities,
+                capabilities = capabilities,
 
                 score = _scoringAlgoritmn
                         .CalculateScore(new ScanResult
@@ -108,6 +122,8 @@ namespace Toolkit_API.Application.Analysis
                 isMalwareBazaarMatch = 0, 
                 fileHash = File.FileHash,
                 fileName = File.FileName,
+                detectionSource = Capabilities
+             
             };
             
 

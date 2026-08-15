@@ -1,4 +1,5 @@
-﻿using Toolkit_API.Domain.Policies;
+﻿using Toolkit_API.Domain.Entities.FileAnalysis;
+using Toolkit_API.Domain.Policies;
 namespace Toolkit_API.Domain.Entities.Files
 {
     public enum RiskLevel { Low, Medium, High, Critical }
@@ -12,5 +13,6 @@ namespace Toolkit_API.Domain.Entities.Files
         public int isMalwareBazaarMatch { get; set; } // INT Beacause of sql server , 0 = false, 1 = true
         public double confidence { get; set; } = 0.0;
         public double severity { get; set; } = 0.0;
+        public IEnumerable<DetectionSource> detectionSource { get; set; }    
     }
 }

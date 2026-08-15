@@ -86,6 +86,24 @@ builder.Services.AddTransient<Insert>();
 builder.Services.AddTransient<Calculate_Risk_Level>();
 builder.Services.AddTransient<IFileHasher, FileHasher>();
 builder.Services.AddTransient<ScoringAlgorithmn>();
+builder.Services.AddTransient<IImportAnalyzer, ImportAnalyzer>();
+builder.Services.AddTransient<CapabilityRuleset>(options => new CapabilityRuleset(
+        Capability.None,
+        ["-"]
+    ));
+builder.Services.AddTransient<IDetectionSourceBuilder, DetectionSourceBuilder>();
+
+builder.Services.AddTransient<IDetectionSourceBuilder,DetectionSourceBuilder>(options => 
+    new DetectionSourceBuilder(options.GetRequiredService<IFileAnalysis>())
+);
+
+builder.Services.AddTransient<IImportAnalyzer, ImportAnalyzer>(options => 
+    new ImportAnalyzer(options.GetRequiredService<ICapabilityAnalyzer>())
+    
+);
+
+
+
 builder.Services.AddTransient<IScan, ScanService>(options =>
     new ScanService(options.GetRequiredService<IResultRepository>(), options.GetRequiredService<StaticScan>())
 );
@@ -111,7 +129,8 @@ builder.Services.AddTransient<StaticScan>(options =>
         options.GetRequiredService<ExtractedStrings>(),
         options.GetRequiredService<IFileAnalysis>(),
         options.GetRequiredService<IResultRepository>(),
-        options.GetRequiredService<ScoringAlgorithmn>()
+        options.GetRequiredService<ScoringAlgorithmn>(),
+        options.GetRequiredService<IDetectionSourceBuilder>()
     )
 );
 builder.Services.AddHangfire(options =>
@@ -147,7 +166,8 @@ builder.Services.AddTransient<IGenerateToken, TokenGenerator>(options =>
 
 builder.Services.AddTransient<IFileAnalysis, FileAnalysis>(options =>
     new FileAnalysis(
-        options.GetRequiredService<ICapabilityAnalyzer>()
+        options.GetRequiredService<ICapabilityAnalyzer>(),
+        options.GetRequiredService<IImportAnalyzer>()
     )
 );
 
