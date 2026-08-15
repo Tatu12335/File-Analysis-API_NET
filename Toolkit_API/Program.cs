@@ -91,6 +91,11 @@ builder.Services.AddTransient<CapabilityRuleset>(options => new CapabilityRulese
         Capability.None,
         ["-"]
     ));
+builder.Services.AddTransient<IDetectionSourceBuilder, DetectionSourceBuilder>();
+
+builder.Services.AddTransient<IDetectionSourceBuilder,DetectionSourceBuilder>(options => 
+    new DetectionSourceBuilder(options.GetRequiredService<IFileAnalysis>())
+);
 
 builder.Services.AddTransient<IImportAnalyzer, ImportAnalyzer>(options => 
     new ImportAnalyzer(options.GetRequiredService<ICapabilityAnalyzer>())
@@ -124,7 +129,8 @@ builder.Services.AddTransient<StaticScan>(options =>
         options.GetRequiredService<ExtractedStrings>(),
         options.GetRequiredService<IFileAnalysis>(),
         options.GetRequiredService<IResultRepository>(),
-        options.GetRequiredService<ScoringAlgorithmn>()
+        options.GetRequiredService<ScoringAlgorithmn>(),
+        options.GetRequiredService<IDetectionSourceBuilder>()
     )
 );
 builder.Services.AddHangfire(options =>
