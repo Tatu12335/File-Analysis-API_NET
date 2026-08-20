@@ -48,7 +48,7 @@ namespace Toolkit_API.Infrastructure.Services
             
             
             return new DetectionSource 
-            { result = CapabalityList };
+            { src = CapabalityList };
         }
     }
 }

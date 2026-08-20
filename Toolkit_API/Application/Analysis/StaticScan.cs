@@ -1,6 +1,7 @@
 ﻿using MimeKit.Cryptography;
 using System.Diagnostics;
 using Toolkit_API.Application.Application_Services.FileOperations;
+using Toolkit_API.Application.Calculators;
 using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Domain.Entities.FileAnalysis;
 using Toolkit_API.Domain.Entities.Files;
@@ -11,6 +12,7 @@ namespace Toolkit_API.Application.Analysis
 {
     public class StaticScan
     {
+        // Fix this dependency jungle !!!!!!!!
         private readonly IFileScanRepo _fileScanRepository;
         private readonly HashOps _hashOps;
         private readonly ICallExternalAPI _callExternalAPI;
@@ -62,35 +64,30 @@ namespace Toolkit_API.Application.Analysis
 
             var MalwareBazaarResult = await _callExternalAPI.CallAPI(File.FileHash, Environment.GetEnvironmentVariable("Malware_Bazaar_key"));
             var Patterns = await _fileAnalysis.ComboDetection(filepath, _extractedStrings);
+            var DetectionSource = await _detectionSourceBuilder.CreateContext(filepath, _extractedStrings);
             Debug.WriteLine($"Patterns found: {Patterns?.Count() ?? 0}");
 
-            
-
+            double confidence = 0.0;
+            double severity = 0.0;
             if (Patterns != null && Patterns.Any())
             {
                 foreach (var pattern in Patterns)
                 {
+
+                    severity = SeverityLookup.GetBaseSeverity(pattern);
+
+                    
                     if (pattern != null)
                     {
                         capabilities.AddRange(Patterns);
                     }
                 }
             }
-            /*
-            var uniqueCapabilities = capabilities.Distinct().ToList();
-            if (uniqueCapabilities.Any())
-            {
-                await _fileScanRepository.InsertCapabalities(File.FileHash, File.userId, uniqueCapabilities);
-            }
-            var imports = await _fileAnalysis.ImportAnalysis(filepath, _extractedStrings);
 
-            foreach(var import in imports)
-            {
-
-            }*/
-
-            var Capabilities = await _detectionSourceBuilder.CreateContext(filepath, _extractedStrings);
             
+            
+
+           
 
 
             
@@ -108,7 +105,8 @@ namespace Toolkit_API.Application.Analysis
                     fileHash = File.FileHash,
                     fileName = File.FileName,
                     isMalwareBazaarMatch = 1,
-                    detectionSource = Capabilities
+                    detectionSource = DetectionSource,
+                    severity = severity,
 
                 };
             }
@@ -122,7 +120,9 @@ namespace Toolkit_API.Application.Analysis
                 isMalwareBazaarMatch = 0, 
                 fileHash = File.FileHash,
                 fileName = File.FileName,
-                detectionSource = Capabilities
+                detectionSource = DetectionSource,
+                severity = severity,
+                confidence = 
              
             };
             

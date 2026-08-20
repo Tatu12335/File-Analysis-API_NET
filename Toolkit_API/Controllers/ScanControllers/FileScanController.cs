@@ -52,9 +52,12 @@ namespace Toolkit_API.Controllers.ScanControllers
              var StringCapabilties = result.capabilities
                 .Select(x => x.ToString())
                 .ToList();
-
+            var StringSrc = result.detectionSource
+                .Select(x => x.ToString())
+                .ToList();
+                
             
-            return Ok(new { RawScanResult = result, StringCapabilties});
+            return Ok(new { RawScanResult = result,capabilitesAsString = StringCapabilties,srcAsString = StringSrc});
         }
 
 
