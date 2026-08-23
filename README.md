@@ -15,3 +15,4 @@ Right now working on a job queue API, for this project. i decided to do that, be
 • Add tests [ Load,latency,etc ]
 • Finish the analysis pipeline [ Might take awhile tho ]
 • Make a better solution to the capability analyzer, so tldr : Fix the if statement hell that ive built, i think a kind of data ruleset would do the trick maybe.
+• Make the methods for filescanrepo, that it needs to insert all the new stuff that's comming out with the v2
