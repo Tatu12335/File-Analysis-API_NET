@@ -21,8 +21,8 @@ namespace Toolkit_API.Application.Analysis
         private readonly ExtractedStrings _extractedStrings;
         private readonly IFileAnalysis _fileAnalysis;
         private readonly IResultRepository _resultRepo;
-        private readonly ScoringAlgorithmn _scoringAlgoritmn;
         private readonly IDetectionSourceBuilder _detectionSourceBuilder;
+        private readonly ConfidenceANDSeverityCalculator _confidenceANDSeverityCalculator;
         public StaticScan(IFileScanRepo fileScanRepository,
             HashOps hashOps,
             ICallExternalAPI callExternalAPI,
@@ -31,8 +31,8 @@ namespace Toolkit_API.Application.Analysis
             ExtractedStrings extractedStrings,
             IFileAnalysis fileAnalysis,
             IResultRepository resultRepository,
-            ScoringAlgorithmn scoringAlgorithmn,
-            IDetectionSourceBuilder detectionSourceBuilder)
+            IDetectionSourceBuilder detectionSourceBuilder,
+            ConfidenceANDSeverityCalculator confidenceANDSeverityCalculator)
         {
             _fileScanRepository = fileScanRepository;
             _hashOps = hashOps;
@@ -42,8 +42,8 @@ namespace Toolkit_API.Application.Analysis
             _extractedStrings = extractedStrings;
             _fileAnalysis = fileAnalysis;
             _resultRepo = resultRepository;
-            _scoringAlgoritmn = scoringAlgorithmn;
             _detectionSourceBuilder = detectionSourceBuilder;
+            _confidenceANDSeverityCalculator = confidenceANDSeverityCalculator;
         }
         public async Task<ScanResult> ScanFile(string filepath, int userId)
         {
@@ -84,7 +84,18 @@ namespace Toolkit_API.Application.Analysis
                 }
             }
 
-            
+
+            foreach(var i in DetectionSource)
+            {
+                foreach(var j in i.src)
+                {
+                    var cap = j.Key;
+                    var src = j.Value;
+
+                    _confidenceANDSeverityCalculator.CalculateConfidence(src);
+                }
+            }
+
             
 
            
@@ -114,15 +125,12 @@ namespace Toolkit_API.Application.Analysis
             {
                 capabilities = capabilities,
 
-                score = _scoringAlgoritmn
-                        .CalculateScore(new ScanResult
-                        { capabilities = capabilities, confidence = File.Score, severity = File.Score }),
+                        
                 isMalwareBazaarMatch = 0, 
                 fileHash = File.FileHash,
                 fileName = File.FileName,
                 detectionSource = DetectionSource,
                 severity = severity,
-                confidence = 
              
             };
             

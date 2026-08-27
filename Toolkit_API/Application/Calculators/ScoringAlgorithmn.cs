@@ -4,10 +4,10 @@ namespace Toolkit_API.Application.Calculators
 {
     public class ScoringAlgorithmn
     {
-        public double CalculateScore(ScanResult scanResult)
+        public double CalculateScore(double confidence, double severity)
         {
 
-            double score = scanResult.confidence * 0.6 + scanResult.severity * 0.4;
+            double score = confidence * 0.6 + severity * 0.4;
             score = Math.Round(score, 2);
             return score;
         }

@@ -88,6 +88,9 @@ builder.Services.AddTransient<Calculate_Risk_Level>();
 builder.Services.AddTransient<IFileHasher, FileHasher>();
 builder.Services.AddTransient<ScoringAlgorithmn>();
 builder.Services.AddTransient<IImportAnalyzer, ImportAnalyzer>();
+builder.Services.AddTransient<ConfidenceANDSeverityCalculator>();
+
+
 builder.Services.AddTransient<CapabilityRuleset>(options => new CapabilityRuleset(
         Capability.None,
         ["-"]
@@ -130,8 +133,8 @@ builder.Services.AddTransient<StaticScan>(options =>
         options.GetRequiredService<ExtractedStrings>(),
         options.GetRequiredService<IFileAnalysis>(),
         options.GetRequiredService<IResultRepository>(),
-        options.GetRequiredService<ScoringAlgorithmn>(),
-        options.GetRequiredService<IDetectionSourceBuilder>()
+        options.GetRequiredService<IDetectionSourceBuilder>(),
+        options.GetRequiredService<ConfidenceANDSeverityCalculator>()
     )
 );
 builder.Services.AddHangfire(options =>
