@@ -23,6 +23,7 @@ namespace Toolkit_API.Application.Analysis
         private readonly IResultRepository _resultRepo;
         private readonly IDetectionSourceBuilder _detectionSourceBuilder;
         private readonly ConfidenceANDSeverityCalculator _confidenceANDSeverityCalculator;
+        private readonly ScoringAlgorithmn _scoringAlgorithmn;
         public StaticScan(IFileScanRepo fileScanRepository,
             HashOps hashOps,
             ICallExternalAPI callExternalAPI,
@@ -32,7 +33,8 @@ namespace Toolkit_API.Application.Analysis
             IFileAnalysis fileAnalysis,
             IResultRepository resultRepository,
             IDetectionSourceBuilder detectionSourceBuilder,
-            ConfidenceANDSeverityCalculator confidenceANDSeverityCalculator)
+            ConfidenceANDSeverityCalculator confidenceANDSeverityCalculator,
+            ScoringAlgorithmn scoringAlgorithmn)    
         {
             _fileScanRepository = fileScanRepository;
             _hashOps = hashOps;
@@ -44,6 +46,7 @@ namespace Toolkit_API.Application.Analysis
             _resultRepo = resultRepository;
             _detectionSourceBuilder = detectionSourceBuilder;
             _confidenceANDSeverityCalculator = confidenceANDSeverityCalculator;
+            _scoringAlgorithmn = scoringAlgorithmn;
         }
         public async Task<ScanResult> ScanFile(string filepath, int userId)
         {
@@ -67,14 +70,13 @@ namespace Toolkit_API.Application.Analysis
             var DetectionSource = await _detectionSourceBuilder.CreateContext(filepath, _extractedStrings);
             Debug.WriteLine($"Patterns found: {Patterns?.Count() ?? 0}");
 
-            double confidence = 0.0;
-            double severity = 0.0;
+            
             if (Patterns != null && Patterns.Any())
             {
                 foreach (var pattern in Patterns)
                 {
 
-                    severity = SeverityLookup.GetBaseSeverity(pattern);
+                    
 
                     
                     if (pattern != null)
@@ -84,25 +86,15 @@ namespace Toolkit_API.Application.Analysis
                 }
             }
 
-
-            foreach(var i in DetectionSource)
-            {
-                foreach(var j in i.src)
-                {
-                    var cap = j.Key;
-                    var src = j.Value;
-
-                    _confidenceANDSeverityCalculator.CalculateConfidence(src);
-                }
-            }
-
-            
-
-           
+            var confidence = _confidenceANDSeverityCalculator.CalculateOverallConfidence(DetectionSource);
+            var severity = _confidenceANDSeverityCalculator.CalculateOverallSeverity(DetectionSource);
+            var score = _scoringAlgorithmn.CalculateScore(confidence, severity);
 
 
-            
-            
+
+
+
+
             Debug.WriteLine($"Inserted capabilities for file hash: {BitConverter.ToString(File.FileHash).Replace("-", "").ToLower()}");
             if (MalwareBazaarResult != null)
             {
@@ -112,20 +104,21 @@ namespace Toolkit_API.Application.Analysis
                 new ScanResult
                 {
                     capabilities = capabilities,
-                    score = File.Score,
+                    score = score,
                     fileHash = File.FileHash,
                     fileName = File.FileName,
                     isMalwareBazaarMatch = 1,
                     detectionSource = DetectionSource,
                     severity = severity,
+                    confidence = confidence
 
                 };
             }
             return new ScanResult
             {
                 capabilities = capabilities,
-
-                        
+                score = score,
+                confidence = confidence,
                 isMalwareBazaarMatch = 0, 
                 fileHash = File.FileHash,
                 fileName = File.FileName,

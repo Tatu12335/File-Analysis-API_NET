@@ -36,15 +36,35 @@ namespace Toolkit_API.Application.Calculators
 
             return scoreList;
         }
-        public double CalculateSeverity(Capability cap)
+        public double CalculateOverallConfidence(IEnumerable<DetectionSource> src)
         {
-            var severity = SeverityLookup.GetBaseSeverity(cap);
-            return severity;
+            if (src == null || !src.Any())
+                return 0.0;
+            var confidences = src.Select(f => f.src.Values.Select(cap => ConfidenceLookup.GetBaseConfidence(cap))).SelectMany(s => s).ToList();
+            
+            var max = confidences.First();
+            
+            var additionalConfidences = confidences.Skip(1)
+                .Select((c, index) => c * Math.Pow(0.5, index + 1))
+                .Sum();
+
+            return Math.Min(max + additionalConfidences, 1.0); // Cap the confidence at 1
         }
-        public double CalculateConfidence(Source src)
+        public double CalculateOverallSeverity(IEnumerable<DetectionSource> src)
         {
-            var confidence = ConfidenceLookup.GetBaseConfidence(src);
-            return confidence;
+            if (src == null || !src.Any())
+                return 0.0;
+            
+            var severities = src.Select(f => f.src.Keys.Select(cap => SeverityLookup.GetBaseSeverity(cap))).SelectMany(s => s).ToList();
+
+            var max = severities.First();
+
+            var additionalSeverities = severities.Skip(1)
+                .Select((s,index) => s * Math.Pow(0.5, index + 1))
+                .Sum();
+
+            return Math.Min(max + additionalSeverities, 10.0); // Cap the severity at 10
+
         }
         
     }
