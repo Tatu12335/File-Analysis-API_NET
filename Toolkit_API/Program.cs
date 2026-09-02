@@ -9,6 +9,7 @@ using Toolkit_API.Application.Analysis;
 using Toolkit_API.Application.App_Services.User;
 using Toolkit_API.Application.Application_Services.FileOperations;
 using Toolkit_API.Application.Application_Services.Operations;
+using Toolkit_API.Application.Calculators;
 using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Domain.Entities.FileAnalysis;
 using Toolkit_API.Domain.Entities.Files;
@@ -87,6 +88,9 @@ builder.Services.AddTransient<Calculate_Risk_Level>();
 builder.Services.AddTransient<IFileHasher, FileHasher>();
 builder.Services.AddTransient<ScoringAlgorithmn>();
 builder.Services.AddTransient<IImportAnalyzer, ImportAnalyzer>();
+builder.Services.AddTransient<ConfidenceANDSeverityCalculator>();
+
+
 builder.Services.AddTransient<CapabilityRuleset>(options => new CapabilityRuleset(
         Capability.None,
         ["-"]
@@ -129,8 +133,9 @@ builder.Services.AddTransient<StaticScan>(options =>
         options.GetRequiredService<ExtractedStrings>(),
         options.GetRequiredService<IFileAnalysis>(),
         options.GetRequiredService<IResultRepository>(),
-        options.GetRequiredService<ScoringAlgorithmn>(),
-        options.GetRequiredService<IDetectionSourceBuilder>()
+        options.GetRequiredService<IDetectionSourceBuilder>(),
+        options.GetRequiredService<ConfidenceANDSeverityCalculator>(),
+        options.GetRequiredService<ScoringAlgorithmn>()
     )
 );
 builder.Services.AddHangfire(options =>

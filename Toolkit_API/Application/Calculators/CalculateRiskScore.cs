@@ -1,7 +1,7 @@
 ﻿using Toolkit_API.Domain.Entities.Files;
 using Toolkit_API.Domain.Policies;
 
-namespace Toolkit_API.Application.Analysis
+namespace Toolkit_API.Application.Calculators
 {
     public class CalculateRiskScore
     {
