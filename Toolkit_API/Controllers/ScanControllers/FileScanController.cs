@@ -49,12 +49,15 @@ namespace Toolkit_API.Controllers.ScanControllers
 
             var result = await _resultRepository.GetResultAsync(jobId);
            
-             var StringCapabilties = result.capabilities
+            /* var StringCapabilties = result.capabilities
                 .Select(x => x.ToString())
                 .ToList();
-
+            var StringSrc = result.detectionSource
+                .Select(x => x.ToString())
+                .ToList();*/
+                
             
-            return Ok(new { RawScanResult = result, StringCapabilties});
+            return Ok(new { RawScanResult = result});
         }
 
 

@@ -12,6 +12,6 @@ namespace Toolkit_API.Domain.Entities.FileAnalysis
     }
     public class DetectionSource
     {
-        public Dictionary<Capability,Source> result { get; set; } = new Dictionary<Capability,Source>();
+        public Dictionary<Capability,Source> src { get; set; } = new Dictionary<Capability,Source>();
     }
 }

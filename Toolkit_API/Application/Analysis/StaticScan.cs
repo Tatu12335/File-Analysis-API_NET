@@ -1,6 +1,7 @@
 ﻿using MimeKit.Cryptography;
 using System.Diagnostics;
 using Toolkit_API.Application.Application_Services.FileOperations;
+using Toolkit_API.Application.Calculators;
 using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Domain.Entities.FileAnalysis;
 using Toolkit_API.Domain.Entities.Files;
@@ -11,6 +12,7 @@ namespace Toolkit_API.Application.Analysis
 {
     public class StaticScan
     {
+        // Fix this dependency jungle !!!!!!!!
         private readonly IFileScanRepo _fileScanRepository;
         private readonly HashOps _hashOps;
         private readonly ICallExternalAPI _callExternalAPI;
@@ -19,8 +21,9 @@ namespace Toolkit_API.Application.Analysis
         private readonly ExtractedStrings _extractedStrings;
         private readonly IFileAnalysis _fileAnalysis;
         private readonly IResultRepository _resultRepo;
-        private readonly ScoringAlgorithmn _scoringAlgoritmn;
         private readonly IDetectionSourceBuilder _detectionSourceBuilder;
+        private readonly ConfidenceANDSeverityCalculator _confidenceANDSeverityCalculator;
+        private readonly ScoringAlgorithmn _scoringAlgorithmn;
         public StaticScan(IFileScanRepo fileScanRepository,
             HashOps hashOps,
             ICallExternalAPI callExternalAPI,
@@ -29,8 +32,9 @@ namespace Toolkit_API.Application.Analysis
             ExtractedStrings extractedStrings,
             IFileAnalysis fileAnalysis,
             IResultRepository resultRepository,
-            ScoringAlgorithmn scoringAlgorithmn,
-            IDetectionSourceBuilder detectionSourceBuilder)
+            IDetectionSourceBuilder detectionSourceBuilder,
+            ConfidenceANDSeverityCalculator confidenceANDSeverityCalculator,
+            ScoringAlgorithmn scoringAlgorithmn)    
         {
             _fileScanRepository = fileScanRepository;
             _hashOps = hashOps;
@@ -40,8 +44,9 @@ namespace Toolkit_API.Application.Analysis
             _extractedStrings = extractedStrings;
             _fileAnalysis = fileAnalysis;
             _resultRepo = resultRepository;
-            _scoringAlgoritmn = scoringAlgorithmn;
             _detectionSourceBuilder = detectionSourceBuilder;
+            _confidenceANDSeverityCalculator = confidenceANDSeverityCalculator;
+            _scoringAlgorithmn = scoringAlgorithmn;
         }
         public async Task<ScanResult> ScanFile(string filepath, int userId)
         {
@@ -62,39 +67,34 @@ namespace Toolkit_API.Application.Analysis
 
             var MalwareBazaarResult = await _callExternalAPI.CallAPI(File.FileHash, Environment.GetEnvironmentVariable("Malware_Bazaar_key"));
             var Patterns = await _fileAnalysis.ComboDetection(filepath, _extractedStrings);
+            var DetectionSource = await _detectionSourceBuilder.CreateContext(filepath, _extractedStrings);
             Debug.WriteLine($"Patterns found: {Patterns?.Count() ?? 0}");
 
             
-
             if (Patterns != null && Patterns.Any())
             {
                 foreach (var pattern in Patterns)
                 {
+
+                    
+
+                    
                     if (pattern != null)
                     {
                         capabilities.AddRange(Patterns);
                     }
                 }
             }
-            /*
-            var uniqueCapabilities = capabilities.Distinct().ToList();
-            if (uniqueCapabilities.Any())
-            {
-                await _fileScanRepository.InsertCapabalities(File.FileHash, File.userId, uniqueCapabilities);
-            }
-            var imports = await _fileAnalysis.ImportAnalysis(filepath, _extractedStrings);
 
-            foreach(var import in imports)
-            {
-
-            }*/
-
-            var Capabilities = await _detectionSourceBuilder.CreateContext(filepath, _extractedStrings);
-            
+            var confidence = _confidenceANDSeverityCalculator.CalculateOverallConfidence(DetectionSource);
+            var severity = _confidenceANDSeverityCalculator.CalculateOverallSeverity(DetectionSource);
+            var score = _scoringAlgorithmn.CalculateScore(confidence, severity);
 
 
-            
-            
+
+
+
+
             Debug.WriteLine($"Inserted capabilities for file hash: {BitConverter.ToString(File.FileHash).Replace("-", "").ToLower()}");
             if (MalwareBazaarResult != null)
             {
@@ -104,25 +104,26 @@ namespace Toolkit_API.Application.Analysis
                 new ScanResult
                 {
                     capabilities = capabilities,
-                    score = File.Score,
+                    score = score,
                     fileHash = File.FileHash,
                     fileName = File.FileName,
                     isMalwareBazaarMatch = 1,
-                    detectionSource = Capabilities
+                    detectionSource = DetectionSource,
+                    severity = severity,
+                    confidence = confidence
 
                 };
             }
             return new ScanResult
             {
                 capabilities = capabilities,
-
-                score = _scoringAlgoritmn
-                        .CalculateScore(new ScanResult
-                        { capabilities = capabilities, confidence = File.Score, severity = File.Score }),
+                score = score,
+                confidence = confidence,
                 isMalwareBazaarMatch = 0, 
                 fileHash = File.FileHash,
                 fileName = File.FileName,
-                detectionSource = Capabilities
+                detectionSource = DetectionSource,
+                severity = severity,
              
             };
             
