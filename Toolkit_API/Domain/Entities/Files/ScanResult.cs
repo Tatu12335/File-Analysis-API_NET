@@ -1,4 +1,5 @@
-﻿using Toolkit_API.Domain.Entities.FileAnalysis;
+﻿using System.Text.Json.Serialization;
+using Toolkit_API.Domain.Entities.FileAnalysis;
 using Toolkit_API.Domain.Policies;
 namespace Toolkit_API.Domain.Entities.Files
 {

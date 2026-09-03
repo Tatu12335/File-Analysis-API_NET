@@ -1,6 +1,7 @@
 using Dapper;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using System.Text;
@@ -205,6 +206,8 @@ builder.Services.AddCors(options =>
 builder.Services.Configure<KestrelServerOptions>(options =>
     options.Limits.KeepAliveTimeout = TimeSpan.FromMinutes(10)
 );
+
+
 
 var app = builder.Build();
 
