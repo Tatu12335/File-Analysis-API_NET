@@ -68,16 +68,29 @@ namespace Toolkit_API.Application.Analysis
             var MalwareBazaarResult = await _callExternalAPI.CallAPI(File.FileHash, Environment.GetEnvironmentVariable("Malware_Bazaar_key"));
             var Patterns = await _fileAnalysis.ComboDetection(filepath, _extractedStrings);
             var DetectionSource = await _detectionSourceBuilder.CreateContext(filepath, _extractedStrings);
+            
+            if(!DetectionSource.Any())
+                return new ScanResult
+                { 
+                    score = 0,
+                    fileHash = File.FileHash,
+                    fileName = File.FileName,
+                    isMalwareBazaarMatch = 0,
+                    Sources = DetectionSource,
+                    severity = 0,
+                    confidence = 0
+                };
+
+
             Debug.WriteLine($"Patterns found: {Patterns?.Count() ?? 0}");
 
-            
+            // you might be thinking, was this really necessary? yes, it was.
+            // I want to make sure that the patterns are not null and that they contain at least one element before proceeding with the loop.
+            // This is a defensive programming practice to avoid potential null reference exceptions or unnecessary iterations over an empty collection.
             if (Patterns != null && Patterns.Any())
             {
                 foreach (var pattern in Patterns)
                 {
-
-                    
-
                     
                     if (pattern != null)
                     {
@@ -103,12 +116,11 @@ namespace Toolkit_API.Application.Analysis
 
                 new ScanResult
                 {
-                    capabilities = capabilities,
                     score = score,
                     fileHash = File.FileHash,
                     fileName = File.FileName,
                     isMalwareBazaarMatch = 1,
-                    detectionSource = DetectionSource,
+                    Sources = DetectionSource,
                     severity = severity,
                     confidence = confidence
 
@@ -116,13 +128,12 @@ namespace Toolkit_API.Application.Analysis
             }
             return new ScanResult
             {
-                capabilities = capabilities,
                 score = score,
                 confidence = confidence,
                 isMalwareBazaarMatch = 0, 
                 fileHash = File.FileHash,
                 fileName = File.FileName,
-                detectionSource = DetectionSource,
+                Sources = DetectionSource,
                 severity = severity,
              
             };

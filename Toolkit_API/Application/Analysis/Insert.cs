@@ -16,6 +16,7 @@ namespace Toolkit_API.Application.Analysis
         {
             if (string.IsNullOrWhiteSpace(filePath))
                 return null;
+
             filePath = Path.GetFullPath(filePath);
             var fileHash = await _fileScanRepository.InsertAll(filePath, userId, score);
             return fileHash;
