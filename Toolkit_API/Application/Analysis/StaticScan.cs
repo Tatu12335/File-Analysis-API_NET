@@ -68,10 +68,25 @@ namespace Toolkit_API.Application.Analysis
             var MalwareBazaarResult = await _callExternalAPI.CallAPI(File.FileHash, Environment.GetEnvironmentVariable("Malware_Bazaar_key"));
             var Patterns = await _fileAnalysis.ComboDetection(filepath, _extractedStrings);
             var DetectionSource = await _detectionSourceBuilder.CreateContext(filepath, _extractedStrings);
+            
+            if(!DetectionSource.Any())
+                return new ScanResult
+                {
+                    capabilities = new List<Capability>(),
+                    score = 0,
+                    fileHash = File.FileHash,
+                    fileName = File.FileName,
+                    isMalwareBazaarMatch = 0,
+                    detectionSource = DetectionSource,
+                    severity = 0,
+                    confidence = 0
+                };
+
+
             Debug.WriteLine($"Patterns found: {Patterns?.Count() ?? 0}");
 
             
-            if (Patterns != null && Patterns.Any())
+            /*if (Patterns != null && Patterns.Any())
             {
                 foreach (var pattern in Patterns)
                 {
@@ -84,7 +99,7 @@ namespace Toolkit_API.Application.Analysis
                         capabilities.AddRange(Patterns);
                     }
                 }
-            }
+            }*/
 
             var confidence = _confidenceANDSeverityCalculator.CalculateOverallConfidence(DetectionSource);
             var severity = _confidenceANDSeverityCalculator.CalculateOverallSeverity(DetectionSource);
@@ -103,7 +118,7 @@ namespace Toolkit_API.Application.Analysis
 
                 new ScanResult
                 {
-                    capabilities = capabilities,
+                    capabilities = Patterns,
                     score = score,
                     fileHash = File.FileHash,
                     fileName = File.FileName,

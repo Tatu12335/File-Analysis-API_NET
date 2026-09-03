@@ -81,7 +81,6 @@ builder.Services.AddTransient<HandleResult>();
 builder.Services.AddTransient<FolderInfo>();
 builder.Services.AddTransient<IHandleUploadFolder, HandleUploadFolder>();
 builder.Services.AddTransient<IhangfireService, HangfireService>();
-builder.Services.AddTransient<DetectionResult>();
 builder.Services.AddTransient<ICapabilityAnalyzer, CapabilityAnalyzer>();
 builder.Services.AddTransient<Insert>();
 builder.Services.AddTransient<Calculate_Risk_Level>();
