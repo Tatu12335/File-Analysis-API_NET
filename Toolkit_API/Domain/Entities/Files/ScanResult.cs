@@ -13,8 +13,8 @@ namespace Toolkit_API.Domain.Entities.Files
         public double confidence { get; set; } = 0.0;
         public double severity { get; set; } = 0.0;
         public RiskLevel riskLevel { get; set; } = RiskLevel.Low;
-        public IEnumerable<Capability> capabilities { get; set; } = new List<Capability>();
-        public IEnumerable<DetectionSource> detectionSource { get; set; } 
+        //public IEnumerable<Capability> capabilities { get; set; } = new List<Capability>();
+        public IEnumerable<DetectionSource> Sources { get; set; } 
         
     }
 }

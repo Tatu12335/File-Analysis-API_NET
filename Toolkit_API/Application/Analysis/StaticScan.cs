@@ -71,13 +71,12 @@ namespace Toolkit_API.Application.Analysis
             
             if(!DetectionSource.Any())
                 return new ScanResult
-                {
-                    capabilities = new List<Capability>(),
+                { 
                     score = 0,
                     fileHash = File.FileHash,
                     fileName = File.FileName,
                     isMalwareBazaarMatch = 0,
-                    detectionSource = DetectionSource,
+                    Sources = DetectionSource,
                     severity = 0,
                     confidence = 0
                 };
@@ -117,12 +116,11 @@ namespace Toolkit_API.Application.Analysis
 
                 new ScanResult
                 {
-                    capabilities = capabilities,
                     score = score,
                     fileHash = File.FileHash,
                     fileName = File.FileName,
                     isMalwareBazaarMatch = 1,
-                    detectionSource = DetectionSource,
+                    Sources = DetectionSource,
                     severity = severity,
                     confidence = confidence
 
@@ -130,13 +128,12 @@ namespace Toolkit_API.Application.Analysis
             }
             return new ScanResult
             {
-                capabilities = capabilities,
                 score = score,
                 confidence = confidence,
                 isMalwareBazaarMatch = 0, 
                 fileHash = File.FileHash,
                 fileName = File.FileName,
-                detectionSource = DetectionSource,
+                Sources = DetectionSource,
                 severity = severity,
              
             };
