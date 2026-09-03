@@ -85,21 +85,20 @@ namespace Toolkit_API.Application.Analysis
 
             Debug.WriteLine($"Patterns found: {Patterns?.Count() ?? 0}");
 
-            
-            /*if (Patterns != null && Patterns.Any())
+            // you might be thinking, was this really necessary? yes, it was.
+            // I want to make sure that the patterns are not null and that they contain at least one element before proceeding with the loop.
+            // This is a defensive programming practice to avoid potential null reference exceptions or unnecessary iterations over an empty collection.
+            if (Patterns != null && Patterns.Any())
             {
                 foreach (var pattern in Patterns)
                 {
-
-                    
-
                     
                     if (pattern != null)
                     {
                         capabilities.AddRange(Patterns);
                     }
                 }
-            }*/
+            }
 
             var confidence = _confidenceANDSeverityCalculator.CalculateOverallConfidence(DetectionSource);
             var severity = _confidenceANDSeverityCalculator.CalculateOverallSeverity(DetectionSource);
@@ -118,7 +117,7 @@ namespace Toolkit_API.Application.Analysis
 
                 new ScanResult
                 {
-                    capabilities = Patterns,
+                    capabilities = capabilities,
                     score = score,
                     fileHash = File.FileHash,
                     fileName = File.FileName,
