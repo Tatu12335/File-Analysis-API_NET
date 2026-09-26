@@ -76,8 +76,8 @@ builder.Services.AddTransient<HandleResult>();
 builder.Services.AddTransient<IFileAnalysis, FileAnalysis>();
 builder.Services.AddTransient<ExtractedStrings>();
 builder.Services.AddTransient<ZipPolicies>();
-builder.Services.AddTransient<IZipHandler, HandleZip>();
-builder.Services.AddTransient<HandleZip>();
+builder.Services.AddTransient<IZipHandler, ZipExtractionService>();
+builder.Services.AddTransient<ZipExtractionService>();
 builder.Services.AddTransient<HandleResult>();
 builder.Services.AddTransient<FolderInfo>();
 builder.Services.AddTransient<IHandleUploadFolder, HandleUploadFolder>();
@@ -109,7 +109,7 @@ builder.Services.AddTransient<IImportAnalyzer, ImportAnalyzer>(options =>
 
 
 builder.Services.AddTransient<IScan, ScanService>(options =>
-    new ScanService(options.GetRequiredService<IResultRepository>(), options.GetRequiredService<StaticScan>())
+    new ScanService(options.GetRequiredService<IResultRepository>(), options.GetRequiredService<ScanOrhcesrator>())
 );
 builder.Services.AddTransient<IResultRepository, ResultRepository>(options =>
     new ResultRepository(connetionString)
@@ -123,8 +123,8 @@ builder.Services.AddTransient<HashOps>(options =>
     )
 
 );
-builder.Services.AddTransient<StaticScan>(options =>
-    new StaticScan(
+builder.Services.AddTransient<ScanOrhcesrator>(options =>
+    new ScanOrhcesrator(
         options.GetRequiredService<IFileScanRepo>(),
         options.GetRequiredService<HashOps>(),
         options.GetRequiredService<ICallExternalAPI>(),
@@ -160,9 +160,9 @@ builder.Services.AddTransient<IAdminRepo, AdminRepository>(options =>
     new AdminRepository(connetionString)
 );
 
-builder.Services.AddTransient<HandleZIP>(options =>
-    new HandleZIP(
-    options.GetRequiredService<HandleZip>(),
+builder.Services.AddTransient<ZipOrchestrator>(options =>
+    new ZipOrchestrator(
+    options.GetRequiredService<ZipExtractionService>(),
     options.GetRequiredService<ZipPolicies>())
 );
 

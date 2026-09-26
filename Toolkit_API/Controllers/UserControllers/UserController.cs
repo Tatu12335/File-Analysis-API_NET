@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Toolkit_API.Application.App_Services.User;
+using Toolkit_API.Application.DTOs.UserDTOs;
 using Toolkit_API.Application.Interfaces;
-using Toolkit_API.DTOs.UserDTOs;
 
 namespace Toolkit_API.Controllers.UserControllers
 {

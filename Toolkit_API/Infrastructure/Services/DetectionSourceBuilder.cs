@@ -14,6 +14,7 @@ namespace Toolkit_API.Infrastructure.Services
         }
         public async Task<IEnumerable<DetectionSource>> CreateContext(string filepath, ExtractedStrings extractedStrings)
         {
+            
             var imports = await _fileAnalysis.ImportAnalysis(filepath, extractedStrings);
             var ComboFindings = await _fileAnalysis.ComboDetection(filepath, extractedStrings);
             var PlainFindings = new List<DetectionSource>();
