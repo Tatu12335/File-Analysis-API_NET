@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 using Toolkit_API.Application.App_Services.User;
-using Toolkit_API.DTOs.UserDTOs;
+using Toolkit_API.Application.DTOs.UserDTOs;
 
 namespace Toolkit_API.Controllers.AuthControllers
 {

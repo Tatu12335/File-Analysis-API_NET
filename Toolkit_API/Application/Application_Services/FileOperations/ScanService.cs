@@ -7,8 +7,8 @@ namespace Toolkit_API.Application.Application_Services.FileOperations
     public class ScanService : IScan
     {
         private readonly IResultRepository _resultRepository;
-        private readonly StaticScan _staticScan;
-        public ScanService(IResultRepository resultRepository, StaticScan staticScan)
+        private readonly ScanOrhcesrator _staticScan;
+        public ScanService(IResultRepository resultRepository, ScanOrhcesrator staticScan)
         {
             _resultRepository = resultRepository;
             _staticScan = staticScan;

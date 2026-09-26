@@ -1,5 +1,5 @@
-﻿using Toolkit_API.Application.Interfaces;
-using Toolkit_API.DTOs.UserDTOs;
+﻿using Toolkit_API.Application.DTOs.UserDTOs;
+using Toolkit_API.Application.Interfaces;
 
 namespace Toolkit_API.Application.App_Services.User
 {

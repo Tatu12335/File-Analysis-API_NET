@@ -1,6 +1,6 @@
-﻿using Toolkit_API.Application.Interfaces;
+﻿using Toolkit_API.Application.DTOs.UserDTOs;
+using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Domain.Entities.Users;
-using Toolkit_API.DTOs.UserDTOs;
 
 namespace Toolkit_API.Application.App_Services.User
 {
