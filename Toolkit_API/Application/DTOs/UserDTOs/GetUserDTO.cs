@@ -1,15 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Toolkit_API.DTOs.UserDTOs
+namespace Toolkit_API.Application.DTOs.UserDTOs
 {
-    public class LoginDTO
+    public class GetUserDTO
     {
         [Required]
         public string username { get; set; }
-        [Required]
-        public string password { get; set; }
-
-
-
     }
 }
