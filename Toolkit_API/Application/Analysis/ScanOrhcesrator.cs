@@ -10,7 +10,7 @@ using Toolkit_API.Middleware;
 
 namespace Toolkit_API.Application.Analysis
 {
-    public class StaticScan
+    public class ScanOrhcesrator
     {
         // Fix this dependency jungle !!!!!!!!
         private readonly IFileScanRepo _fileScanRepository;
@@ -25,7 +25,7 @@ namespace Toolkit_API.Application.Analysis
         private readonly ConfidenceANDSeverityCalculator _confidenceANDSeverityCalculator;
         private readonly ScoringAlgorithmn _scoringAlgorithmn;
         private readonly Insert _insert;
-        public StaticScan(IFileScanRepo fileScanRepository,
+        public ScanOrhcesrator(IFileScanRepo fileScanRepository,
             HashOps hashOps,
             ICallExternalAPI callExternalAPI,
             Calculate_Risk_Level risk_Level,

@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Diagnostics;
 using Toolkit_API.Application.Analysis;
+using Toolkit_API.Application.DTOs.FileDTOs;
 using Toolkit_API.Application.Interfaces;
 using Toolkit_API.Domain.Entities.Files;
-using Toolkit_API.DTOs.FIleDTOs;
 using Toolkit_API.Middleware;
 
 namespace Toolkit_API.Controllers.ScanControllers
@@ -19,10 +19,10 @@ namespace Toolkit_API.Controllers.ScanControllers
 
 
         private readonly IhangfireService _HangfireService;
-        private readonly StaticScan _scan;
+        private readonly ScanOrhcesrator _scan;
         private readonly IResultRepository _resultRepository;
         private readonly IScan _ScannerService;
-        public FileScanController(IhangfireService hangfireService, StaticScan scan, IResultRepository resultRepository, IScan scannerService)
+        public FileScanController(IhangfireService hangfireService, ScanOrhcesrator scan, IResultRepository resultRepository, IScan scannerService)
         {
             _HangfireService = hangfireService;
             _scan = scan;
